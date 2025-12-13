@@ -5,6 +5,7 @@
 # 0.1.3
 
 - Table last cell bottom border color reset to transparent.
+- Add `onHide` callback to NotificationOptions and refactor `hide` methods.
 
 
 
