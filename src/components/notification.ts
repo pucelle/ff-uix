@@ -30,6 +30,9 @@ export interface NotificationOptions {
 
 	/** Hide notification after milliseconds. Default value is `5000`. */
 	hideDelay?: number
+
+	/** After notification item hide, either after manually closed or timeout. */
+	onHide?: (manually: boolean) => void
 }
 
 /** Notification type. */
@@ -299,7 +302,7 @@ export class Notification<E = {}> extends Component<E> {
 	}
 
 	protected onClickClose(item: NotificationItem) {
-		this.hide(item.id)
+		this.doHide(item.id, true)
 	}
 
 	protected onLeaveTransitionEnded() {
@@ -360,7 +363,7 @@ export class Notification<E = {}> extends Component<E> {
 			item.timeout = null
 
 			if (!item.hovering) {
-				this.hide(item.id)
+				this.doHide(item.id, false)
 			}
 		}, item.hideDelay || 5000)
 		
@@ -384,9 +387,19 @@ export class Notification<E = {}> extends Component<E> {
 
 	/** Hide notification by it's id. */
 	hide(id: number): boolean {
+		return this.doHide(id, true)
+	}
+
+	/** 
+	 * Do hide, with hide reason.
+	 * Returns whether did hide action.
+	 */
+	protected doHide(id: number, manually: boolean): boolean {
 		let index = this.items.findIndex(v => v.id === id)
 		if (index > -1) {
+			let item = this.items[index]
 			this.items.splice(index, 1)
+			item.onHide?.(manually)
 			return true
 		}
 		else {
@@ -405,20 +418,28 @@ export class Notification<E = {}> extends Component<E> {
 }
 
 
+let SharedNotification: Notification | null = null
+
 /** Single class to manage notification list. */
 export class TypedNotification {
 
-	protected notification: Notification | null = null
+	/** Create related `<Notification>` if not yet. */
+	protected ensure(): Notification {
+		if (!SharedNotification) {
+			SharedNotification = new Notification()
+		}
+
+		return SharedNotification
+	}
 
 	/** Generate a new id. */
 	newId(): number {
-		this.ensureNotification()
-		return this.notification!.newId()
+		return this.ensure().newId()
 	}
 
 	/** Whether has shown specified id. */
 	isShowing(id: number): boolean {
-		return this.notification ? this.notification.isShowing(id) : false
+		return this.ensure().isShowing(id)
 	}
 
 	/** 
@@ -427,18 +448,11 @@ export class TypedNotification {
 	 * so you can easily replace notification.
 	 */
 	unique() {
-		return new UniqueNotification(this)
-	}
-
-	protected ensureNotification() {
-		if (!this.notification) {
-			this.notification = new Notification()
-		}
+		return new UniqueNotification()
 	}
 
 	protected showNotification(options: NotificationOptions): number {
-		this.ensureNotification()
-		return this.notification!.show(options)
+		return this.ensure().show(options)
 	}
 
 	/** Shows info type notification, returns it's id. */
@@ -478,26 +492,22 @@ export class TypedNotification {
 	}
 
 	/** Hide notification by it's id. */
-	hide(id: number) {
-		return this.notification?.hide(id)
+	hide(id: number): boolean {
+		return this.ensure().hide(id)
 	}
 
 	/** Hide all notifications. */
 	hideAll() {
-		this.notification?.hideAll()
+		this.ensure().hideAll()
 	}
 }
 
 
 /** All notification calls will share a unique notification item. */
-export class UniqueNotification {
+export class UniqueNotification extends TypedNotification {
 
-	protected readonly raw: TypedNotification
+	/** Unique notification id. */
 	protected id: number | null = null
-
-	constructor(raw: TypedNotification) {
-		this.raw = raw
-	}
 
 	protected overwriteId(options: NotificationOptions) {
 		if (this.id) {
@@ -505,39 +515,35 @@ export class UniqueNotification {
 		}
 	}
 
-	/** Whether is showing notification. */
+	/** Whether notification is showing. */
 	get showing(): boolean {
-		return this.raw && this.id !== null ? this.raw.isShowing(this.id) : false
+		return this.id === null ? false : this.isShowing(this.id)
 	}
 	
-	/** Shows info type notification, returns it's id. */
-	info(message: RenderResultRenderer, options: NotificationOptions = {}): number {
+	override info(message: RenderResultRenderer, options: NotificationOptions = {}): number {
 		this.overwriteId(options)
-		return this.id = this.raw.info(message, options)
+		return this.id = super.info(message, options)
 	}
 
-	/** Shows warn type notification, returns it's id. */
-	warn(message: RenderResultRenderer, options: NotificationOptions = {}): number {
+	override warn(message: RenderResultRenderer, options: NotificationOptions = {}): number {
 		this.overwriteId(options)
-		return this.id = this.raw.warn(message, options)
+		return this.id = super.warn(message, options)
 	}
 
-	/** Shows error type notification, returns it's id. */
-	error(message: RenderResultRenderer, options: NotificationOptions = {}): number {
+	override error(message: RenderResultRenderer, options: NotificationOptions = {}): number {
 		this.overwriteId(options)
-		return this.id = this.raw.error(message, options)
+		return this.id = super.error(message, options)
 	}
 
-	/** Shows success type notification, returns it's id. */
-	success(message: RenderResultRenderer, options: NotificationOptions = {}): number {
+	override success(message: RenderResultRenderer, options: NotificationOptions = {}): number {
 		this.overwriteId(options)
-		return this.id = this.raw.success(message, options)
+		return this.id = super.success(message, options)
 	}
 
 	/** Hide current notification. */
-	hide() {
+	override hide(): boolean {
 		if (this.id) {
-			return this.raw.hide(this.id)
+			return super.hide(this.id)
 		}
 		else {
 			return false
