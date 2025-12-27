@@ -74,6 +74,10 @@ export class LiveRenderer extends PartialRenderer {
 
 		if (!this.directScrollSize) {
 			await this.readScrollerSize()
+		}
+
+		// Must re-validate after `readScrollerSize`.		
+		if (!this.directScrollSize) {
 			ResizeWatcher.watch(this.scroller, this.readScrollerSize, this)
 		}
 	}
@@ -104,6 +108,7 @@ export class LiveRenderer extends PartialRenderer {
 	setDirectScrollSize(size: number) {
 		this.directScrollSize = size
 		this.measurement.setScrollerSize(size)
+		ResizeWatcher.unwatch(this.scroller, this.readScrollerSize, this)
 	}
 
 	protected override async resetPositions(
