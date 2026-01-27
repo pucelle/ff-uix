@@ -123,11 +123,16 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	 */
 	errorOnTooltip: boolean = false
 
-	/** Whether haven got focus. */
+	/** Whether haven got focus already. */
 	protected focusGot: boolean = false
 
 	/** Input field element reference. */
 	protected fieldRef!: HTMLInputElement | HTMLTextAreaElement
+
+	protected override onWillDisconnect() {
+		super.onWillDisconnect()
+		DOMModifiableEvents.off(document, 'keydown', this.onEnter, this)
+	}
 	
 	protected override render() {
 		return html`
@@ -214,6 +219,12 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	}
 
 	protected onChange(this: Input) {
+
+		// Remove element also cause change event fired.
+		if (!this.connected) {
+			return
+		}
+
 		let value = this.fieldRef.value
 		if (this.formatter) {
 			value = this.formatter(value)

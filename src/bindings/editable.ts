@@ -1,6 +1,6 @@
-import {Binding, Component, render, RenderedComponentLike, RenderResultRenderer} from 'lupos.html'
+import {Binding, Component, Part, render, RenderedComponentLike, RenderResultRenderer} from 'lupos.html'
 import {BoxOffsets, DOMUtils, MouseEventDelivery, RectWatcher, StylePropertyName} from 'ff-kit'
-import {DOMEvents, EventKeys} from 'lupos'
+import {DOMEvents, EventKeys, UpdateQueue} from 'lupos'
 import {Input, Popup, Select} from '../components'
 
 
@@ -13,6 +13,17 @@ export type CommitCallback<T> = (value: T | null, reshow: () => void) => void
 
 
 export interface EditableOptions<T> {
+
+	/** 
+	 * How to trigger the editing:
+	 * auto: always trigger.
+	 * dblclick: after double click.
+	 * Default value is 'dblclick'.
+	 */
+	trigger?: 'auto' | 'dblclick'
+
+	/** If provided, will firstly query select by this selector to get target element from current. */
+	targetSelector?: string
 
 	/** 
 	 * Editing value.
@@ -33,7 +44,10 @@ export interface EditableOptions<T> {
 		| [number, number, number]
 		| [number, number, number, number]
 
-	/** Whether clone style of editing element to input. */
+	/** 
+	 * Whether clone style of editing element to input.
+	 * Default value is `false`.
+	 */
 	cloneStyle?: boolean
 
 	/** 
@@ -47,12 +61,11 @@ export interface EditableOptions<T> {
 }
 
 
-
 /** 
  * To render a `<Popup>`, which contains a `<Input>` or `<Select>`,
  * and align it with currently editing element.
  */
-export class editable<T> implements Binding {
+export class editable<T> implements Binding, Part {
 
 	readonly el: HTMLElement
 	readonly context: any
@@ -60,6 +73,8 @@ export class editable<T> implements Binding {
 	protected options: EditableOptions<T> = {}
 
 	protected opened: boolean = false
+	protected boundTrigger: 'auto' | 'dblclick' | null = null
+	protected target: HTMLElement | null = null
 	protected rendered: RenderedComponentLike | null = null
 	protected popup: Popup | null = null
 	protected inputSelectRef: Input | Select | null = null
@@ -67,12 +82,39 @@ export class editable<T> implements Binding {
 	constructor(el: Element, context: any) {
 		this.el = el as HTMLElement
 		this.context = context
-		DOMEvents.on(this.el, 'dblclick', this.showPopup, this)
 	}
 
 	update(renderer: RenderResultRenderer | null, options: Partial<EditableOptions<T>> = {}) {
 		this.renderer = renderer
 		this.options = options
+		this.updateTriggerBinding()
+	}
+
+	afterConnectCallback() {
+		if (this.boundTrigger === 'auto' && !this.opened) {
+			this.showPopup()
+		}
+	}
+
+    beforeDisconnectCallback() {
+		if (this.opened) {
+			this.hidePopup()
+		}
+	}
+
+	protected updateTriggerBinding() {
+		let newTrigger = this.options.trigger ?? 'dblclick'
+		if (newTrigger !== this.boundTrigger) {
+			if (this.boundTrigger === 'dblclick') {
+				DOMEvents.off(this.el, 'dblclick', this.showPopup, this)
+			}
+
+			this.boundTrigger = newTrigger
+
+			if (newTrigger === 'dblclick') {
+				DOMEvents.on(this.el, 'dblclick', this.showPopup, this)
+			}
+		}
 	}
 
 	async showPopup() {
@@ -97,21 +139,31 @@ export class editable<T> implements Binding {
 			return
 		}
 
+		let target = this.options.targetSelector ? this.el.querySelector(this.options.targetSelector) as HTMLElement : this.el
+		if (!target) {
+			return
+		}
+
 		let popup = rendered.getAs(Popup)
 		if (!popup) {
 			this.hidePopup()
 			return
 		}
 
+		this.target = target
 		this.popup = popup
+		this.rendered = rendered
 		this.inputSelectRef = Component.from(popup.el.querySelector('.input, .select')!) as Input | Select
+		
+		this.updateValue()
 		this.updateStyle()
-		this.updateSizePosition()
+		this.updateSizeAndPosition()
 
 		DOMEvents.on(document, 'mousedown', this.onDOMMouseDown, this)
 		DOMEvents.on(document, 'keydown', this.onDOMKeyDown, this)
-		
-		RectWatcher.watch(this.el, this.updateSizePosition, this)
+		MouseEventDelivery.attach(this.target!, popup.el)
+
+		RectWatcher.watch(this.target!, this.updateSizeAndPosition, this)
 
 		// Select all after ready.
 		popup.appendTo(document.body)
@@ -124,8 +176,6 @@ export class editable<T> implements Binding {
 		else {
 			this.inputSelectRef.on('change', this.onValueChange, this)
 		}
-
-		MouseEventDelivery.attach(this.el, popup.el)
 	}
 
 	hidePopup() {
@@ -136,23 +186,29 @@ export class editable<T> implements Binding {
 		this.opened = false
 		this.popup?.remove(true)
 		this.rendered?.remove()
-		this.inputSelectRef = null
-		this.popup = null
-		this.rendered = null
 
-		RectWatcher.unwatch(this.el, this.updateSizePosition, this)
+		RectWatcher.unwatch(this.target!, this.updateSizeAndPosition, this)
+
 		DOMEvents.off(document, 'mousedown', this.onDOMMouseDown, this)
 		DOMEvents.off(document, 'keydown', this.onDOMKeyDown, this)
-		MouseEventDelivery.detach(this.el)
+		MouseEventDelivery.detach(this.target!)
+
+		this.target = null
+		this.popup = null
+		this.rendered = null
+		this.inputSelectRef = null
 	}
 
-	protected updateValue() {
+	protected async updateValue() {
 		if (this.options.value) {
 			this.inputSelectRef!.value = this.options.value
 		}
 		else {
-			this.inputSelectRef!.value = this.el.textContent
+			this.inputSelectRef!.value = this.target!.textContent
 		}
+
+		await UpdateQueue.untilAllComplete()
+		this.inputSelectRef!.select()
 	}
 
 	protected updateStyle() {
@@ -163,7 +219,7 @@ export class editable<T> implements Binding {
 	}
 
 	protected getEditingTextStyle(): Partial<Record<StylePropertyName, string>> {
-		let style = getComputedStyle(this.el)
+		let style = getComputedStyle(this.target!)
 
 		return {
 			'color': style.color,
@@ -177,9 +233,9 @@ export class editable<T> implements Binding {
 		}
 	}
 
-	protected updateSizePosition() {
-		let rect = this.el.getBoundingClientRect()
-		let style = getComputedStyle(this.el)
+	protected updateSizeAndPosition() {
+		let rect = this.target!.getBoundingClientRect()
+		let style = getComputedStyle(this.target!)
 		let textAlignRate = style.textAlign === 'center' ? 0.5 : style.textAlign === 'right' ? 1 : 0
 		let elWidth = this.options.width ?? rect.width
 		let elHeight = this.options.height ?? rect.height
@@ -218,19 +274,17 @@ export class editable<T> implements Binding {
 	protected onDOMMouseDown(e: MouseEvent) {
 		let target = e.target as HTMLElement
 
-		if (!MouseEventDelivery.hasDeliveredFrom(this.el, target)) {
+		if (!MouseEventDelivery.hasDeliveredFrom(this.target!, target)) {
+			let value = this.inputSelectRef!.value
+
+			this.options.onCommit?.(value, () => this.reshowPopup(value))
 			this.hidePopup()
 		}
 	}
 
 	protected onDOMKeyDown(e: KeyboardEvent) {
 		let key = EventKeys.getShortcutKey(e)
-		if (key === 'Enter') {
-			e.stopImmediatePropagation()
-			let value = this.inputSelectRef!.value
-			this.onValueChange(value)
-		}
-		else if (key === 'Escape') {
+		if (key === 'Escape') {
 			e.stopImmediatePropagation()
 			this.options.onCancel?.()
 			this.hidePopup()

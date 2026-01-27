@@ -36,7 +36,6 @@ export * from './tag'
 export * from './input'
 export * from './textarea'
 export * from './form'
-export * from './input-editor'
 
 export * from './search'
 export * from './progress'
