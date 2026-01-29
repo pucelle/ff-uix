@@ -37,7 +37,7 @@ export interface EditableOptions<T> {
 	/** Specifies height to cover using height of editing element. */
 	height?: number
 
-	/** Additional padding values to expand size. */
+	/** Additional padding values to expand size, and apply to popup element. */
 	padding?: number
 		| [number]
 		| [number, number]
@@ -249,6 +249,7 @@ export class editable<T> implements Binding, Part {
 			top: top - edges.top + 'px',
 			width: elWidth + 'px',
 			height: elHeight + 'px',
+			padding: paddings.map(p => p + 'px').join(' ')
 		}
 
 		DOMUtils.setStyleValues(this.popup!.el, popupStyle)
