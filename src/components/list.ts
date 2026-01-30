@@ -514,6 +514,27 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		}
 	}
 
+	/** Ensure an item, and all of it's ancestors rendered. */
+	async ensureItemRendered(value: T): Promise<boolean> {
+		let itemPath = this.findItemPathsTo(value)
+		if (!itemPath) {
+			return false
+		}
+		
+		return await this.ensureItemPathsRendered(itemPath)
+	}
+
+	/** Looking for the all the ancestral list items for specified value. */
+	findItemPathsTo(value: T): ItemPath<T>[] | undefined {
+		for (let {path, dir} of this.walkForItemPath()) {
+			if (path.item.value === value) {
+				return [...dir, path]
+			}
+		}
+
+		return undefined
+	}
+
 	private async ensureItemPathsRendered(itemPaths: ItemPath<T>[]): Promise<boolean> {
 
 		// Expand all but not last, and wait for rendered.
@@ -550,17 +571,6 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		}
 
 		return this.ensureEachItemPathRendered(childSubsection, depth + 1, itemPaths)
-	}
-
-	/** Looking for the all the ancestral list items for specified value. */
-	findItemPathsTo(value: T): ItemPath<T>[] | undefined {
-		for (let {path, dir} of this.walkForItemPath()) {
-			if (path.item.value === value) {
-				return [...dir, path]
-			}
-		}
-
-		return undefined
 	}
 
 	/** Walk for item and path. */
