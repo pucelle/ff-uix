@@ -123,6 +123,10 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 				color: var(--primary-color);
 			}
 
+			&.list-menu-active{
+				color: var(--primary-color);
+			}
+
 			&.arrow-selected{
 				background-color: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
 			}
@@ -306,7 +310,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 					:class.selected=${this.hasSelected(item.value!)}
 					:class.arrow-selected=${item === this.keyNavigator.current}
 					?:tooltip=${itemTooltip, itemTooltip!}
-					?:contextmenu=${itemContextmenu, itemContextmenu!, {matchSelector: '.list-item'} as PopupOptions}
+					?:contextmenu=${itemContextmenu, itemContextmenu!, {matchSelector: '.list-item', activeClassName: 'list-menu-active'} as PopupOptions}
 					@click.prevent=${() => this.onClickItem(item)}
 				>
 					${this.renderItemPlaceholder(item, expanded)}
