@@ -109,6 +109,9 @@ export interface PopupOptions extends AnchorAlignerOptions {
 	/** If specified, only when element match this selector then trigger contextmenu action. */
 	matchSelector?: string
 
+	/** When popup is active, will apply this class name to trigger element. */
+	activeClassName?: string
+
 	/** Fire after `opened` state of popup binding changed. */
 	onOpenedChange?: (opened: boolean) => void
 
@@ -314,6 +317,10 @@ export class popup implements Binding, Part {
 			return
 		}
 
+		if (this.options.activeClassName) {
+			this.el.classList.add(this.options.activeClassName)
+		}
+
 		this.options.onOpenedChange?.(true)
 		this.createRendered()
 		
@@ -345,6 +352,10 @@ export class popup implements Binding, Part {
 	 * If `forReuse`, will leave element in document.
 	 */
 	protected onDoHide() {
+		if (this.options.activeClassName) {
+			this.el.classList.remove(this.options.activeClassName)
+		}
+
 		this.options.onOpenedChange?.(false)
 		this.binder.unbindLeaveBeforeShow()
 		this.binder.unbindLeave()
