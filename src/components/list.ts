@@ -47,6 +47,7 @@ export interface ListItem<T = any> extends Observed {
 	/** 
 	 * Child items to render subsection list.
 	 * Can insert an empty object `{}` to represent a splitter.
+	 * If any element have child, all siblings should provide an empty list as children.
 	 */
 	children?: ListItem<T>[]
 }
@@ -149,8 +150,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
-			padding: 0.4em 0;
-			padding-right: 4px;
+			padding: 0.4em;
 		}
 
 		.list-selected-icon{
@@ -326,7 +326,11 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 
 	protected renderItemPlaceholder(item: ListItem<T>, expanded: boolean) {
 		let children = item.children
-		if (children && children.length > 0) {
+		if (!children) {
+			return null
+		}
+
+		if (children.length > 0) {
 			return html`
 				<div class='list-toggle-placeholder'
 					@click.stop=${() => this.toggleExpanded(item.value!)}
@@ -354,10 +358,12 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		`
 	}
 
+	/** Decide how to render list item tooltip, can be overwritten. */
 	protected renderTooltip(item: ListItem<T>): RenderResultRenderer | undefined {
 		return item.tooltip
 	}
 
+	/** Decide how to render list item tooltip, can be overwritten. */
 	protected renderContextmenu(_item: ListItem<T>): RenderResultRenderer {
 		return null
 	}
