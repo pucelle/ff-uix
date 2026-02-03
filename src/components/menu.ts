@@ -9,7 +9,6 @@ export class Menu<E = {}> extends Popup<E> {
 
 	static override style = css`
 		.menu{
-			min-width: 15em;
 			max-width: 30em;
 			padding: 0.6em 1em;
 			
