@@ -50,7 +50,6 @@ export class Modal<E = {}> extends Component<E> {
 		.modal-title{
 			flex: 1;
 			min-width: 0;
-			font-weight: bold;
 			overflow: hidden;
 			white-space: nowrap;
 			text-overflow: ellipsis;
