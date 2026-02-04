@@ -203,9 +203,6 @@ export class editable<T> implements Binding, Part {
 		if (this.options.value) {
 			this.inputSelectRef!.value = this.options.value
 		}
-		else {
-			this.inputSelectRef!.value = this.target!.textContent
-		}
 
 		await UpdateQueue.untilAllComplete()
 		this.inputSelectRef!.select()
