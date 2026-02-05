@@ -194,8 +194,10 @@ export abstract class DraggableBase<T = any> implements Part {
 
 
 /** 
- * Make current element draggable.
- * :draggable=${data, ?options}
+ * Make current element draggable, and you may move it to a `droppable`.
+ * Note you should prevent dragging element margin collapse.
+ * 
+ * `:draggable=${data, ?options}`
  * - `data`: Data item to identify current dragging item.
  * - `options` Draggable options.
  */

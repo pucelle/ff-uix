@@ -1,5 +1,4 @@
 import {Component, html, css} from 'lupos.html'
-import {ThemeSize} from '../style'
 import {parseSVGCode} from '../icons'
 
 
@@ -15,14 +14,19 @@ export class Icon<Events = any> extends Component<Events> {
 			position: relative;
 
 			svg{
-				width: 1lh;
-				height: 1lh;
+				width: 100%;
+				height: 100%;
 			}
 		}
 	`
 
 
-	size: ThemeSize = 'default'
+	/** Render size, by default is svg source width. */
+	width: number | null = null
+	
+	/** Render size, bu default is svg source height. */
+	height: number | null = null
+
 	
 	/** 
 	 * Icon code.
@@ -37,13 +41,23 @@ export class Icon<Events = any> extends Component<Events> {
 		}
 	
 		let {box: {x, y, width, height}, inner} = parsed
-		x += (width - 22) / 2
-		y += (height - 22) / 2
+		x += this.width ? (width - this.width) / 2 : 0
+		y += this.height ? (height - this.height) / 2 : 0
+
+		let renderWidth = this.width ?? width
+		let renderHeight = this.height ?? height
+
+		let style = {
+			width: renderWidth + 'px',
+			height: renderHeight + 'px',
+		}
 
 		return html`
-			<template class="icon size-${this.size}">
+			<template class="icon"
+				:style=${style}
+			>
 				<svg
-					viewBox=${[x, y, 22, 22].join(' ')}
+					viewBox=${[x, y, renderWidth, renderHeight].join(' ')}
 					:html=${inner}
 				></svg>
 			</template>

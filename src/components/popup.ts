@@ -33,7 +33,7 @@ export class Popup<E = {}> extends Component<E> {
 			z-index: 1000;
 
 			/* 3px drop shadow nearly equals 6px of box-shadow. */
-			filter: drop-shadow(0 0 calc(var(--popup-shadow-blur-radius) / 2) var(--popup-shadow-color));
+			filter: drop-shadow(0 0 calc(var(--popup-shadow-blur-radius)) var(--popup-shadow-color));
 		}
 	`
 

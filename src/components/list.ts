@@ -335,7 +335,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 				<div class='list-toggle-placeholder'
 					@click.stop=${() => this.toggleExpanded(item.value!)}
 				>
-					<Icon .icon=${expanded ? IconTriangleDown : IconTriangleRight} .size="inherit" />
+					<Icon .icon=${expanded ? IconTriangleDown : IconTriangleRight} />
 				</div>
 			`
 		}
@@ -352,7 +352,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		return html`
 			<div class='list-icon'>
 				<lu:if ${item.icon}>
-					<Icon .icon=${item.icon!} .size="inherit" />
+					<Icon .icon=${item.icon!} />
 				</>
 			</div>
 		`
@@ -396,7 +396,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		}
 
 		return html`
-			<Icon class="list-selected-icon" .icon=${IconChecked} .size="inherit" />
+			<Icon class="list-selected-icon" .icon=${IconChecked} />
 		`
 	}
 

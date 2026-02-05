@@ -69,7 +69,7 @@ export class Tag<E = {}> extends Component<E & TagEvents> {
 			<template class="tag">
 				<span class="tag-label"><slot /></span>
 				<lu:if ${this.closable}>
-					<Icon class="tag-close-icon" .icon=${IconClose} .size="inherit"
+					<Icon class="tag-close-icon" .icon=${IconClose}
 						@click=${this.close}
 					/>
 				</lu:if>

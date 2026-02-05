@@ -99,7 +99,7 @@ export class Checkbox<T = any, E = {}> extends Component<E & CheckboxEvents> {
 				@focus=${this.onFocus}
 				@blur=${this.onBlur}
 			>
-				<Icon class="checkbox-icon" .icon=${icon} .size="inherit" />
+				<Icon class="checkbox-icon" .icon=${icon} />
 				<div class="checkbox-label">
 					<slot />
 				</div>

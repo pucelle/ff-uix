@@ -107,7 +107,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 					<div class="tooltip-close"
 						@click=${this.close}
 					>
-						<Icon .icon=${IconClose} .size="inherit" />
+						<Icon .icon=${IconClose} />
 					</div>
 				</lu:if>
 			</template>

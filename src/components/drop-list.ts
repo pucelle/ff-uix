@@ -100,7 +100,7 @@ export class DropList<T> extends List<T> {
 		}
 
 		return html`
-			<Icon class="drop-list-selected-icon" .icon=${IconRight} .size="inherit" />
+			<Icon class="drop-list-selected-icon" .icon=${IconRight} />
 		`
 	}
 

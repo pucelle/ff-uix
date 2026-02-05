@@ -91,7 +91,7 @@ export class Search<E = {}> extends Component<SearchEvents & E> {
 	protected override render() {
 		return html`
 			<template class="search size-${this.size}">
-				<Icon class="search-icon" .icon=${IconSearch} .size="inherit" />
+				<Icon class="search-icon" .icon=${IconSearch} />
 
 				<input type="text"
 					class="search-field"
@@ -102,7 +102,7 @@ export class Search<E = {}> extends Component<SearchEvents & E> {
 				/>
 
 				<lu:if ${this.value}>
-					<Icon class="search-clear-icon" .icon=${IconClose} .size="inherit"
+					<Icon class="search-clear-icon" .icon=${IconClose}
 						@click.stop=${this.clear}
 					/>
 				</lu:if>
