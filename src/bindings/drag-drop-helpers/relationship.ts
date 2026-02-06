@@ -1,4 +1,4 @@
-import {Coord, DOMUtils, EventUtils} from 'ff-kit'
+import {Box, Coord, DOMUtils, EventUtils} from 'ff-kit'
 import {DraggableBase} from '../draggable'
 import {droppable} from '../droppable'
 import {OrderMovement} from './movement-of-order'
@@ -39,15 +39,24 @@ class DragDropRelationship {
 		this.dragging = dragging
 
 		let activeDrop: droppable | null = null
+		let draggingArea = Box.fromLike(dragging.el.getBoundingClientRect())
 
 		for (let drop of [...this.enteredDroppable]) {
 
 			// May element was removed.
 			if (!document.contains(drop.el)) {
 				this.enteredDroppable.delete(drop)
+				continue
 			}
 
-			else if (drop.options.name === dragging.options.name
+			// Sometimes if drop area shrink immediately, will not trigger leaving.
+			let dropArea = Box.fromLike(drop.el.getBoundingClientRect())
+			if (!draggingArea.isIntersectWith(dropArea)) {
+				this.enteredDroppable.delete(drop)
+				continue
+			}
+
+			if (drop.options.name === dragging.options.name
 				|| Array.isArray(dragging.options.name) && dragging.options.name.includes(drop.options.name)
 			) {
 				activeDrop = drop
