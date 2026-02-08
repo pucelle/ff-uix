@@ -151,13 +151,12 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
-			padding: 0.4em;
-			padding-left: 0.6em;
+			padding: 0.4em 0.6em;
 		}
 
 		.list-selected-icon{
 			display: flex;
-			margin: auto -0.3em auto 0.2em;
+			margin: auto 0 auto 0.4em;
 		}
 
 		.list-partial-repeat{}

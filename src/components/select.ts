@@ -103,7 +103,6 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 			border-bottom: none;
 
 			.list-item{
-				padding-left: 0.6em;
 				padding-right: 0.15em;
 				border-bottom: none;
 			}

@@ -16,7 +16,7 @@ export class DropList<T> extends List<T> {
 			overflow-y: auto;
 
 			.list-item{
-				padding-inline: 0.8em;
+				padding-inline: 1em;
 			}
 		}
 
@@ -25,13 +25,13 @@ export class DropList<T> extends List<T> {
 			border-radius: var(--border-radius);
 
 			.list-item{
-				padding-inline: 0.8em;
+				padding-inline: 1em;
 			}
 		}
 		
 		.drop-list-selected-icon{
 			display: flex;
-			margin: auto -0.3em auto 0.2em;
+			margin: auto 0 auto 0.4em;
 		}
 	`
 
@@ -65,7 +65,7 @@ export class DropList<T> extends List<T> {
 						key: 'drop-list',
 						position: 'tl-tr',
 						hideDelay: 100,
-						targetAlignSelector: '.list-item',
+						targetSelectorToAlign: '.list-item',
 						onOpenedChange: (opened: boolean) => {
 							this.onPopupOpenedChange(item, opened)
 						},
