@@ -8,14 +8,9 @@ export class ContextMenu<E = {}> extends Popup<E> {
 	static override style = css`
 		.contextmenu{
 			position: fixed;
-			border-radius: 0;
-			
+
 			.list{
 				border-bottom: none;
-			}
-
-			.list-content{
-				padding: 0.3em 0.6em;
 			}
 		}
 	`

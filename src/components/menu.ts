@@ -10,12 +10,16 @@ export class Menu<E = {}> extends Popup<E> {
 	static override style = css`
 		.menu{
 			max-width: 30em;
-			padding: 0.6em 1em;
+			padding: 0.5em 0;
 			
 			.list{
 				border-bottom: none;
 				max-height: 100%;
 				overflow-y: auto;
+			}
+
+			.list-item{
+				padding-inline: 0.8em;
 			}
 		}
 

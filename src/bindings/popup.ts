@@ -561,6 +561,7 @@ export class popup implements Binding, Part {
 			flipDirection: this.options?.flipDirection,
 			fixedTriangle: this.options?.fixedTriangle,
 			triangle: triangle ?? undefined,
+			targetAlignSelector: this.options?.targetAlignSelector,
 			onStop: this.hidePopup.bind(this),
 		}
 	}

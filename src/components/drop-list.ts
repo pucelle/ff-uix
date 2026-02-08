@@ -11,23 +11,27 @@ export class DropList<T> extends List<T> {
 
 	static override style = css`
 		.drop-list{
-			padding: 2px 0.8em;
+			padding: 0.5em 0;
 			border-bottom: none;
 			overflow-y: auto;
+
+			.list-item{
+				padding-inline: 0.8em;
+			}
 		}
 
 		.drop-list-subsection{
-			padding: 2px 0.8em;
-			border-radius: 0;
+			padding: 0.5em 0;
+			border-radius: var(--border-radius);
 
-			.list-content{
-				padding-top: 0.3em;
-				padding-bottom: 0.3em;
+			.list-item{
+				padding-inline: 0.8em;
 			}
 		}
 		
 		.drop-list-selected-icon{
-			margin: 0 -0.5em 0 0.2em;
+			display: flex;
+			margin: auto -0.3em auto 0.2em;
 		}
 	`
 
@@ -38,12 +42,12 @@ export class DropList<T> extends List<T> {
 	protected override render() {
 		return html`
 			<template class="list drop-list">
-				${this.renderItems(this.data)}
+				${this.renderItems(this.data, 0)}
 			</template>
 		`
 	}
 
-	protected override renderItem(item: ListItem<T>): RenderResult {
+	protected override renderItem(item: ListItem<T>, depth: number): RenderResult {
 		let children = item.children
 		let itemTooltip = this.renderTooltip(item)
 		let itemContextmenu = this.renderContextmenu(item)
@@ -56,12 +60,12 @@ export class DropList<T> extends List<T> {
 				?:tooltip=${itemTooltip, itemTooltip!}
 				?:contextmenu=${itemContextmenu, itemContextmenu!}
 				?:popup=${children && children.length > 0,
-					() => this.renderItemPopupContent(item),
+					() => this.renderItemPopupContent(item, depth),
 					{
 						key: 'drop-list',
 						position: 'tl-tr',
 						hideDelay: 100,
-						gaps: [2, 8],
+						targetAlignSelector: '.list-item',
 						onOpenedChange: (opened: boolean) => {
 							this.onPopupOpenedChange(item, opened)
 						},
@@ -69,15 +73,15 @@ export class DropList<T> extends List<T> {
 				}
 				@click.prevent=${() => this.onClickItem(item)}
 			>
-				${this.renderIcon(item)}
+				${this.renderItemIcon(item)}
 				${this.renderItemContent(item)}
 				${this.renderSelectedIcon(item)}
-				${this.renderExpandedIcon(item)}
+				${this.renderDropListSelectedIcon(item)}
 			</div>
 		`
 	}
 
-	protected renderItemPopupContent(item: ListItem<T>) {
+	protected renderItemPopupContent(item: ListItem<T>, depth: number) {
 		let children = item.children
 		if (!children || children.length === 0) {
 			return null
@@ -88,12 +92,12 @@ export class DropList<T> extends List<T> {
 				:transition.immediate=${fade()}
 				.triangle=${false}
 			>
-				${this.renderItems(children!)}
+				${this.renderItems(children!, depth)}
 			</Popup>
 		`
 	}
 
-	protected renderExpandedIcon(item: ListItem<T>) {
+	protected renderDropListSelectedIcon(item: ListItem<T>) {
 		let children = item.children
 		if (!children || children.length === 0) {
 			return null

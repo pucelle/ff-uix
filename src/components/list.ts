@@ -93,7 +93,6 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	static override style = css`
 		.list{
 			display: block;
-			border-bottom: 1px solid color-mix(in srgb, var(--border-color) 30%, var(--background-color));
 		}
 
 		.list-splitter{
@@ -108,40 +107,42 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		.list-item{
 			position: relative;
 			display: flex;
-			align-items: center;
-			border-bottom: 1px solid color-mix(in srgb, var(--border-color) 30%, var(--background-color));
+			align-items: stretch;
 			cursor: pointer;
 
-			&:last-child{
-				border-bottom: none;
-			}
-
 			&:hover{
-				color: var(--primary-color);
+				background: color-mix(in srgb, var(--text-color) 4%, var(--background-color));
 			}
 
-			&.selected{
-				color: var(--primary-color);
-			}
+			&.selected{}
 
 			&.list-menu-active{
-				color: var(--primary-color);
+				background: color-mix(in srgb, var(--text-color) 4%, var(--background-color));
 			}
 
 			&.arrow-selected{
-				background-color: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
+				background: color-mix(in srgb, var(--text-color) 4%, var(--background-color));
 			}
+		}
+
+		.list-indents{
+			visibility: hidden;
 		}
 
 		.list-toggle-placeholder{
 			display: flex;
-			width: 1.6em;
+			width: 2em;
+			margin-right: -0.2em;
 			opacity: 0.7;
+			justify-content: center;
 			align-items: center;
 		}
 
 		.list-icon{
 			margin-right: 0.2em;
+			display: flex;
+			justify-content: center;
+			align-items: center;
 		}
 
 		.list-content{
@@ -151,45 +152,18 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 			overflow: hidden;
 			text-overflow: ellipsis;
 			padding: 0.4em;
+			padding-left: 0.6em;
 		}
 
 		.list-selected-icon{
-			margin: 0 0 0 0.2em;
+			display: flex;
+			margin: auto -0.3em auto 0.2em;
 		}
 
 		.list-partial-repeat{}
 
 		.list-subsection{
-			padding-left: 1.6em;
-			padding-bottom: 4px;
 			overflow: hidden;
-			font-size: 0.928em;
-
-			.list-item{
-				border-top: none;
-				line-height: calc(1lh - 2px);
-			}
-
-			.list-content{
-				padding-top: 0.3em;
-				padding-bottom: 0.3em;
-			}
-
-			.list-subsection{
-				font-size: 1em;
-				padding-top: 0;
-			}
-
-			.list-subsection:not(:last-child){
-				padding-bottom: 3px;
-				margin-bottom: 3px;
-				border-bottom: 1px solid color-mix(in srgb, var(--border-color) 50%, var(--background-color));
-			}
-
-			.list-subsection:last-child{
-				padding-bottom: 0;
-				margin-bottom: 0;
-			}
 		}
 	`
 
@@ -214,6 +188,9 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	 * Default value is `true`.
 	 */
 	dirSelectable: boolean = true
+
+	/** Each indent padding, in the rate of CSS 'em' unit. */
+	indentSizeInEM: number = 1
 
 	/** Input data list. */
 	data: ListItem<T>[] = []
@@ -259,17 +236,17 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	protected override render() {
 		return html`
 			<template class="list">
-				${this.renderItems(this.data)}
+				${this.renderItems(this.data, 0)}
 			</template>
 		`
 	}
 
-	protected renderItems(items: ListItem<T>[]): RenderResult {
+	protected renderItems(items: ListItem<T>[], depth: number): RenderResult {
 		if (this.shouldRenderPartialRepeat(items)) {
 			return html`
 				<PartialRepeat class="list-partial-repeat"
 					.data=${items}
-					.renderFn=${(item: ListItem<T>) => this.renderItemOrSplitter(item)}
+					.renderFn=${(item: ListItem<T>) => this.renderItemOrSplitter(item, depth)}
 					.overflowDirection="vertical"
 					.guessedItemSize=${25}
 					.scrollerSelector=${this.partialRenderingScrollerSelector}
@@ -279,7 +256,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		else {
 			return html`
 				<lu:for ${items}>${(item: ListItem<T>) => {
-					return this.renderItemOrSplitter(item)
+					return this.renderItemOrSplitter(item, depth)
 				}}</lu:for>
 			`
 		}
@@ -289,16 +266,16 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		return this.partialRenderingScrollerSelector && items.length > 50
 	}
 
-	protected renderItemOrSplitter(item: ListItem<T>): RenderResult {
+	protected renderItemOrSplitter(item: ListItem<T>, depth: number): RenderResult {
 		if (!item.hasOwnProperty('value')) {
 			return html`<div class="list-splitter"></div>`
 		}
 		else {
-			return this.renderItem(item as ListItem<T>)
+			return this.renderItem(item as ListItem<T>, depth)
 		}
 	}
 
-	protected renderItem(item: ListItem<T>): RenderResult {
+	protected renderItem(item: ListItem<T>, depth: number): RenderResult {
 		let expanded = this.hasExpanded(item.value!)
 		let itemTooltip = this.renderTooltip(item)
 		let itemContextmenu = this.renderContextmenu(item)
@@ -313,14 +290,27 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 					?:contextmenu=${itemContextmenu, itemContextmenu!, {matchSelector: '.list-item', activeClassName: 'list-menu-active'} as PopupOptions}
 					@click.prevent=${() => this.onClickItem(item)}
 				>
+					${this.renderIndents(depth)}
 					${this.renderItemPlaceholder(item, expanded)}
-					${this.renderIcon(item)}
+					${this.renderItemIcon(item)}
 					${this.renderItemContent(item)}
 					${this.renderSelectedIcon(item)}
 				</div>
 
-				${this.renderSubsection(item, expanded)}
+				${this.renderSubsection(item, expanded, depth)}
 			</div>
+		`
+	}
+
+	protected renderIndents(depth: number) {
+		if (depth === 0) {
+			return null
+		}
+
+		return html`
+			<div class="list-indents"
+				:style.width=${this.indentSizeInEM * depth + 'em'}
+			></div>
 		`
 	}
 
@@ -335,7 +325,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 				<div class='list-toggle-placeholder'
 					@click.stop=${() => this.toggleExpanded(item.value!)}
 				>
-					<Icon .icon=${expanded ? IconTriangleDown : IconTriangleRight} />
+					${this.renderExpandedIcon(expanded)}
 				</div>
 			`
 		}
@@ -344,7 +334,11 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		}
 	}
 
-	protected renderIcon(item: ListItem<T>) {
+	protected renderExpandedIcon(expanded: boolean) {
+		return html`<Icon .icon=${expanded ? IconTriangleDown : IconTriangleRight} />`
+	}
+
+	protected renderItemIcon(item: ListItem<T>) {
 		if (item.icon === undefined) {
 			return null
 		}
@@ -400,7 +394,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		`
 	}
 
-	protected renderSubsection(item: ListItem<T>, expanded: boolean) {
+	protected renderSubsection(item: ListItem<T>, expanded: boolean, depth: number) {
 		let children = item.children
 		if (!children || children.length === 0 || !expanded) {
 			return null
@@ -414,7 +408,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 						: null
 				}
 			>
-				${this.renderItems(children!)}
+				${this.renderItems(children!, depth + 1)}
 			</div>
 		`
 	}
