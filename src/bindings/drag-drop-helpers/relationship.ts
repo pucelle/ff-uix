@@ -170,12 +170,6 @@ class DragDropRelationship {
 
 	/** When dragging and leave a droppable. */
 	leaveDrop(dropping: droppable) {
-
-		// Always in same drop for slide only mode.
-		if (this.dragging?.mode === 'order' && (this.dragging as orderable)?.options.slideOnly) {
-			return
-		}
-		
 		this.enteredDroppable.delete(dropping)
 
 		if (this.activeDrop === dropping) {

@@ -350,6 +350,12 @@ export class OrderMovement extends DragMovement {
 	}
 
 	override onEnterDrop(drop: droppable) {
+
+		// May active a different droppable, need to restore movements.
+		if (drop !== this.activeDrop) {
+			this.restoreMovedElements(true)
+		}
+
 		this.activeDrop = drop
 		this.itemsAlignDirection = drop.options.itemsAlignDirection ?? 'vertical'
 		this.insertPlaceholder(drop, true)
