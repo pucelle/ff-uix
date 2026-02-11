@@ -163,6 +163,10 @@ table{
 	
 	--popup-shadow-color: light-dark(rgba(0, 0, 0, 0.5), black);
 	--popup-background-color: light-dark(white, #333);
+
+	--tooltip-background-color: light-dark(white, #333);
+	--tooltip-text-color: CanvasText;
+
 	--info-color: #3369fa;
 	--success-color: #29bc04;
 	--error-color: #e10000;

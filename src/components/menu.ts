@@ -25,6 +25,10 @@ export class Menu<E = {}> extends Popup<E> {
 
 		.menu-triangle{
 			left: 1em;
+			
+			path{
+				fill: color-mix(in srgb, var(--tooltip-background-color) 95%, var(--text-color));
+			}
 		}
 
 		.menu-header{

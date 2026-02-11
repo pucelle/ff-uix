@@ -15,7 +15,6 @@ export class Triangle<E = {}> extends Component<E> {
 
 		.triangle path{
 			stroke: none;
-			fill: var(--popup-background-color);
 		}
 	`
 

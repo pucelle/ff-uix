@@ -24,6 +24,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 			max-width: 16em;
 			padding: 0.4em 0.8em;
 			line-height: 1.4;
+			color: var(--tooltip-text-color);
 		}
 
 		.tooltip-text{
@@ -50,11 +51,11 @@ export class Tooltip<E = {}> extends Popup<E> {
 		}
 
 		.tooltip-type-default{
-			background: color-mix(in srgb, var(--popup-background-color) 95%, var(--text-color));
-			color: var(--text-color);
+			background: var(--tooltip-background-color);
+			color: var(--tooltip-text-color);
 
-			.triangle path{
-				fill: color-mix(in srgb, var(--popup-background-color) 95%, var(--text-color));
+			.tooltip-triangle{
+				fill: var(--tooltip-background-color);
 			}
 		}
 
@@ -63,7 +64,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 			color: var(--background-color);
 			pointer-events: auto;
 
-			.triangle path{
+			.tooltip-triangle{
 				fill: var(--text-color);
 			}
 		}
@@ -72,7 +73,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 			background: var(--error-color);
 			color: #fff;
 
-			.triangle path{
+			.tooltip-triangle{
 				fill: var(--error-color);
 			}
 		}
@@ -80,6 +81,9 @@ export class Tooltip<E = {}> extends Popup<E> {
 
 	
 	size: ThemeSize = 'default'
+
+	triangleWidth: number = 10
+	triangleHeight: number = 6
 
 	/** 
 	 * Tooltip type:
@@ -96,7 +100,11 @@ export class Tooltip<E = {}> extends Popup<E> {
 				:transition.immediate=${fade()}
 			>
 				<lu:if ${this.triangle}>
-					<Triangle .direction=${this.triangleDirection} />
+					<Triangle class="tooltip-triangle"
+						.direction=${this.triangleDirection}
+						.width=${this.triangleWidth}
+						.height=${this.triangleHeight}
+					/>
 				</lu:if>
 
 				<div class="tooltip-text">
