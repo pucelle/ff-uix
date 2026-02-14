@@ -75,7 +75,7 @@ export class Search<E = {}> extends Component<SearchEvents & E> {
 
 	/** 
 	 * Whether update value after change event.
-	 * If is `false`, update value after input event.
+	 * If is `false`, update value and trigger change event after every time input.
 	 */
 	lazy: boolean = true
 
