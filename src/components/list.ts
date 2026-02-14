@@ -138,6 +138,10 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 			align-items: center;
 		}
 
+		.list-toggle-icon{
+			transition: transform 0.2s ease-out;
+		}
+
 		.list-icon{
 			margin-right: 0.2em;
 			display: flex;
@@ -321,20 +325,24 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 
 		if (children.length > 0) {
 			return html`
-				<div class='list-toggle-placeholder'
+				<div class="list-toggle-placeholder"
 					@click.stop=${() => this.toggleExpanded(item.value!)}
 				>
-					${this.renderExpandedIcon(expanded)}
+					${this.renderExpandIcon(expanded)}
 				</div>
 			`
 		}
 		else {
-			return html`<div class='list-toggle-placeholder' />`
+			return html`<div class="list-toggle-placeholder" />`
 		}
 	}
 
-	protected renderExpandedIcon(expanded: boolean) {
-		return html`<Icon .icon=${expanded ? IconTriangleDown : IconTriangleRight} />`
+	protected renderExpandIcon(expanded: boolean) {
+		return html`
+			<Icon class="list-toggle-icon"
+				:style.transform=${expanded ? 'none': 'rotate(-90deg)'}
+				.icon=${expanded ? IconTriangleDown : IconTriangleRight}
+			/>`
 	}
 
 	protected renderItemIcon(item: ListItem<T>) {
@@ -343,7 +351,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		}
 
 		return html`
-			<div class='list-icon'>
+			<div class="list-icon">
 				<lu:if ${item.icon}>
 					<Icon .icon=${item.icon!} />
 				</>

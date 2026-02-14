@@ -211,6 +211,8 @@ export class popup implements Binding, Part {
 		if (this.opened) {
 			this.hidePopup()
 		}
+
+		this.binder.unbindEnter()
 	}
 
 	/** Whether should show popup content immediately after connected. */

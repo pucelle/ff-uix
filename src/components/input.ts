@@ -37,7 +37,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 			background: var(--field-color);
 			box-shadow: inset 0 -1px 0 0 var(--border-color);
 			
-			&.focus{
+			&.focused{
 				box-shadow: inset 0 -1px 0 0 var(--primary-color);
 			}
 
@@ -87,12 +87,21 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	/** Input type, same with `<input type=...>`. */
 	type: 'text' | 'password' | 'number' = 'text'
 
-	/** Whether get focus after been inserted into document. */
+	/** 
+	 * Whether get focus after been inserted into document.
+	 * Default value is `false`.
+	 */
 	autoFocus: boolean = false
 
 	/** 
+	 * Whether select all text after getting focused.
+	 * Default value is `false`.
+	 */
+	autoSelect: boolean = false
+
+	/** 
 	 * Whether input has been touched, error messages only appears after touched.
-	 * Set it from `false` to `true` will cause validate.
+	 * Set it from `false` to `true` will cause validate immediately.
 	 */
 	touched: boolean = false
 
@@ -137,7 +146,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	protected override render() {
 		return html`
 			<template class=${this.renderClassName()}
-				:class.focus=${this.focusGot}
+				:class.focused=${this.focusGot}
 				:class.valid=${this.touched && this.valid}
 				:class.invalid=${this.touched && this.valid === false}
 				?:tooltip=${
@@ -146,6 +155,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 					{type: 'error'} as Partial<TooltipOptions>
 				}
 			>
+				${this.renderIcon()}
 				${this.renderField()}
 
 				<lu:if ${this.touched && this.valid}>
@@ -161,6 +171,11 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 
 	protected renderClassName() {
 		return 'input'
+	}
+
+	/** Can overwrite to render an icon. */
+	protected renderIcon() {
+		return null
 	}
 
 	protected renderField() {
@@ -179,6 +194,11 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 
 	protected onFocus() {
 		this.focusGot = true
+
+		if (this.autoSelect) {
+			this.select()
+		}
+
 		DOMModifiableEvents.on(document, 'keydown', ['Enter'], this.onEnter, this)
 	}
 

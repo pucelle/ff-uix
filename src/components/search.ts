@@ -38,18 +38,27 @@ export class Search<E = {}> extends Component<SearchEvents & E> {
 			min-width: 0;
 			border: none;
 			line-height: 1.6;
-			height: 2em;
+			height: 100%;
 			padding: 0.2em 0.2em;
 			background: transparent;
 		}
 
+		.search-icon-container{
+			height: 100%;
+			display: flex;
+			align-content: center;
+			align-items: center;
+		}
+
 		.search-icon{
 			color: var(--border-color);
+			height: 100%;
 		}
 
 		.search-clear-icon{
 			color: var(--border-color);
 			cursor: pointer;
+			height: 100%;
 
 			&:hover{
 				color: var(--primary-color);
@@ -91,7 +100,9 @@ export class Search<E = {}> extends Component<SearchEvents & E> {
 	protected override render() {
 		return html`
 			<template class="search size-${this.size}">
-				<Icon class="search-icon" .icon=${IconSearch} />
+				<div class="search-icon-container">
+					${this.renderSearchIcon()}
+				</div>
 
 				<input type="text"
 					class="search-field"
@@ -102,11 +113,25 @@ export class Search<E = {}> extends Component<SearchEvents & E> {
 				/>
 
 				<lu:if ${this.value}>
-					<Icon class="search-clear-icon" .icon=${IconClose}
+					<div class="search-icon-container" 
 						@click.stop=${this.clear}
-					/>
+					>
+						${this.renderClearIcon()}
+					</div>
 				</lu:if>
 			</template>
+		`
+	}
+
+	protected renderSearchIcon() {
+		return html`
+			<Icon class="search-icon" .icon=${IconSearch} />
+		`
+	}
+
+	protected renderClearIcon() {
+		return html`
+			<Icon class="search-clear-icon" .icon=${IconClose}/>
 		`
 	}
 
