@@ -1,7 +1,6 @@
 import {Component, RenderResult} from 'lupos.html'
 import {DOMEvents} from 'lupos'
 import {getPathMatcher} from './router-helpers/path-match'
-import {PathMatcher} from './router-helpers/path-matcher'
 import {Popup} from './popup'
 
 
@@ -65,6 +64,18 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		}
 
 		return null
+	}
+
+	/** Match a path with a target route path, and get match parameters. */
+	static match(path: string, routePath: string | RegExp): Record<string | number, string> | null {
+		let matcher = getPathMatcher(routePath)
+		return matcher.match(path)
+	}
+
+	/** Test whether a path match specified route path. */
+	static test(path: string, routePath: string | RegExp): boolean {
+		let matcher = getPathMatcher(routePath)
+		return matcher.test(path)
 	}
 
 
@@ -216,7 +227,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 	/** Test whether current path match specified route path. */
 	test(routePath: string | RegExp): boolean {
-		let matcher = new PathMatcher(routePath)
+		let matcher = getPathMatcher(routePath)
 		return matcher.test(this.path)
 	}
 
@@ -227,8 +238,8 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 *  - `{0: '12345'}` for router regexps like `/\/user\/(\d+)/`,
 	 *  - `{id: '12345'}` for router regexps like `/\/user\/(?<id>\d+)/`.
 	 */
-	route(path: string | RegExp, renderFn: (params: Record<string | number, string>) => RenderResult): RenderResult {
-		let matcher =  getPathMatcher(path)
+	route(routePath: string | RegExp, renderFn: (params: Record<string | number, string>) => RenderResult): RenderResult {
+		let matcher = getPathMatcher(routePath)
 		let params = matcher.match(this.path)!
 
 		return renderFn(params)
