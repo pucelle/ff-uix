@@ -35,7 +35,7 @@ export class Menu<E = {}> extends Popup<E> {
 			display: flex;
 			font-size: 0.928em;
 			padding-bottom: 0.4em;
-			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background-color));
+			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background));
 		}
 
 		.menu-title{

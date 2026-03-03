@@ -32,8 +32,9 @@ export class Textarea extends Input {
 	/** Textarea columns to control width. */
 	cols: number | null = null
 
-	protected override renderClassName() {
-		return 'input textarea'
+	protected override onCreated() {
+		super.onCreated()
+		this.el.classList.add('textarea')
 	}
 
 	protected override renderField() {

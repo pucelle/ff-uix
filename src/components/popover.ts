@@ -28,7 +28,7 @@ export class Popover<E = {}> extends Popup<E> {
 			display: flex;
 			font-size: 0.928em;
 			padding-bottom: 0.3em;
-			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background-color));
+			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background));
 			margin-bottom: 0.5em;
 		}
 

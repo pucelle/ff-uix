@@ -16,7 +16,7 @@ export class Progress<E = {}> extends Component<E> {
 		.progress-groove{
 			width: 100%;
 			height: 1px;
-			background: color-mix(in srgb, var(--primary-color) 20%, var(--background-color));
+			background: color-mix(in srgb, var(--primary-color) 20%, var(--background));
 		}
 
 		.progress-progress{

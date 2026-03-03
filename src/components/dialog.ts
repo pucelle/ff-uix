@@ -91,7 +91,7 @@ export class Dialog<E = {}> extends Component<E> {
 			position: fixed;
 			border-radius: var(--popup-border-radius);
 			box-shadow: 0 0 var(--popup-shadow-blur-radius) var(--popup-shadow-color);
-			background: var(--popup-background-color);
+			background: var(--popup-background);
 			max-width: 95%;
 			max-height: 95%;
 			padding: 0.6em 1.2em 1.2em;
@@ -111,7 +111,7 @@ export class Dialog<E = {}> extends Component<E> {
 			display: flex;
 			font-size: 0.928em;
 			padding-bottom: 0.4em;
-			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background-color));
+			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background));
 		}
 
 		.dialog-title{

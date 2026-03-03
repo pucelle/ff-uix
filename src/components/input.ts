@@ -1,4 +1,4 @@
-import {Component, css, html} from 'lupos.html'
+import {Component, css, html, RenderResult} from 'lupos.html'
 import {tooltip, TooltipOptions} from '../bindings'
 import {Icon} from './icon'
 import {ThemeSize} from '../style'
@@ -8,7 +8,10 @@ import {IconChecked} from '../icons'
 
 interface InputEvents {
 
-	/** Triggers after input every character. */
+	/** 
+	 * Triggers after input every character.
+	 * new `value` as parameter, but note it doesn't apply to Input value property.
+	 */
 	input: (value: string) => void
 
 	/** 
@@ -34,7 +37,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 			width: 15em;
 			height: 2em;
 			padding: 0.2em 0.6em;
-			background: var(--field-color);
+			background: var(--input-background);
 			box-shadow: inset 0 -1px 0 0 var(--border-color);
 			
 			&.focused{
@@ -48,6 +51,11 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 			&.invalid{
 				box-shadow: inset 0 -1px 0 0 var(--error-color);
 			}
+		}
+
+		.input-icon{
+			width: 2em;
+			height: 100%;
 		}
 
 		.input-field{
@@ -132,6 +140,16 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	 */
 	errorOnTooltip: boolean = false
 
+	/** 
+	 * Whether update value after change event.
+	 * If is `false`, update value and trigger change event after every time input.
+	 * Note set `lazy` to `false` also cause validator valid early.
+	 */
+	lazy: boolean = true
+
+	/** Specifies the icon shown on the left. */
+	icon: string | null = null
+
 	/** Whether haven got focus already. */
 	protected focusGot: boolean = false
 
@@ -145,7 +163,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	
 	protected override render() {
 		return html`
-			<template class=${this.renderClassName()}
+			<template class="input size-${this.size}"
 				:class.focused=${this.focusGot}
 				:class.valid=${this.touched && this.valid}
 				:class.invalid=${this.touched && this.valid === false}
@@ -169,27 +187,32 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 		`
 	}
 
-	protected renderClassName() {
-		return 'input'
-	}
-
 	/** Can overwrite to render an icon. */
-	protected renderIcon() {
-		return null
+	protected renderIcon(): RenderResult {
+		if (!this.icon) {
+			return null
+		}
+
+		return html`
+			<Icon class="input-icon" 
+				.icon=${this.icon}
+			/>
+		`
 	}
 
 	protected renderField() {
 		return html`
-		<input class="input-field" type=${this.type}
-			?autofocus=${this.autoFocus}
-			.placeholder=${this.placeholder || ''}
-			.value=${this.value}
-			:ref=${this.fieldRef}
-			@focus=${this.onFocus}
-			@blur=${this.onBlur}
-			@input=${this.onInput}
-			@change=${this.onChange}
-		/>`
+			<input class="input-field" type=${this.type}
+				?autofocus=${this.autoFocus}
+				.placeholder=${this.placeholder || ''}
+				.value=${this.value}
+				:ref=${this.fieldRef}
+				@focus=${this.onFocus}
+				@blur=${this.onBlur}
+				@input=${this.onInput}
+				@change=${this.onChange}
+			/>
+		`
 	}
 
 	protected onFocus() {
@@ -230,12 +253,22 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 		}
 
 		// Clear validate result after input.
-		if (this.validator) {
-			this.valid = null
-			this.errorMessage = ''
+		if (this.lazy) {
+			if (this.validator) {
+				this.valid = null
+				this.errorMessage = ''
+			}
+		}
+		else {
+			this.value = value
+			this.validate()
 		}
 
 		this.fire('input', value)
+
+		if (!this.lazy) {
+			this.fire('change', value, this.valid, () => this.fieldRef.focus())
+		}
 	}
 
 	protected onChange(this: Input) {

@@ -21,7 +21,7 @@ export class Modal<E = {}> extends Component<E> {
 			z-index: 1000;	/* Same with popup. */
 			border-radius: var(--popup-border-radius);
 			box-shadow: 0 0 var(--popup-shadow-blur-radius) var(--popup-shadow-color);
-			background: var(--popup-background-color);
+			background: var(--popup-background);
 			max-width: 100%;
 			max-height: 100%;
 			padding: 0.6em 1.2em;
@@ -43,7 +43,7 @@ export class Modal<E = {}> extends Component<E> {
 			flex: none;
 			font-size: 0.928em;
 			padding-bottom: 0.4em;
-			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background-color));
+			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background));
 			margin-bottom: 0.6em;
 		}
 

@@ -17,7 +17,7 @@ export class Popup<E = {}> extends Component<E> {
 
 			left: 0;
 			top: 0;
-			background: var(--popup-background-color);
+			background: var(--popup-background);
 			border-radius: var(--popup-border-radius);
 
 			/** Avoid become narrower after alignment when touches page edges. */

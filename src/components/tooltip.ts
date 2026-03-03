@@ -51,18 +51,18 @@ export class Tooltip<E = {}> extends Popup<E> {
 		}
 
 		.tooltip-type-default{
-			--popup-background-color: var(--tooltip-background-color);
+			--popup-background: var(--tooltip-background-color);
 			color: var(--tooltip-text-color);
 		}
 
 		.tooltip-type-prompt{
-			--popup-background-color: var(--text-color);
-			color: var(--background-color);
+			--popup-background: var(--text-color);
+			color: var(--background);
 			pointer-events: auto;
 		}
 
 		.tooltip-type-error{
-			--popup-background-color: var(--error-color);
+			--popup-background: var(--error-color);
 			color: #fff;
 		}
 	`

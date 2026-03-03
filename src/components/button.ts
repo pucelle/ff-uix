@@ -14,7 +14,7 @@ export class Button<E = {}> extends Component<E> {
 			color: var(--border-color);
 			border-radius: var(--border-radius);
 			padding: calc(0.2em - 1px) 0.6em;
-			background: var(--background-color);
+			background: var(--background);
 			text-align: center;
 			cursor: pointer;
 			vertical-align: top;
@@ -24,7 +24,7 @@ export class Button<E = {}> extends Component<E> {
 		
 			&:hover, &:focus{
 				background-color: var(--border-color);
-				color: var(--background-color);
+				color: var(--background);
 			}
 
 			&:focus{
@@ -34,7 +34,7 @@ export class Button<E = {}> extends Component<E> {
 			&:active{
 				background: var(--border-color);
 				border-color: var(--border-color);
-				color: var(--background-color);
+				color: var(--background);
 			}
 
 			.icon{

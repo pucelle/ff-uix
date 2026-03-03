@@ -64,7 +64,7 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 			will-change: top, left;
 			border-radius: 50%;
 			border: var(--groove-size) solid var(--border-color);
-			background: var(--background-color);
+			background: var(--background);
 			float: right;
 			width: var(--ball-size);
 			height: var(--ball-size);

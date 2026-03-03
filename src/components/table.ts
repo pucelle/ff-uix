@@ -119,7 +119,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 		.table-head{
 			padding-right: 8px;
-			color: color-mix(in srgb, var(--text-color) 70%, var(--background-color));;
+			color: color-mix(in srgb, var(--text-color) 70%, var(--background));;
 			font-weight: bold;
 			user-select: none;
 		}
@@ -135,7 +135,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			align-items: stretch;
 			font-size: 0.928em;
 			padding: 0.2em 0.6em;
-			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 20%, var(--background-color));;
+			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 20%, var(--background));;
 
 			&:last-child{
 				flex: 1;
@@ -194,7 +194,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 				top: 6px;
 				bottom: 6px;
 				width: 1px;
-				background: color-mix(in srgb, var(--text-color) 20%, var(--background-color));
+				background: color-mix(in srgb, var(--text-color) 20%, var(--background));
 			}
 		}
 
@@ -203,7 +203,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			overflow-y: scroll;
 			overflow-x: hidden;
 			position: relative;
-			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 10%, var(--background-color));
+			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 10%, var(--background));
 		}
 
 		.table-table{
@@ -215,8 +215,8 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		.table-row{
 			&:hover{
 				background: light-dark(
-					color-mix(in srgb, var(--primary-color) 2.5%, var(--background-color)),
-					color-mix(in srgb, var(--primary-color) 5%, var(--background-color))
+					color-mix(in srgb, var(--primary-color) 2.5%, var(--background)),
+					color-mix(in srgb, var(--primary-color) 5%, var(--background))
 				);
 			}
 
@@ -225,14 +225,14 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			}
 
 			&.selected{
-				background: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
+				background: color-mix(in srgb, var(--primary-color) 10%, var(--background));
 			}
 		}
 
 		.table-cell{
 			vertical-align: middle;
 			padding: 0.4em 0.6em;
-			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 5%, var(--background-color));;
+			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 5%, var(--background));;
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;

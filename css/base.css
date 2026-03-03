@@ -151,20 +151,23 @@ table{
 	color-scheme: light dark;
 
 	--primary-color: ActiveText;
-	--background-color: light-dark(white, #333);
+	--background: light-dark(white, #333);
 	--text-color: CanvasText;
 	--border-color: light-dark(#808080, #888);
 	--selected-color: SelectedItem;
 	--selected-text-color: SelectedItemText;
-	--field-color: light-dark(#e5e5e5, #444);
-	--field-text-color: FieldText;
+
+	--input-background: light-dark(#e5e5e5, #444);
+	--input-text-color: FieldText;
 	--link-color: LinkText;
 	--visited-color: VisitedColor;
 	
 	--popup-shadow-color: light-dark(rgba(0, 0, 0, 0.5), black);
-	--popup-background-color: light-dark(white, #333);
-
-	--tooltip-background-color: light-dark(white, #333);
+	--popup-background: light-dark(white, #333);
+	--popup-border-radius: 4px;
+	--popup-shadow-blur-radius: 6px;
+	
+	--tooltip-background: light-dark(white, #333);
 	--tooltip-text-color: CanvasText;
 
 	--info-color: #3369fa;
@@ -175,6 +178,5 @@ table{
 	--text-size: 14px;
 	--border-radius: 4px;
 	--focus-shadow-blur-radius: 4px;
-	--popup-border-radius: 4px;
-	--popup-shadow-blur-radius: 6px;
+
 }
