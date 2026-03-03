@@ -1,5 +1,5 @@
-import {html, Component, render} from '@pucelle/lupos.js'
-import {watch} from '@pucelle/lupos'
+import {html, Component, render} from 'lupos.html'
+import {watch} from 'lupos'
 import {
 	Radio, RadioGroup, Checkbox, CheckboxGroup, Row, Col, Icon, Button, ButtonGroup,
 	Select, tooltip, Link, Label, Switch, Tag, Input, Textarea, Form, Search,
@@ -16,7 +16,7 @@ import {
 	IconTips,
 	IconDown
 } from '../../out'
-import {sleep, range, EventUtils} from '@pucelle/ff'
+import {sleep, range, EventUtils} from 'ff-kit'
 
 
 class Preview extends Component {
@@ -357,7 +357,7 @@ class Preview extends Component {
 				</Form>
 			</section>
 
-			`
+		`
 	}
 
 	private renderSelect() {

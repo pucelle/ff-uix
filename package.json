@@ -16,8 +16,8 @@
 	"scripts": {
 		"build": "luc -e",
 		"watch": "luc -e -w",
-		"build-docs": "cd docs && luc",
-		"watch-docs": "cd docs && luc -w",
+		"build-docs": "cd docs && luc -e",
+		"watch-docs": "cd docs && luc -e -w",
 		"dev-docs": "webpack serve",
 		"dev-bundled-docs": "webpack serve --mode=\"production\"",
 		"bundle-docs": "webpack --mode=\"production\"",

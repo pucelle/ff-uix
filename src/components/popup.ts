@@ -44,6 +44,12 @@ export class Popup<E = {}> extends Component<E> {
 	/** The direction triangle acute angle point to. */
 	triangleDirection: 'top' | 'bottom' | 'left' | 'right' = 'top'
 
+	/** Triangle width, the size of bottom side of the triangle. */
+	triangleWidth: number = 10
+
+	/** Triangle height, the size of height of the triangle. */
+	triangleHeight: number = 6
+
 	/** 
 	 * Get the trigger element, which cause current popup pop-up.
 	 * Only exist after current popup get popped-up.
@@ -64,7 +70,11 @@ export class Popup<E = {}> extends Component<E> {
 				:transition.immediate=${fade()}
 			>
 				<lu:if ${this.triangle}>
-					<Triangle .direction=${this.triangleDirection} />
+					<Triangle
+						.width=${this.triangleWidth}
+						.height=${this.triangleHeight}
+						.direction=${this.triangleDirection}
+					/>
 				</lu:if>
 				<slot />
 			</template>

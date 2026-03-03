@@ -51,39 +51,24 @@ export class Tooltip<E = {}> extends Popup<E> {
 		}
 
 		.tooltip-type-default{
-			background: var(--tooltip-background-color);
+			--popup-background-color: var(--tooltip-background-color);
 			color: var(--tooltip-text-color);
-
-			.tooltip-triangle{
-				fill: var(--tooltip-background-color);
-			}
 		}
 
 		.tooltip-type-prompt{
-			background: var(--text-color);
+			--popup-background-color: var(--text-color);
 			color: var(--background-color);
 			pointer-events: auto;
-
-			.tooltip-triangle{
-				fill: var(--text-color);
-			}
 		}
 
 		.tooltip-type-error{
-			background: var(--error-color);
+			--popup-background-color: var(--error-color);
 			color: #fff;
-
-			.tooltip-triangle{
-				fill: var(--error-color);
-			}
 		}
 	`
 
 	
 	size: ThemeSize = 'default'
-
-	triangleWidth: number = 10
-	triangleHeight: number = 6
 
 	/** 
 	 * Tooltip type:
