@@ -1,4 +1,5 @@
-import {MiniHeap} from "lupos"
+import {MedianHeap} from 'lupos'
+
 
 export class PartialSizeStat {
 
@@ -6,7 +7,7 @@ export class PartialSizeStat {
 	private averageSize: number = 0
 
 	/** Cache item sizes, sort from lower to upper. */
-	private heap: MiniHeap<number> = new MiniHeap((a, b) => a - b)
+	private heap: MedianHeap<number> = new MedianHeap((a, b) => a - b)
 
 	/** Clear all stat data. */
 	reset() {
@@ -38,13 +39,10 @@ export class PartialSizeStat {
 			heapSize++
 			
 			if (heapSize > 100) {
-				let index1 = Math.floor(Math.random() * heapSize / 2)
-				let index2 = heapSize - index1
 
 				// Remove larger index, then smaller.
-				this.heap.removeAt(index2)
-				this.heap.removeAt(index1)
-
+				this.heap.popTails()
+	
 				heapSize -= 2
 			}
 		}
@@ -57,11 +55,16 @@ export class PartialSizeStat {
 
 	/** Get median item size. */
 	getMedianSize(): number {
-		let size = this.heap.size
-		if (size === 0) {
-			return 0
-		}
-
-		return this.heap.getAt(Math.floor(this.heap.size / 2))
+		return this.heap.median ?? 0
 	}
+}
+
+
+/** Get change rate. */
+export function getChangeRate(from: number, to: number): number {
+	if (from === 0 && to === 0) {
+		return 0
+	}
+
+	return Math.abs(from - to) / Math.max(from, to)
 }

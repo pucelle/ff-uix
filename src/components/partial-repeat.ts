@@ -34,6 +34,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 	/** 
 	 * Guess an item size for first-time paint,
 	 * and avoid it checking for item-size and render twice.
+	 * If `guessedItemSize` changed more than 33%, will cause restart item size stat.
 	 */
 	guessedItemSize: number = 0
 

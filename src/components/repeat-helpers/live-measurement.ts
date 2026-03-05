@@ -1,6 +1,7 @@
 import {ValueListUtils} from 'ff-kit'
 import {PartialMeasurement, UnCoveredDirection} from './partial-measurement'
 import {barrierDOMReading} from 'lupos'
+import {getChangeRate} from './partial-size-stat'
 
 
 /**
@@ -42,10 +43,10 @@ export class LiveMeasurement extends PartialMeasurement {
 		}
 		else {
 			if (alignAt === 'start') {
-				return this.getAverageItemSize() * index
+				return this.getMedianItemSize() * index
 			}
 			else {
-				return this.getAverageItemSize() * index + this.scrollerSize
+				return this.getMedianItemSize() * index + this.scrollerSize
 			}
 		}
 	}
@@ -60,7 +61,7 @@ export class LiveMeasurement extends PartialMeasurement {
 			return startIndex
 		}
 		else {
-			let itemSize = this.getAverageItemSize()
+			let itemSize = this.getMedianItemSize()
 			let startIndex = itemSize > 0 ? Math.floor(scrolled / itemSize) : 0
 
 			return startIndex
@@ -74,10 +75,11 @@ export class LiveMeasurement extends PartialMeasurement {
 		this.sliderProperties.endOffset = this.sliderProperties.startOffset + sliderClientSize
 	}
 
-	/** Normal limit in 0.5~2. */
 	override fixFrontPlaceholderSize(frontSize: number, startIndex: number): number {
 		let normalSize = this.getNormalFrontPlaceholderSize(startIndex)
-		if (frontSize < normalSize / 2 || frontSize > normalSize * 2) {
+
+		// Limit by normal size if changed much.
+		if (getChangeRate(frontSize, normalSize) > 0.5) {
 			frontSize = normalSize
 		}
 
@@ -91,7 +93,7 @@ export class LiveMeasurement extends PartialMeasurement {
 			return end
 		}
 
-		let itemSize = this.getAverageItemSize()
+		let itemSize = this.getMedianItemSize()
 
 		// Can reuse previous measured end slider position properties.
 		if (this.indices.endIndex <= dataCount

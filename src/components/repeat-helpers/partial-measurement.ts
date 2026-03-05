@@ -1,4 +1,4 @@
-import {PartialSizeStat} from './partial-size-stat'
+import {getChangeRate, PartialSizeStat} from './partial-size-stat'
 import {DirectionalOverflowAccessor} from './directional-overflow-accessor'
 import {barrierDOMReading} from 'lupos'
 import {Component} from 'lupos.html'
@@ -148,12 +148,16 @@ export class PartialMeasurement {
 	 * and avoid it checking for item-size and render twice when initialization.
 	 */
 	setGuessedItemSize(size: number) {
+		let medianSize = this.stat.getMedianSize()
+		if (getChangeRate(size, medianSize) > 0.5) {
+			this.stat.reset()
+		}
 		this.guessedItemSize = size
 	}
 
-	/* Whether has measured. */
+	/* Whether has measured or specified guessed item size. */
 	hasMeasured(): boolean {
-		return this.getAverageItemSize() > 0
+		return this.getMedianItemSize() > 0
 	}
 
 	/** Get item size. */
@@ -161,7 +165,10 @@ export class PartialMeasurement {
 		return this.stat.getAverageSize() || this.guessedItemSize
 	}
 
-	/** Get median item size. */
+	/** 
+	 * Get median item size.
+	 * Prefer median size because sometimes there are few like expanded item existing.
+	 */
 	getMedianItemSize(): number {
 		return this.stat.getMedianSize() || this.guessedItemSize
 	}
@@ -200,10 +207,10 @@ export class PartialMeasurement {
 	/** Calc scroll position by aligning specified index at start or end. */
 	calcScrollPosition(index: number, alignAt: 'start' | 'end'): number {
 		if (alignAt === 'start') {
-			return this.getAverageItemSize() * index + this.sliderProperties.initialOffset
+			return this.getMedianItemSize() * index + this.sliderProperties.initialOffset
 		}
 		else {
-			return this.getAverageItemSize() * index + this.scrollerSize + this.sliderProperties.initialOffset
+			return this.getMedianItemSize() * index + this.scrollerSize + this.sliderProperties.initialOffset
 		}
 	}
 
@@ -213,7 +220,7 @@ export class PartialMeasurement {
 		
 		let scrolled = this.doa.getScrolled(this.scroller)
 		let sliderInitialOffset = this.doa.getOffset(this.slider.previousElementSibling as HTMLElement, this.scroller)
-		let itemSize = this.getAverageItemSize()
+		let itemSize = this.getMedianItemSize()
 		let startIndex = itemSize > 0 ? Math.floor((scrolled - sliderInitialOffset) / itemSize) : 0
 
 		return startIndex
@@ -299,7 +306,7 @@ export class PartialMeasurement {
 
 	/** Calculate a rough front placeholder sizes. */
 	getNormalFrontPlaceholderSize(startIndex: number): number {
-		let itemSize = this.getAverageItemSize()
+		let itemSize = this.getMedianItemSize()
 		return itemSize * startIndex
 	}
 
@@ -313,8 +320,8 @@ export class PartialMeasurement {
 	fixFrontPlaceholderSize(frontSize: number, startIndex: number): number {
 		let normalSize = this.getNormalFrontPlaceholderSize(startIndex)
 
-		// Only limit minimum size.
-		if (frontSize < normalSize / 2) {
+		// Limit by normal size if not smaller too much.
+		if (frontSize < normalSize && getChangeRate(frontSize, normalSize) > 0.5) {
 			frontSize = normalSize
 		}
 
@@ -328,7 +335,9 @@ export class PartialMeasurement {
 	/** Fix back placeholder size to limit it in range. */
 	fixBackPlaceholderSize(backSize: number, endIndex: number, dataCount: number): number {
 		let normalSize = this.getNormalBackPlaceholderSize(endIndex, dataCount)
-		if (backSize < normalSize / 2 || backSize > normalSize * 2) {
+
+		// Limit by normal size if changed much.
+		if (getChangeRate(backSize, normalSize) > 0.5) {
 			backSize = normalSize
 		}
 
