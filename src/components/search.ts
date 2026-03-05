@@ -23,6 +23,7 @@ export class Search<E = {}> extends Input<SearchEvents & E> {
 			border: 1px solid var(--border-color);
 			border-radius: var(--border-radius);
 			padding: 0 0.2em;
+			box-shadow: none;
 			
 			&:focus{
 				border-color: var(--primary-color);
