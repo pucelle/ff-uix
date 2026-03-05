@@ -1,4 +1,4 @@
-import {MedianHeap} from 'lupos'
+import {MedianHeap} from 'ff-kit'
 
 
 export class PartialSizeStat {
