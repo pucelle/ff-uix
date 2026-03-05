@@ -353,7 +353,7 @@ export class popup implements Binding, Part {
 	 * Do hide popup action.
 	 * If `forReuse`, will leave element in document.
 	 */
-	protected onDoHide() {
+	protected async onDoHide() {
 		if (this.options.activeClassName) {
 			this.el.classList.remove(this.options.activeClassName)
 		}
@@ -369,16 +369,32 @@ export class popup implements Binding, Part {
 		// Rendered content to be referenced as a slot content by popup,
 		// it's as part of `rendered`, not `popup`.
 		let popup = this.popup
-		let promise = popup?.remove(true)
-		this.rendered?.remove()
+		let promise1 = popup?.remove(true)
+		let promise2 = this.rendered?.remove()
+
+		this.clearPopup()
 
 		// After transition end, stop alignment.
-		promise?.then(() => {
-			if (!this.opened) {
-				this.aligner?.stop()
-				this.aligner = null
-			}
-		})
+		await Promise.all([promise1, promise2])
+
+		if (!this.opened) {
+			this.aligner?.stop()
+			this.aligner = null
+		}
+	}
+
+	/** Clears popup content, reset to initial state. */
+	clearPopup() {
+		if (this.opened) {
+			this.hidePopup()
+		}
+
+		if (this.popup) {
+			SharedPopups.clearPopupUser(this.popup)
+		}
+
+		this.rendered = null
+		this.popup = null
 	}
 
 	update(renderer: RenderResultRenderer | null, options: Partial<PopupOptions> = {}) {
@@ -464,7 +480,7 @@ export class popup implements Binding, Part {
 		rendered.renderer = this.renderer
 		rendered.context = this.context
 
-		// Connect rendered if not have without appending it to document.
+		// Connect rendered if not have been appended it to document.
 		let connected = await rendered.connectManually()
 		if (!connected) {
 			return
@@ -599,19 +615,5 @@ export class popup implements Binding, Part {
 		}
 
 		return true
-	}
-
-	/** Clears popup content, reset to initial state. */
-	clearPopup() {
-		if (this.opened) {
-			this.hidePopup()
-		}
-
-		if (this.popup) {
-			SharedPopups.clearPopupUser(this.popup)
-		}
-
-		this.rendered = null
-		this.popup = null
 	}
 }

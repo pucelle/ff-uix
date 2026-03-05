@@ -59,6 +59,11 @@ export class PopupState {
 		this.showTimeout.start()
 		this.willShowSoon = true
 
+		// Ensure show popup immediately.
+		if (showDelay === 0) {
+			this.showTimeout.flush()
+		}
+
 		return true
 	}
 
@@ -87,6 +92,11 @@ export class PopupState {
 
 		this.hideTimeout.start()
 		this.willHideSoon = true
+
+		// Ensure hide popup immediately.
+		if (hideDelay === 0) {
+			this.hideTimeout.flush()
+		}
 
 		return true
 	}

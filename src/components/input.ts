@@ -2,8 +2,9 @@ import {Component, css, html, RenderResult} from 'lupos.html'
 import {tooltip, TooltipOptions} from '../bindings'
 import {Icon} from './icon'
 import {ThemeSize} from '../style'
-import {DOMModifiableEvents, watch} from 'lupos'
+import {DOMModifiableEvents, UpdateQueue, watch} from 'lupos'
 import {IconChecked} from '../icons'
+import {sleep} from 'ff-kit'
 
 
 interface InputEvents {
@@ -56,6 +57,8 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 		.input-icon{
 			width: 2em;
 			height: 100%;
+			margin-block: auto;
+			margin-left: 8px;
 		}
 
 		.input-field{
@@ -84,7 +87,8 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 			position: absolute;
 			left: 0;
 			top: 100%;
-			font-size: 0.928em;
+			line-height: 2;
+			font-size: calc(1em - 1px);
 			color: var(--error-color);
 		}
 	`
@@ -155,6 +159,19 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 
 	/** Input field element reference. */
 	protected fieldRef!: HTMLInputElement | HTMLTextAreaElement
+
+	protected override async onConnected() {
+		super.onConnected()
+		
+		// `autofocus` property work for only for the first time.
+		if (this.autoFocus) {
+			await UpdateQueue.untilAllComplete()
+
+			// If within a popup, it may be postpone for several microtask ticks.
+			await sleep(0)
+			this.fieldRef.focus()
+		}
+	}
 
 	protected override onWillDisconnect() {
 		super.onWillDisconnect()
