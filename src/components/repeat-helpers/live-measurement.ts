@@ -79,7 +79,7 @@ export class LiveMeasurement extends PartialMeasurement {
 		let normalSize = this.getNormalFrontPlaceholderSize(startIndex)
 
 		// Limit by normal size if changed much.
-		if (getChangeRate(frontSize, normalSize) > 0.5) {
+		if (getChangeRate(frontSize, normalSize) > 0.33) {
 			frontSize = normalSize
 		}
 

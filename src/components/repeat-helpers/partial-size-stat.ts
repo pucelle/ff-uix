@@ -12,6 +12,7 @@ export class PartialSizeStat {
 	/** Clear all stat data. */
 	reset() {
 		this.averageSize = 0
+		this.heap.clear()
 	}
 
 	/** After every time rendered, update indices and sizes. */

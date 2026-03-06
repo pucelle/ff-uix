@@ -149,7 +149,7 @@ export class PartialMeasurement {
 	 */
 	setGuessedItemSize(size: number) {
 		let medianSize = this.stat.getMedianSize()
-		if (getChangeRate(size, medianSize) > 0.5) {
+		if (getChangeRate(size, medianSize) > 0.33) {
 			this.stat.reset()
 		}
 		this.guessedItemSize = size
@@ -321,7 +321,7 @@ export class PartialMeasurement {
 		let normalSize = this.getNormalFrontPlaceholderSize(startIndex)
 
 		// Limit by normal size if not smaller too much.
-		if (frontSize < normalSize && getChangeRate(frontSize, normalSize) > 0.5) {
+		if (frontSize < normalSize && getChangeRate(frontSize, normalSize) > 0.33) {
 			frontSize = normalSize
 		}
 
@@ -337,7 +337,7 @@ export class PartialMeasurement {
 		let normalSize = this.getNormalBackPlaceholderSize(endIndex, dataCount)
 
 		// Limit by normal size if changed much.
-		if (getChangeRate(backSize, normalSize) > 0.5) {
+		if (getChangeRate(backSize, normalSize) > 0.33) {
 			backSize = normalSize
 		}
 
