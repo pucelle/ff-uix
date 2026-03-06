@@ -8,12 +8,15 @@ import {popup} from '../popup'
  * Cache shared popup rendered by their `:popup` `key` option.
  * If many different template share same key, may cause frequently toggling and destroying.
  */
-const PopupContentCache: ListMap<string, RenderedComponentLike> = /*#__PURE__*/new ListMap()
+const CacheByKey: ListMap<string, RenderedComponentLike> = /*#__PURE__*/new ListMap()
 
 /** Cache shared rendered that are using by popup binding. */
-const RenderedUsedBy: WeakMap<RenderedComponentLike, popup> = /*#__PURE__*/new WeakMap()
+const CacheUsedBy: WeakMap<RenderedComponentLike, popup> = /*#__PURE__*/new WeakMap()
 
-/** Cache popups that are using by popup binding. */
+/** 
+ * Cache popups that are using by popup binding,
+ * For finding popup binding by <Popup> component.
+ */
 const PopupUsedBy: WeakMap<Popup, popup> = /*#__PURE__*/new WeakMap()
 
 
@@ -24,7 +27,7 @@ export function getCache(key: string): RenderedComponentLike | null {
 		return null
 	}
 
-	let binding = RenderedUsedBy.get(cache)
+	let binding = CacheUsedBy.get(cache)
 	if (binding) {
 		clearCacheUser(cache)
 		binding.clearPopup()
@@ -41,7 +44,7 @@ export function clearCache(key: string, fromBinding: popup) {
 		return
 	}
 
-	let binding = RenderedUsedBy.get(cache)
+	let binding = CacheUsedBy.get(cache)
 	if (binding && binding !== fromBinding) {
 		clearCacheUser(cache)
 		binding.clearPopup()
@@ -54,7 +57,7 @@ export function clearCache(key: string, fromBinding: popup) {
 
 /** Find a shared popup cache by `key`. */
 function findCache(key: string): RenderedComponentLike | null {
-	let caches = PopupContentCache.get(key)
+	let caches = CacheByKey.get(key)
 	if (!caches) {
 		return null
 	}
@@ -65,7 +68,7 @@ function findCache(key: string): RenderedComponentLike | null {
 	for (let cache of caches) {
 
 		// Are using and can't reuse.
-		let binding = RenderedUsedBy.get(cache)
+		let binding = CacheUsedBy.get(cache)
 		if (binding && !binding.canPopupReuse()) {
 			continue
 		}
@@ -99,7 +102,7 @@ export function isCacheOpened(key: string): boolean {
 		return false
 	}
 
-	let binding = RenderedUsedBy.get(cache)
+	let binding = CacheUsedBy.get(cache)
 	if (!binding) {
 		return false
 	}
@@ -110,23 +113,23 @@ export function isCacheOpened(key: string): boolean {
 
 /** Add a shared popup cache. */
 export function addCache(key: string, cache: RenderedComponentLike) {
-	PopupContentCache.add(key, cache)
+	CacheByKey.add(key, cache)
 }
 
 
 /** Set a rendered is using by a popup binding. */
 export function setCacheUser(cache: RenderedComponentLike, binding: popup) {
-	RenderedUsedBy.set(cache, binding)
+	CacheUsedBy.set(cache, binding)
 }
 
 /** Get the popup binding which uses a rendered. */
 export function getCacheUser(cache: RenderedComponentLike): popup | undefined {
-	return RenderedUsedBy.get(cache)
+	return CacheUsedBy.get(cache)
 }
 
 /** Clear a rendered usage. */
 export function clearCacheUser(cache: RenderedComponentLike) {
-	RenderedUsedBy.delete(cache)
+	CacheUsedBy.delete(cache)
 }
 
 

@@ -51,7 +51,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 		}
 
 		.tooltip-type-default{
-			--popup-background: var(--tooltip-background-color);
+			--popup-background: var(--tooltip-background);
 			color: var(--tooltip-text-color);
 		}
 

@@ -389,6 +389,10 @@ export class popup implements Binding, Part {
 			this.hidePopup()
 		}
 
+		if (this.rendered) {
+			SharedPopups.clearCacheUser(this.rendered)
+		}
+
 		if (this.popup) {
 			SharedPopups.clearPopupUser(this.popup)
 		}
