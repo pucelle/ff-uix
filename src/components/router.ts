@@ -112,12 +112,12 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 		this.state = {index: 0, path: this.path}
 		this.replaceHistoryState(this.state)
-		DOMEvents.on(window, 'popstate', this.onWindowPopState as (e: Event) => void, this)
+		DOMEvents.on(window, 'popstate', this.onWindowPopState, this)
 	}
 
 	protected override onWillDisconnect() {
 		super.onWillDisconnect()
-		DOMEvents.off(window, 'popstate', this.onWindowPopState as (e: Event) => void, this)
+		DOMEvents.off(window, 'popstate', this.onWindowPopState, this)
 	}
 
 	protected onWindowPopState(e: PopStateEvent) {

@@ -261,10 +261,10 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 			this.changeValueByEvent(e, rect)
 		}
 
-		DOMEvents.on(document, 'mousemove', onMouseMove as (e: Event) => void)
+		DOMEvents.on(document, 'mousemove', onMouseMove)
 
 		DOMEvents.once(document, 'mouseup', () => {
-			DOMEvents.off(document, 'mousemove', onMouseMove as (e: Event) => void)
+			DOMEvents.off(document, 'mousemove', onMouseMove)
 
 			this.dragging = false
 			this.fire('dragend')
@@ -320,8 +320,8 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 	protected onFocus() {
 		this.onBlur()
 		
-		DOMEvents.on(document, 'keydown', this.onKeyDown as (e: Event) => void, this)
-		DOMEvents.on(document, 'wheel', this.onWheel as (e: Event) => void, this, {passive: true})
+		DOMEvents.on(document, 'keydown', this.onKeyDown, this)
+		DOMEvents.on(document, 'wheel', this.onWheel, this, {passive: true})
 	}
 
 	protected onKeyDown(this: Slider, e: KeyboardEvent) {
@@ -359,7 +359,7 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 	}
 
 	protected onBlur() {
-		DOMEvents.off(document, 'keydown', this.onKeyDown as (e: Event) => void, this)
-		DOMEvents.off(document, 'wheel', this.onWheel as (e: Event) => void, this)
+		DOMEvents.off(document, 'keydown', this.onKeyDown, this)
+		DOMEvents.off(document, 'wheel', this.onWheel, this)
 	}
 }

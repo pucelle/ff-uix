@@ -214,7 +214,7 @@ export class ColumnWidthResizer {
 				this.resizingColumnWidths = null
 			}
 
-			DOMEvents.off(document, 'mousemove', onMouseMove as (e: Event) => void)
+			DOMEvents.off(document, 'mousemove', onMouseMove)
 			cursorMask.remove()
 			this.columnResized = true
 		}
@@ -222,7 +222,7 @@ export class ColumnWidthResizer {
 		let cursorMask = render(html`<div class="${this.resizingMaskClassName}" />`)
 		cursorMask.appendTo(document.body)
 
-		DOMEvents.on(document, 'mousemove', onMouseMove as (e: Event) => void)
+		DOMEvents.on(document, 'mousemove', onMouseMove)
 		DOMEvents.once(document, 'mouseup', onMouseUp)
 	}
 

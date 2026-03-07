@@ -229,6 +229,7 @@ export class PartialRenderer {
 	/** Read new scroller size. */
 	protected async readScrollerSize() {
 		await this.measurement.readScrollerSize()
+		this.readScrollerSizePromise = null
 	}
 
 	/** 
@@ -250,25 +251,36 @@ export class PartialRenderer {
 		}
 	}
 
-	/** Calls `updateCallback`. */
-	protected async updateRendering() {
-		await barrierDOMWriting()
+	/** 
+	 * Calls `updateCallback`.
+	 * If `callImmediately`, no need to wait.
+	 */
+	protected async updateRendering(callImmediately: boolean) {
+		if (!callImmediately) {
+			await barrierDOMWriting()
 
-		// Because we update parent and self in serialization,
-		// Parent updating will cause child disconnect even child is in updating.
-		// So need to check `connected` every time after `barrierDOMWriting`.
-		if (!this.connected) {
-			return
+			// Because we update parent and self in serialization,
+			// Parent updating will cause child disconnect even child is in updating.
+			// So need to check `connected` every time after `barrierDOMWriting`.
+			if (!this.connected) {
+				return
+			}
 		}
 
 		this.updateCallback()
 	}
 
-	/** Update from applying start index or just update data. */
+	/** 
+	 * Update from applying start index or just update data.
+	 * Note currently it inside a update queue, so should call
+	 * update callback as soon as possible.
+	 */
 	async update() {
 
 		// Must wait for scroller size read.
-		await this.readScrollerSizePromise
+		if (this.readScrollerSizePromise) {
+			await this.readScrollerSizePromise
+		}
 
 		// Render one item for measurement.
 		if (!this.measurement.hasMeasured()) {
@@ -315,7 +327,7 @@ export class PartialRenderer {
 		this.startIndex = 0
 		this.endIndex = 1
 
-		await this.updateRendering()
+		await this.updateRendering(true)
 
 		if (!this.connected) {
 			return
@@ -396,11 +408,7 @@ export class PartialRenderer {
 			this.alignDirection = alignDirection ?? 'start'
 			this.setIndices(startIndex, endIndex)
 
-			await this.updateRendering()
-
-			if (!this.connected) {
-				return
-			}
+			this.updateRendering(true)
 
 			await this.resetPositions(
 				true,
@@ -438,11 +446,7 @@ export class PartialRenderer {
 		this.alignDirection = 'start'
 		this.setIndices(this.startIndex)
 
-		await this.updateRendering()
-
-		if (!this.connected) {
-			return
-		}
+		this.updateRendering(true)
 
 		// Reset index by scroll position.
 		if (!canPersist) {
@@ -769,7 +773,7 @@ export class PartialRenderer {
 		this.alignDirection = 'start'
 		this.setIndices(newStartIndex)
 
-		await this.updateRendering()
+		await this.updateRendering(false)
 
 		if (!this.connected) {
 			return
@@ -781,7 +785,7 @@ export class PartialRenderer {
 	/** Update by specified slider position. */
 	protected async updateBySliderPosition(direction: 'start' | 'end', position: number | null) {
 		this.alignDirection = direction
-		await this.updateRendering()
+		await this.updateRendering(false)
 
 		if (!this.connected) {
 			return

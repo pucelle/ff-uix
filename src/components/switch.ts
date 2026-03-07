@@ -95,7 +95,7 @@ export class Switch<E = {}> extends Component<E & SwitchEvents> {
 	}
 
 	protected onFocus() {
-		DOMEvents.on(document, 'keydown', this.onKeyDown as (e: Event) => void, this)
+		DOMEvents.on(document, 'keydown', this.onKeyDown, this)
 	}
 
 	protected onKeyDown(e: KeyboardEvent) {
@@ -121,6 +121,6 @@ export class Switch<E = {}> extends Component<E & SwitchEvents> {
 	}
 
 	protected onBlur() {
-		DOMEvents.off(document, 'keydown', this.onKeyDown as (e: Event) => void, this)
+		DOMEvents.off(document, 'keydown', this.onKeyDown, this)
 	}
 }
