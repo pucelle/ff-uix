@@ -609,6 +609,13 @@ export class PartialRenderer {
 			return
 		}
 
+		// Already reach the range edge, no need to render more.
+		if (unCoveredSituation === 'partial-start' && this.startIndex === 0
+			|| unCoveredSituation === 'partial-end' && this.endIndex === this.dataCount
+		) {
+			return
+		}
+
 		// Update and try to keep same element with same position.
 		if (unCoveredSituation === 'partial-end' || unCoveredSituation === 'partial-start') {
 			await barrierDOMReading()

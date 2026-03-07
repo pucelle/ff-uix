@@ -395,13 +395,12 @@ export class PartialMeasurement {
 		}
 
 		// Can't cover and need to render more items at top/left.
-		// The `1px` is because sometimes close to edge but have like 0.0001px diff.
-		if (sliderStart - 1 + reservedPixels > 0) {
+		if (sliderStart + reservedPixels > 0) {
 			return 'partial-start'
 		}
 
 		// Can't cover and need to render more items at bottom/right.
-		if (sliderEnd + 1 - reservedPixels < scrollerSize) {
+		if (sliderEnd - reservedPixels < scrollerSize) {
 			return 'partial-end'
 		}
 
