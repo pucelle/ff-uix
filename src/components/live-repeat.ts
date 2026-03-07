@@ -10,7 +10,8 @@ import {PartialRepeat} from './partial-repeat'
  * dynamically updates them during user scrolling.
  * 
  * Compared to `<PartialRepeat>`, `<LiveRepeat>` is more efficient but
- * requires it's the only content of whole scroller.
+ * requires it's the only content of whole scroller. So it is more fits for rendering
+ * huge complex contents.
  * 
  * Some restrictions you need to know:
  * - `<LiveRepeat>` must be contained in a scroller element with `overflow: auto / scroll`.
@@ -24,6 +25,7 @@ export class LiveRepeat<T = any, E = {}> extends PartialRepeat<T, E> {
 	/** Partial content renderer. */
 	declare protected renderer: LiveRenderer | null
 
+	override reservedPixels: number = 400
 
 	/** 
 	 * Whether partial rendering content as follower,

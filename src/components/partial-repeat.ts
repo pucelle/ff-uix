@@ -27,7 +27,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 	* How many pixels to reserve to reduce update frequency when scrolling.
 	* On Windows, scroll for 100px each time.
 	* So `200px` is a reasonable value.
-	* For faster scrolling, you may set this value to `500~600`.
+	* For larger area of contents, you may reset this value to `400~800`.
 	*/
 	reservedPixels: number = 200
 

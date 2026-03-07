@@ -74,7 +74,10 @@ export class PartialRenderer {
 	/** Help to get and set based on overflow direction. */
 	readonly doa: DirectionalOverflowAccessor
 
-	/** How many pixels to reserve to reduce update frequency when scrolling. */
+	/** 
+	 * How many pixels to reserve to reduce update frequency when scrolling.
+	 * Normally it should be at least 200.
+	 */
 	reservedPixels: number = 200
 
 	/** Total data count. */
@@ -596,7 +599,8 @@ export class PartialRenderer {
 	protected async doCoverageUpdate() {
 
 		// Which direction is un-covered.
-		let unCoveredSituation = await this.measurement.checkUnCoveredDirection()
+		let reservedPixels = Math.min(this.reservedPixels / 4, 100)
+		let unCoveredSituation = await this.measurement.checkUnCoveredDirection(reservedPixels)
 		if (unCoveredSituation === null) {
 			return
 		}
