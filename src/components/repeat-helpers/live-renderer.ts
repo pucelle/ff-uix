@@ -1,9 +1,9 @@
 import {ResizeWatcher} from 'ff-kit'
 import {DirectionalOverflowAccessor} from './directional-overflow-accessor'
 import {LiveMeasurement} from './live-measurement'
-import {barrierDOMReading, barrierDOMWriting, DOMEvents} from 'lupos'
-import {PartialRenderer} from './partial-renderer'
+import {barrierDOMReading, barrierDOMWriting} from 'lupos'
 import {Component} from 'lupos.html'
+import {RendererBase} from './base-renderer'
 
 
 /**
@@ -19,7 +19,7 @@ import {Component} from 'lupos.html'
  * - Validate scroll viewport coverage and adjust `startIndex`
  *   or `endIndex` a little if not fully covered.
  */
-export class LiveRenderer extends PartialRenderer {
+export class LiveRenderer extends RendererBase {
 
 	declare measurement: LiveMeasurement
 	declare readonly frontPlaceholder: null
@@ -33,23 +33,23 @@ export class LiveRenderer extends PartialRenderer {
 	readonly asFollower: boolean
 
 	/** If provided and not 0, will use it forever and never read scroller size. */
-	private directScrollSize: number = 0
+	private directScrollerSize: number = 0
 
 	/** The only placeholder. */
-	private onlyPlaceholder: HTMLDivElement | null
+	private placeholder: HTMLDivElement | null
 
 	constructor(
 		scroller: HTMLElement,
 		slider: HTMLElement,
 		repeat: HTMLElement,
 		context: Component,
-		placeholder: HTMLDivElement | null,
-		asFollower: boolean,
 		doa: DirectionalOverflowAccessor,
-		updateCallback: () => void
+		updateCallback: () => void,
+		placeholder: HTMLDivElement | null,
+		asFollower: boolean
 	) {
-		super(scroller, slider, repeat, context, null, null, doa, updateCallback)
-		this.onlyPlaceholder = placeholder
+		super(scroller, slider, repeat, context, doa, updateCallback)
+		this.placeholder = placeholder
 		this.asFollower = asFollower
 	}
 
@@ -57,37 +57,16 @@ export class LiveRenderer extends PartialRenderer {
 		return new LiveMeasurement(this.scroller, this.slider, this.repeat, this.context, this.doa)
 	}
 
-	/** Set `preEndPositions` before updating. */
-	setPreEndPositions(positions: number[] | null) {
-		this.measurement.setPreEndPositions(positions)
-	}
-
-	override async connect() {
-		if (this.connected) {
-			return
-		}
-
-		this.connected = true
-
-		DOMEvents.on(this.scroller, 'scroll', this.onScrollerScroll, this, {passive: true})
-		ResizeWatcher.watch(this.slider, this.onSliderSizeUpdated, this)
-
-		if (!this.directScrollSize) {
-			await this.readScrollerSize()
-		}
-
-		// Must re-validate after `readScrollerSize`.		
-		if (!this.directScrollSize) {
-			ResizeWatcher.watch(this.scroller, this.readScrollerSize, this)
+	protected override initScrollerSize() {
+		if (!this.directScrollerSize) {
+			super.initScrollerSize()
 		}
 	}
 
-	override disconnect() {
-		if (!this.connected) {
-			return
+	protected override disposeScrollerSize() {
+		if (!this.directScrollerSize) {
+			super.disposeScrollerSize()
 		}
-
-		this.connected = false
 
 		// For restoring scroll position later.
 		// Here can't `barrierDOMReading`, or it delays node removing,
@@ -95,18 +74,16 @@ export class LiveRenderer extends PartialRenderer {
 		if (!this.asFollower) {
 			this.setRenderIndices('start', this.locateVisibleIndex('start'))
 		}
+	}
 
-		DOMEvents.off(this.scroller, 'scroll', this.onScrollerScroll, this)
-		ResizeWatcher.unwatch(this.slider, this.onSliderSizeUpdated, this)
-
-		if (!this.directScrollSize) {
-			ResizeWatcher.unwatch(this.scroller, this.readScrollerSize, this)
-		}
+	/** Set `preEndPositions` before updating. */
+	setPreEndPositions(positions: number[] | null) {
+		this.measurement.setPreEndPositions(positions)
 	}
 
 	/** If provided and not 0, will use it and not read scroller size. */
 	setDirectScrollSize(size: number) {
-		this.directScrollSize = size
+		this.directScrollerSize = size
 		this.measurement.setScrollerSize(size)
 		ResizeWatcher.unwatch(this.scroller, this.readScrollerSize, this)
 	}
@@ -157,8 +134,8 @@ export class LiveRenderer extends PartialRenderer {
 		}
 	}
 
-	protected override async updateRestPlaceholderSize() {
-		if (!this.onlyPlaceholder) {
+	protected override async setRestSize() {
+		if (!this.placeholder) {
 			return
 		}
 
@@ -168,24 +145,24 @@ export class LiveRenderer extends PartialRenderer {
 		}
 		
 		// Calc back size by last time rendering result.
-		let oldBackSize = this.measurement.placeholderProperties.backSize - this.measurement.sliderProperties.endOffset
+		let oldBackSize = this.measurement.placeholderSize - this.measurement.sliderPositions.endPosition
 		let fixedBackSize = this.measurement.fixBackPlaceholderSize(oldBackSize, this.measurement.indices.endIndex, this.dataCount)
 
-		// Update back size only when have at least 50% difference.
+		// Update back size only when have much rate of difference.
 		if (fixedBackSize !== oldBackSize) {
-			await this.setOnlyPlaceholderSize(this.measurement.sliderProperties.endOffset + fixedBackSize)
+			await this.setPlaceholderSize(this.measurement.sliderPositions.endPosition + fixedBackSize)
 		}
 	}
 
 	/** Set size for the only placeholder. */
-	protected async setOnlyPlaceholderSize(size: number) {
-		if (!this.onlyPlaceholder) {
+	protected async setPlaceholderSize(size: number) {
+		if (!this.placeholder) {
 			return
 		}
 		
 		await barrierDOMWriting()
-		this.doa.setSize(this.onlyPlaceholder, size)
-		this.measurement.setOnlyPlaceholderSize(size)
+		this.doa.setSize(this.placeholder, size)
+		this.measurement.setPlaceholderSize(size)
 	}
 
 	protected override async afterMeasured() {
@@ -193,20 +170,31 @@ export class LiveRenderer extends PartialRenderer {
 		// When reach start index but may not reach scroll start.
 		if (this.startIndex === 0 && this.endIndex > 0) {
 			this.alignDirection = 'start'
-			await this.fillNeedToAlign(this.repeat.children[0] as HTMLElement)
+			await this.setNeedToAlign(this.repeat.children[0] as HTMLElement)
+
+			// Will not measure again, so need to reset positions.
 			await this.setPosition(0)
+			this.measurement.resetPositions(0)
+
 			await this.alignByResettingScroll()
 		}
 
 		// Front placeholder is too much difference when scrolling up.
 		else if (this.alignDirection === 'end') {
-			let frontSize = this.measurement.sliderProperties.startOffset
+			let frontSize = this.measurement.sliderPositions.startPosition
 			let fixedFrontSize = this.measurement.fixFrontPlaceholderSize(frontSize, this.startIndex)
 
 			if (fixedFrontSize !== frontSize) {
-				let newEndOffset = this.measurement.sliderProperties.endOffset + (fixedFrontSize - frontSize)
-				await this.fillNeedToAlign(this.repeat.children[0] as HTMLElement)
-				await this.setPosition(newEndOffset)
+				let diff = fixedFrontSize - frontSize
+				let newStartPosition = this.measurement.sliderPositions.startPosition + diff
+				let newEndPosition = this.measurement.sliderPositions.endPosition + diff
+
+				await this.setNeedToAlign(this.repeat.children[0] as HTMLElement)
+
+				// Will not measure again, so need to reset positions.
+				await this.setPosition(newEndPosition)
+				this.measurement.resetPositions(newStartPosition)
+
 				await this.alignByResettingScroll()
 			}
 		}
@@ -215,15 +203,15 @@ export class LiveRenderer extends PartialRenderer {
 		if (this.endIndex === this.dataCount) {
 
 			// Placeholder size should be keep consistent with end position.
-			await this.setOnlyPlaceholderSize(this.measurement.sliderProperties.endOffset)
+			await this.setPlaceholderSize(this.measurement.sliderPositions.endPosition)
 		}
 
 		// When scrolling down, and reach scroll end but not end index.
 		// This is very rare because we have updated placeholder size using previously measured.
 		else if (this.alignDirection === 'start') {
-			let oldBackSize = this.measurement.placeholderProperties.backSize - this.measurement.sliderProperties.endOffset
+			let oldBackSize = this.measurement.placeholderSize - this.measurement.sliderPositions.endPosition
 			if (oldBackSize < 0) {
-				await this.updateRestPlaceholderSize()
+				await this.setRestSize()
 			}
 		}
 	}
@@ -235,8 +223,8 @@ export class LiveRenderer extends PartialRenderer {
 		}
 
 		await barrierDOMReading()
-		let newOffset = this.doa.getOffset(this.needToAlign.el, this.scroller)
-		let offsetDiff = newOffset - this.needToAlign.offset
+		let newAlignOffset = this.doa.getOffset(this.needToAlign.el, this.scroller)
+		let offsetDiff = newAlignOffset - this.needToAlign.offset
 
 		if (Math.abs(offsetDiff) > 5) {
 			await barrierDOMWriting()
@@ -262,7 +250,7 @@ export class LiveRenderer extends PartialRenderer {
 
 			// If el located at start, it will move by slider padding top,
 			// to keep it's position, should remove slider padding.
-			position = this.measurement.sliderProperties.startOffset
+			position = this.measurement.sliderPositions.startPosition
 				+ this.doa.getOuterOffset(el, this.slider)
 				- this.doa.getStartPadding(this.slider)
 		}
@@ -280,7 +268,7 @@ export class LiveRenderer extends PartialRenderer {
 
 			// If el located at end, it will move up by slider padding bottom,
 			// to keep it's position, should add slider bottom padding.
-			position = this.measurement.sliderProperties.startOffset
+			position = this.measurement.sliderPositions.startPosition
 				+ this.doa.getEndOuterPosition(el, this.slider)
 				+ this.doa.getEndPadding(this.slider)
 		}

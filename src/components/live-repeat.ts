@@ -64,13 +64,14 @@ export class LiveRepeat<T = any, E = {}> extends PartialRepeat<T, E> {
 			return
 		}
 
-		if (this.backPlaceholder) {
+		if (this.placeholders) {
 			return
 		}
 
-		this.backPlaceholder = document.createElement('div')
-		this.backPlaceholder.style.cssText = 'position: absolute; left: 0; top: 0; width: 1px; visibility: hidden;'
-		this.scroller!.prepend(this.backPlaceholder)
+		this.placeholders = new Array(1)
+		this.placeholders[0] = document.createElement('div')
+		this.placeholders[0].style.cssText = 'position: absolute; left: 0; top: 0; width: 1px; visibility: hidden;'
+		this.scroller.prepend(this.placeholders[0])
 	}
 
 	/** Init renderer when connected. */
@@ -91,10 +92,10 @@ export class LiveRepeat<T = any, E = {}> extends PartialRepeat<T, E> {
 			slider,
 			this.el,
 			this,
-			this.backPlaceholder,
-			this.asFollower,
 			this.doa,
-			this.updateLiveData.bind(this)
+			this.updateLiveData.bind(this),
+			this.placeholders![0],
+			this.asFollower
 		)
 	}
 }

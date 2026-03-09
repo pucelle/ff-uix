@@ -1,71 +1,5 @@
-import {getChangeRate, PartialSizeStat} from './partial-size-stat'
-import {DirectionalOverflowAccessor} from './directional-overflow-accessor'
 import {barrierDOMReading} from 'lupos'
-import {Component} from 'lupos.html'
-
-
-export type UnCoveredDirection =
-	'partial-start'		// Not fully covered at start
-	| 'partial-end'		// Not fully covered at end
-	| 'no-intersection'	// Have no intersection, ust re-render totally by current scroll position.
-	| 'out-view-start'	// Out-of-view at start.
-	| 'out-view-end'	// Out-of-view at end.
-
-
-interface LatestIndices {
-	
-	/** Latest start index when last time measuring. */
-	startIndex: number
-
-	/** Latest end index when last time measuring. */
-	endIndex: number
-
-}
-
-interface LatestSliderPositionProperties {
-
-	/** 
-	 * The initial slider offset position relative to whole scroll content,
-	 * Only affected by contents before slider.
-	 */
-	initialOffset: number
-
-	/** 
-	 * Latest offset position of visible part relative to slider start position.
-	 * update it after every time rendered.
-	 * Readonly outside.
-	 */
-	startOffset: number
-
-	/** 
-	 * Latest offset position of visible part relative to slider start position,
-	 * update it after every time rendered.
-	 * Readonly outside.
-	 */
-	endOffset: number
-}
-
-
-interface LatestPlaceholderProperties {
-
-	/** Latest front placeholder size when last time measuring. */
-	frontSize: number
-
-	/** Latest front placeholder size when last time measuring. */
-	backSize: number
-}
-
-
-/** 
- * Indicates a continuous render range, which can help
- * to calc item size more preciously.
- */
-interface ContinuousRenderRange {
-	startIndex: number
-	endIndex: number
-	startPosition: number
-	endPosition: number
-}
+import {MeasurementBase, UnCoveredDirection} from './base-measurement'
 
 
 /**
@@ -73,285 +7,46 @@ interface ContinuousRenderRange {
  * and cache latest render result for it.
  * And help to assist next time rendering.
  */
-export class PartialMeasurement {
-
-	protected readonly scroller: HTMLElement
-	protected readonly slider: HTMLElement
-	protected readonly repeat: HTMLElement
-	protected readonly context: Component
-
-	/** Do rendered item size statistic, guess item size. */
-	protected readonly stat: PartialSizeStat = new PartialSizeStat()
-
-	/** Help to get and set based on overflow direction. */
-	protected readonly doa: DirectionalOverflowAccessor
-
-	/** Indicates a continuous render range to make it more precisely to compute item size. */
-	protected continuousRenderRange: ContinuousRenderRange | null = null
-
-	/** Initial item size, now valid after measured. */
-	protected guessedItemSize: number = 0
+export class PartialMeasurement extends MeasurementBase {
 
 	/** 
-	 * Latest scroller size.
-	 * Readonly outside.
+	 * The initial slider position relative to whole scroll content,
+	 * Only affected by contents before slider.
 	 */
-	scrollerSize: number = 0
+	initialPosition: number = 0
 
-	/** Latest start and end indices when last time measuring. */
-	indices: LatestIndices = {
-		startIndex: 0,
-		endIndex: 0,
+	/** Size of latest back placeholder that after slider. */
+	backPlaceholderSize: number = 0
+
+	/** Get size of latest front placeholder that before slider. */
+	get frontPlaceholderSize() {
+		return this.sliderPositions.startPosition
 	}
 
-	/** 
-	 * Latest placeholder properties when last time set placeholder sizes.
-	 * Thus, can use previous size to do continuously updating.
-	 */
-	placeholderProperties: LatestPlaceholderProperties = {
-		frontSize: 0,
-		backSize: 0,
-	}
-
-	/** 
-	 * Latest slider position properties use when last time measuring,
-	 * thus, can reuse it to do continuous layout measurement.
-	 */
-	sliderProperties: LatestSliderPositionProperties = {
-		initialOffset: 0,
-		startOffset: 0,
-		endOffset: 0,
-	}
-
-	constructor(
-		scroller: HTMLElement,
-		slider: HTMLElement,
-		repeat: HTMLElement,
-		context: Component,
-		doa: DirectionalOverflowAccessor
-	) {
-		this.scroller = scroller
-		this.slider = slider
-		this.repeat = repeat
-		this.context = context
-		this.doa = doa
-	}
-
-	/** Read new scroller size. */
-	async readScrollerSize() {
-		await barrierDOMReading()
-		this.scrollerSize = this.doa.getClientSize(this.scroller)
-	}
-
-	/** 
-	 * Guess an item size for first-time paint,
-	 * and avoid it checking for item-size and render twice when initialization.
-	 */
-	setGuessedItemSize(size: number) {
-		let medianSize = this.stat.getMedianSize()
-		if (getChangeRate(size, medianSize) > 0.33) {
-			this.stat.reset()
-		}
-		this.guessedItemSize = size
-	}
-
-	/* Whether has measured or specified guessed item size. */
-	hasMeasured(): boolean {
-		return this.getMedianItemSize() > 0
-	}
-
-	/** Get item size. */
-	getAverageItemSize(): number {
-		return this.stat.getAverageSize() || this.guessedItemSize
-	}
-
-	/** 
-	 * Get median item size.
-	 * Prefer median size because sometimes there are few like expanded item existing.
-	 */
-	getMedianItemSize(): number {
-		return this.stat.getMedianSize() || this.guessedItemSize
-	}
-
-	/** 
-	 * Get safe render count of items to render.
-	 * If `proposed` specified, and finally render count close to it, will use it.
-	 */
-	getSafeRenderCount(reservedPixels: number, proposed: number): number {
-		if (this.scrollerSize === 0) {
-			return 1
-		}
-
-		let itemSize = this.getMedianItemSize()
-		if (itemSize === 0) {
-			return 1
-		}
-
-		// Because normally can scroll twice per frame.
-		let totalSize = this.scrollerSize + reservedPixels
-		let minimumCount = this.scrollerSize / itemSize
-		let count = totalSize / itemSize
-
-		if (Math.abs(count - proposed) < 0.5 && proposed > minimumCount) {
-			return proposed
-		}
-
-		return Math.ceil(totalSize / itemSize)
-	}
-
-	/** If re-render from a new index, call this. */
-	breakContinuousRenderRange() {
-		this.continuousRenderRange = null
-	}
-
-	/** Calc scroll position by aligning specified index at start or end. */
 	calcScrollPosition(index: number, alignAt: 'start' | 'end'): number {
 		if (alignAt === 'start') {
-			return this.getMedianItemSize() * index + this.sliderProperties.initialOffset
+			return this.getMedianItemSize() * index + this.initialPosition
 		}
 		else {
-			return this.getMedianItemSize() * index + this.scrollerSize + this.sliderProperties.initialOffset
+			return this.getMedianItemSize() * index + this.scrollerSize + this.initialPosition
 		}
 	}
 
-	/** Calc new start index by current scrolled position. */
-	async calcStartIndexByScrolled(): Promise<number> {
-		await barrierDOMReading()
-		
-		let scrolled = this.doa.getScrolled(this.scroller)
-		let sliderInitialOffset = this.doa.getOffset(this.slider.previousElementSibling as HTMLElement, this.scroller)
-		let itemSize = this.getMedianItemSize()
-		let startIndex = itemSize > 0 ? Math.floor((scrolled - sliderInitialOffset) / itemSize) : 0
+	protected updateSliderPositions(sliderClientSize: number) {
 
-		return startIndex
-	}
-
-	/** Every time after update complete, do measurement. */
-	async measureAfterRendered(startIndex: number, endIndex: number) {
-		await this.context.untilChildComplete()
-		await barrierDOMReading()
-
-		let sliderInnerSize = this.doa.getInnerSize(this.slider)
-		let sliderClientSize = this.doa.getClientSize(this.slider)
-		let paddingSize = sliderClientSize - sliderInnerSize
-		let oldStartIndex = this.indices.startIndex
-		let oldEndIndex = this.indices.endIndex
-		
-		this.indices.startIndex = startIndex
-		this.indices.endIndex = endIndex
-
-		this.updateSliderProperties(sliderClientSize)
-
-		if (this.continuousRenderRange) {
-			if (startIndex <= this.continuousRenderRange.startIndex) {
-				this.continuousRenderRange.startIndex = startIndex
-				this.continuousRenderRange.startPosition = this.sliderProperties.startOffset
-			}
-
-			if (endIndex >= this.continuousRenderRange.endIndex) {
-				this.continuousRenderRange.endIndex = endIndex
-				this.continuousRenderRange.endPosition = this.sliderProperties.endOffset
-			}
-		}
-		else {
-			this.continuousRenderRange = {
-				startIndex,
-				endIndex,
-				startPosition: this.sliderProperties.startOffset,
-				endPosition: this.sliderProperties.endOffset
-			}
-		}
-
-		let renderCount = this.continuousRenderRange.endIndex - this.continuousRenderRange.startIndex
-		let renderSize = this.continuousRenderRange.endPosition - this.continuousRenderRange.startPosition - paddingSize
-
-		// Avoid update when hidden.
-		if (renderCount > 0 && renderSize > 0) {
-			this.stat.updateRange(renderCount, renderSize)
-		}
-
-		let newRenderedStartIndex = startIndex
-		let newRenderedEndIndex = endIndex
-
-		if (startIndex < oldStartIndex) {
-			newRenderedStartIndex = startIndex
-			newRenderedEndIndex = Math.min(oldStartIndex, endIndex)
-		}
-		else if (endIndex > oldEndIndex) {
-			newRenderedStartIndex = Math.max(oldEndIndex, startIndex)
-			newRenderedEndIndex = endIndex
-		}
-
-		let newRendered: HTMLElement[] = []
-		for (let i = newRenderedStartIndex - startIndex; i < newRenderedEndIndex - startIndex; i++) {
-			newRendered.push(this.repeat.children[i] as HTMLElement)
-		}
-
-		if (newRendered.length > 0 && newRendered[0].tagName === 'slot') {
-			for (let i = 0; i < newRendered.length; i++) {
-				newRendered[i] = newRendered[i].firstElementChild as HTMLElement
-			}
-		}
-
-		let newRenderedSizes = newRendered.map(el => this.doa.getClientSize(el))
-		this.stat.updateEach(newRenderedSizes)
-	}
-
-	/** Update current slider positions. */
-	protected updateSliderProperties(sliderClientSize: number) {
-		this.sliderProperties.initialOffset = this.doa.getOffset(this.slider.previousElementSibling as HTMLElement, this.scroller)
-		this.sliderProperties.startOffset = this.placeholderProperties.frontSize
-		this.sliderProperties.endOffset = this.sliderProperties.startOffset + sliderClientSize
-	}
-
-	/** Calculate a rough front placeholder sizes. */
-	getNormalFrontPlaceholderSize(startIndex: number): number {
-		let itemSize = this.getMedianItemSize()
-		return itemSize * startIndex
-	}
-
-	/** Calculate a rough back placeholder sizes. */
-	getNormalBackPlaceholderSize(endIndex: number, dataCount: number): number {
-		let itemSize = this.getMedianItemSize()
-		return itemSize * (dataCount - endIndex)
-	}
-
-	/** Fix front placeholder size to limit it in range. */
-	fixFrontPlaceholderSize(frontSize: number, startIndex: number): number {
-		let normalSize = this.getNormalFrontPlaceholderSize(startIndex)
-
-		// Limit by normal size if not smaller too much.
-		if (frontSize < normalSize && getChangeRate(frontSize, normalSize) > 0.33) {
-			frontSize = normalSize
-		}
-
-		if (startIndex === 0) {
-			frontSize = 0
-		}
-
-		return frontSize
-	}
-
-	/** Fix back placeholder size to limit it in range. */
-	fixBackPlaceholderSize(backSize: number, endIndex: number, dataCount: number): number {
-		let normalSize = this.getNormalBackPlaceholderSize(endIndex, dataCount)
-
-		// Limit by normal size if changed much.
-		if (getChangeRate(backSize, normalSize) > 0.33) {
-			backSize = normalSize
-		}
-
-		return backSize
+		// front placeholder size will be set by `setFrontPlaceholderSize`.
+		this.initialPosition = this.doa.getOffset(this.slider.previousElementSibling as HTMLElement, this.scroller)
+		this.sliderPositions.endPosition = this.sliderPositions.startPosition + sliderClientSize
 	}
 
 	/** Set front placeholder size. */
 	setFrontPlaceholderSize(frontSize: number) {
-		this.placeholderProperties.frontSize = frontSize
+		this.sliderPositions.startPosition = frontSize
 	}
 
 	/** Set back placeholder size. */
 	setBackPlaceholderSize(backSize: number) {
-		this.placeholderProperties.backSize = backSize
+		this.backPlaceholderSize = backSize
 	}
 
 	/** Check cover situation and decide where to render more contents. */
@@ -361,11 +56,11 @@ export class PartialMeasurement {
 		let scrollerSize = this.doa.getClientSize(this.scroller)
 		let sliderSize = this.doa.getClientSize(this.slider)
 		let scrolled = this.doa.getScrolled(this.scroller)
-		let initialOffset = this.doa.getOffset(this.slider.previousElementSibling as HTMLElement, this.scroller)
-		let scrollerStart = initialOffset - scrolled
-		let sliderStart = this.placeholderProperties.frontSize + scrollerStart
+		let initialPosition = this.doa.getOffset(this.slider.previousElementSibling as HTMLElement, this.scroller)
+		let scrollerStart = initialPosition - scrolled
+		let sliderStart = this.frontPlaceholderSize + scrollerStart
 		let sliderEnd = sliderStart + sliderSize
-		let scrollerEnd = sliderEnd + this.placeholderProperties.backSize
+		let scrollerEnd = sliderEnd + this.backPlaceholderSize
 
 		// Out-of-view at start.
 		if (scrollerEnd < 0) {

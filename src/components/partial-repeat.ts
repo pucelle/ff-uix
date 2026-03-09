@@ -4,6 +4,7 @@ import {html, PartCallbackParameterMask, PerFrameTransitionEasingName} from 'lup
 import {PartialRenderer} from './repeat-helpers/partial-renderer'
 import {LowerIndexWithin} from '../tools'
 import {locateVisibleIndexAtOffset} from './repeat-helpers/index-locator'
+import {RendererBase} from './repeat-helpers/base-renderer'
 
 
 /** 
@@ -38,14 +39,11 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 	 */
 	guessedItemSize: number = 0
 
-	/** Placeholder at front. */
-	protected frontPlaceholder: HTMLDivElement | null = null
-
-	/** Placeholder at back. */
-	protected backPlaceholder: HTMLDivElement | null = null
+	/** Placeholders at front or end. */
+	protected placeholders: HTMLDivElement[] | null = null
 
 	/** Partial content renderer. */
-	protected renderer: PartialRenderer | null = null as any
+	protected renderer: RendererBase | null = null as any
 
 	/** The start index of the first item. */
 	get startIndex(): number {
@@ -146,31 +144,28 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 
 		// If remove current component from parent, remove placeholder also.
 		if ((param & PartCallbackParameterMask.AsDirectNode) > 0) {
-			if (this.frontPlaceholder) {
-				this.frontPlaceholder.remove()
-				this.frontPlaceholder = null
-			}
-
-			if (this.backPlaceholder) {
-				this.backPlaceholder.remove()
-				this.backPlaceholder = null
+			if (this.placeholders) {
+				this.placeholders[0].remove()
+				this.placeholders[1].remove()
+				this.placeholders = null
 			}
 		}
 	}
 
 	protected initPlaceholders() {
-		if (this.backPlaceholder) {
+		if (this.placeholders) {
 			return
 		}
 
-		this.frontPlaceholder = document.createElement('div')
-		this.frontPlaceholder.style.cssText = 'width: 100%; visibility: hidden;'
+		this.placeholders = new Array(2)
+		this.placeholders[0] = document.createElement('div')
+		this.placeholders[0].style.cssText = 'width: 100%; visibility: hidden;'
 
-		this.backPlaceholder = document.createElement('div')
-		this.backPlaceholder.style.cssText = 'width: 100%; visibility: hidden;'
+		this.placeholders[1] = document.createElement('div')
+		this.placeholders[1].style.cssText = 'width: 100%; visibility: hidden;'
 
-		this.el.before(this.frontPlaceholder)
-		this.el.after(this.backPlaceholder)
+		this.el.before(this.placeholders[0])
+		this.el.after(this.placeholders[1])
 	}
 
 	/** Init renderer when connected. */
@@ -184,10 +179,10 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 			this.el,
 			this.el,
 			this,
-			this.frontPlaceholder,
-			this.backPlaceholder,
 			this.doa,
-			this.updateLiveData.bind(this)
+			this.updateLiveData.bind(this),
+			this.placeholders![0],
+			this.placeholders![1]
 		)
 
 		this.renderer
