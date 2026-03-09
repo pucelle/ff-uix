@@ -522,7 +522,7 @@ export abstract class RendererBase {
 
 		// Which direction is un-covered.
 		let reservedPixels = Math.min(this.reservedPixels / 4, 100)
-		let unCoveredSituation = await this.measurement.checkUnCoveredDirection(reservedPixels)
+		let unCoveredSituation = await this.measurement.checkUnCoveredDirection(reservedPixels, this.alignDirection)
 		if (unCoveredSituation === null) {
 			return
 		}

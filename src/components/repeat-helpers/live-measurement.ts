@@ -108,7 +108,7 @@ export class LiveMeasurement extends MeasurementBase {
 		this.placeholderSize = size
 	}
 
-	override async checkUnCoveredDirection(reservedPixels: number): Promise<UnCoveredDirection | null> {
+	override async checkUnCoveredDirection(reservedPixels: number, alignDirection: 'start' | 'end'): Promise<UnCoveredDirection | null> {
 		await barrierDOMReading()
 
 		let scrollerSize = this.doa.getClientSize(this.scroller)
@@ -124,12 +124,23 @@ export class LiveMeasurement extends MeasurementBase {
 		}
 
 		// Can't cover and need to render more items at top/left.
-		else if (sliderStart - 1 + reservedPixels > 0) {
+		// The `1px` is because sometimes close to edge but have 0.000px diff.
+		if (sliderStart - 1 > 0) {
 			return 'partial-start'
 		}
 
 		// Can't cover and need to render more items at bottom/right.
-		else if (sliderEnd + 1 - reservedPixels < scrollerSize) {
+		if (sliderEnd + 1 < scrollerSize) {
+			return 'partial-end'
+		}
+
+		// Can't cover and need to render more items at top/left.
+		if (alignDirection === 'end' && sliderStart + reservedPixels > 0) {
+			return 'partial-start'
+		}
+
+		// Can't cover and need to render more items at bottom/right.
+		if (alignDirection === 'start' && sliderEnd - reservedPixels < scrollerSize) {
 			return 'partial-end'
 		}
 

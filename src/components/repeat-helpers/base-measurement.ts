@@ -323,5 +323,5 @@ export abstract class MeasurementBase {
 	}
 
 	/** Check cover situation and decide where to render more contents. */
-	abstract checkUnCoveredDirection(reservedPixels: number): Promise<UnCoveredDirection | null>
+	abstract checkUnCoveredDirection(reservedPixels: number, alignDirection: 'start' | 'end'): Promise<UnCoveredDirection | null>
 }

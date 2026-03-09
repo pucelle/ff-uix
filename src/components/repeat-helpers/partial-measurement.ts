@@ -50,7 +50,7 @@ export class PartialMeasurement extends MeasurementBase {
 	}
 
 	/** Check cover situation and decide where to render more contents. */
-	async checkUnCoveredDirection(reservedPixels: number): Promise<UnCoveredDirection | null> {
+	async checkUnCoveredDirection(reservedPixels: number, alignDirection: 'start' | 'end'): Promise<UnCoveredDirection | null> {
 		await barrierDOMReading()
 
 		let scrollerSize = this.doa.getClientSize(this.scroller)
@@ -90,12 +90,12 @@ export class PartialMeasurement extends MeasurementBase {
 		}
 
 		// Can't cover and need to render more items at top/left.
-		if (sliderStart + reservedPixels > 0) {
+		if (alignDirection === 'end' && sliderStart + reservedPixels > 0) {
 			return 'partial-start'
 		}
 
 		// Can't cover and need to render more items at bottom/right.
-		if (sliderEnd - reservedPixels < scrollerSize) {
+		if (alignDirection === 'start' && sliderEnd - reservedPixels < scrollerSize) {
 			return 'partial-end'
 		}
 
