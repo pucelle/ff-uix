@@ -1,4 +1,4 @@
-import {effect, UpdateQueue} from 'lupos'
+import {effect, untilBarriersComplete, UpdateQueue} from 'lupos'
 import {Repeat, RepeatRenderFn} from './repeat'
 import {html, PartCallbackParameterMask, PerFrameTransitionEasingName} from 'lupos.html'
 import {PartialRenderer} from './repeat-helpers/partial-renderer'
@@ -263,7 +263,12 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 
 		this.renderer!.setRenderIndices(alignDirection, startIndex, endIndex, true)
 		this.willUpdate()
+
+		// Wait child to render complete.
 		await this.untilChildComplete()
+
+		// Must also wait for barrier complete, then the partial rendering process is complete.
+		await untilBarriersComplete()
 	}
 
 	override async scrollIndexToView(index: number, gap?: number, duration?: number, easing?: PerFrameTransitionEasingName): Promise<boolean> {

@@ -118,6 +118,7 @@ export class LiveRenderer extends RendererBase {
 
 			await barrierDOMWriting()
 			this.doa.setScrolled(this.scroller, scrollPosition)
+			this.justSetScrolled()
 		}
 	}
 
@@ -230,6 +231,7 @@ export class LiveRenderer extends RendererBase {
 			await barrierDOMWriting()
 			let scrolled = this.doa.getScrolled(this.scroller)
 			this.doa.setScrolled(this.scroller, scrolled + offsetDiff)
+			this.justSetScrolled()
 		}
 
 		this.needToAlign = null

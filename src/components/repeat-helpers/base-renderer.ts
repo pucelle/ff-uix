@@ -1,4 +1,4 @@
-import {ResizeWatcher} from 'ff-kit'
+import {ResizeWatcher, sleep} from 'ff-kit'
 import {locateVisibleIndex} from './index-locator'
 import {DirectionalOverflowAccessor} from './directional-overflow-accessor'
 import {DOMEvents, barrierDOMReading, barrierDOMWriting} from 'lupos'
@@ -42,6 +42,13 @@ export interface NeedToAlign {
 
 	/** Offset relative to scroller. */
 	offset: number
+}
+
+
+enum ScrollState {
+	None,
+	SetManually,
+	FromInteraction,
 }
 
 
@@ -118,6 +125,9 @@ export abstract class RendererBase {
 	/** Resolved after scroller size read. */
 	protected readScrollerSizePromise: Promise<void> | null = null
 
+	/** Scroll state to identify whether scrolling come from user interaction. */
+	private scrollState: ScrollState = ScrollState.None
+
 	constructor(
 		scroller: HTMLElement,
 		slider: HTMLElement,
@@ -144,6 +154,21 @@ export abstract class RendererBase {
 	 */
 	setGuessedItemSize(size: number) {
 		this.measurement.setGuessedItemSize(size)
+	}
+
+	/** 
+	 * Call it to notify has just set scrolled.
+	 * So we can know whether scroll event come from setting scroll value.
+	 */
+	async justSetScrolled() {
+		this.scrollState = ScrollState.SetManually
+
+		// Larger than one frame time always.
+		await sleep(50)
+
+		if (this.scrollState === ScrollState.SetManually) {
+			this.scrollState = ScrollState.None
+		}
 	}
 
 	/** 
@@ -229,6 +254,10 @@ export abstract class RendererBase {
 	
 	/** On scroller scroll event. */
 	protected async onScrollerScroll() {
+		if (this.scrollState !== ScrollState.SetManually) {
+			this.scrollState = ScrollState.FromInteraction
+		}
+		
 		this.willCheckCoverage()
 	}
 
@@ -521,7 +550,10 @@ export abstract class RendererBase {
 	protected async doCoverageUpdate() {
 
 		// Which direction is un-covered.
-		let reservedPixels = Math.min(this.reservedPixels / 4, 100)
+		// Only reserve pixels if come from scrolling.
+		let reservedPixels = this.scrollState === ScrollState.FromInteraction ? Math.min(this.reservedPixels / 4, 100) : 0
+		this.scrollState === ScrollState.None
+
 		let unCoveredSituation = await this.measurement.checkUnCoveredDirection(reservedPixels, this.alignDirection)
 		if (unCoveredSituation === null) {
 			return
