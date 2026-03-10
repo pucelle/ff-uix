@@ -676,7 +676,7 @@ export abstract class RendererBase {
 		
 		// Update continuously.
 		else {
-			await this.updateBySliderPosition(alignDirection, position!)
+			await this.updateBySliderPosition(alignDirection, position)
 		}
 	}
 
@@ -715,7 +715,7 @@ export abstract class RendererBase {
 	}
 
 	/** Update by specified slider position. */
-	protected async updateBySliderPosition(direction: 'start' | 'end', position: number) {
+	protected async updateBySliderPosition(direction: 'start' | 'end', position: number | null) {
 		this.alignDirection = direction
 		await this.updateRendering(false)
 
@@ -723,6 +723,9 @@ export abstract class RendererBase {
 			return
 		}
 
-		await this.setPosition(position)
+		// May start or end position has not changed.
+		if (position !== null) {
+			await this.setPosition(position)
+		}
 	}
 }
