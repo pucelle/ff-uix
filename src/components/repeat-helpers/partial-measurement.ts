@@ -23,13 +23,8 @@ export class PartialMeasurement extends MeasurementBase {
 		return this.sliderPositions.startPosition
 	}
 
-	calcScrollPosition(index: number, alignAt: 'start' | 'end'): number {
-		if (alignAt === 'start') {
-			return this.getMedianItemSize() * index + this.initialPosition
-		}
-		else {
-			return this.getMedianItemSize() * index + this.scrollerSize + this.initialPosition
-		}
+	override calcSliderPosition(index: number, _alignAt: 'start' | 'end'): number {
+		return this.getMedianItemSize() * index + this.initialPosition
 	}
 
 	protected updateSliderPositions(sliderClientSize: number) {

@@ -183,8 +183,23 @@ export abstract class MeasurementBase {
 		this.continuousRenderRange = null
 	}
 
-	/** Calc scroll position by aligning specified index at start or end. */
-	abstract calcScrollPosition(index: number, alignAt: 'start' | 'end'): number
+	/** Calc slider position by aligning specified index of item with start or end edge of slider. */
+	calcSliderPosition(index: number, _alignAt: 'start' | 'end'): number {
+		return this.getMedianItemSize() * index
+	}
+
+	/** 
+	 * Calc scroll position by aligning specified index of item with start or end edge of slider.
+	 * Normally it equals `start slider position`, or `end position - scroller size`.
+	 */
+	calcScrollPosition(index: number, alignAt: 'start' | 'end'): number {
+		if (alignAt === 'start') {
+			return this.calcSliderPosition(index, alignAt)
+		}
+		else {
+			return this.calcSliderPosition(index, alignAt) - this.scrollerSize
+		}
+	}
 
 	/** Calc new start index by current scrolled position. */
 	async calcStartIndexByScrolled(): Promise<number> {

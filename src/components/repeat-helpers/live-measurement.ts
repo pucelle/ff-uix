@@ -30,24 +30,12 @@ export class LiveMeasurement extends MeasurementBase {
 		this.preEndPositions = positions
 	}
 
-	calcScrollPosition(index: number, alignAt: 'start' | 'end'): number {
+	override calcSliderPosition(index: number, _alignAt: 'start' | 'end'): number {
 		if (this.preEndPositions) {
-			if (alignAt === 'start') {
-				let start = index > 0 ? this.preEndPositions[index - 1] : 0
-				return start
-			}
-			else {
-				let end = index > 0 ? this.preEndPositions[index - 1] : 0
-				return end
-			}
+			return index > 0 ? this.preEndPositions[index - 1] : 0
 		}
 		else {
-			if (alignAt === 'start') {
-				return this.getMedianItemSize() * index
-			}
-			else {
-				return this.getMedianItemSize() * index + this.scrollerSize
-			}
+			return this.getMedianItemSize() * index
 		}
 	}
 

@@ -94,7 +94,7 @@ export class LiveRenderer extends RendererBase {
 		alignToEndIndex: number = this.endIndex
 	) {
 		// top or bottom position.
-		let newSliderPosition = this.measurement.calcScrollPosition(this.alignDirection === 'start' ? this.startIndex : this.endIndex, this.alignDirection)
+		let newSliderPosition = this.measurement.calcSliderPosition(this.alignDirection === 'start' ? this.startIndex : this.endIndex, this.alignDirection)
 		
 		await this.setPosition(newSliderPosition)
 
