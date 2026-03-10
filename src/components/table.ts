@@ -147,6 +147,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 		.table-column-left{
 			display: flex;
+			align-items: center;
 			flex: 1;
 			max-width: 100%;
 
@@ -172,6 +173,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			flex: none;
 			display: flex;
 			visibility: hidden;
+			margin-left: 0.4em;
 			margin-right: -1.2em;
 
 			&.current{
@@ -540,12 +542,12 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 	protected renderColumn(column: TableColumn, index: number) {
 		let orderName = this.getColumnName(column, index)
-		let hasOrdered = this.orderName === orderName
+		let currentInOrder = this.orderName === orderName
 		let flexAlign = column.align === 'right' ? 'flex-end' : column.align === 'center' ? 'center' : ''
 
 		return html`
 			<div class="table-column"
-				:class.table-column-ordered=${hasOrdered}
+				:class.table-column-ordered=${currentInOrder}
 				@click=${(e: MouseEvent) => this.doOrdering(e, index)}
 			>
 				<div class="table-column-left"
@@ -557,7 +559,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 					<lu:if ${column.orderBy}>
 						<div class="table-order"
-							:class.current=${hasOrdered && this.orderDirection !== null}
+							:class.current=${currentInOrder && this.orderDirection !== null}
 						>
 							<Icon .icon=${this.renderOrderDirectionIcon(orderName!)} />
 						</div>

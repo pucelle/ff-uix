@@ -94,7 +94,7 @@ export class LiveRepeat<T = any, E = {}> extends PartialRepeat<T, E> {
 			this,
 			this.doa,
 			this.updateLiveData.bind(this),
-			this.placeholders![0],
+			this.placeholders?.[0] ?? null,
 			this.asFollower
 		)
 	}
