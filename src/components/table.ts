@@ -557,7 +557,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 						<div class="table-order"
 							:class.current=${currentInOrder && this.orderDirection !== null}
 						>
-							<Icon .icon=${this.renderOrderDirectionIcon(orderName!)} />
+							<Icon .code=${this.renderOrderDirectionIcon(orderName!)} />
 						</div>
 					</lu:if>
 				</div>

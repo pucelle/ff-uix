@@ -219,7 +219,7 @@ export class Notification<E = {}> extends Component<E> {
 					<div class="notification-stripe" />
 
 					<div class="notification-left">
-						<Icon class="notification-type-icon" .icon=${item.icon ?? IconInfo} />
+						<Icon class="notification-type-icon" .code=${item.icon ?? IconInfo} />
 					</div>
 
 					<div class="notification-content">
@@ -239,7 +239,7 @@ export class Notification<E = {}> extends Component<E> {
 					</div>
 
 					<div class="notification-close" @click=${() => this.onClickClose(item)}>
-						<Icon .icon=${IconClose} />
+						<Icon .code=${IconClose} />
 					</div>
 				</div>`
 			}</lu:for>

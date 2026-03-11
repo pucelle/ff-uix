@@ -32,10 +32,10 @@ export class Icon<Events = any> extends Component<Events> {
 	 * Icon code.
 	 * See `/icons` for all icons available.
 	 */
-	icon: string = ''
+	code: string = ''
 	
 	protected override render() {
-		let parsed = parseSVGCode(this.icon)
+		let parsed = parseSVGCode(this.code)
 		if (!parsed) {
 			return null
 		}

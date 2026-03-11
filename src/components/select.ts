@@ -205,12 +205,12 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 				${this.renderDisplayOrInput()}
 
 				<lu:if ${this.inputtedText}>
-					<Icon class="select-clear-icon" .icon=${IconClose}
+					<Icon class="select-clear-icon" .code=${IconClose}
 						@click.stop=${this.clearInputtedText}
 					/>
 				</lu:if>
 				<lu:else>
-					<Icon class="dropdown-icon select-dropdown-icon" .icon=${IconDown} />
+					<Icon class="dropdown-icon select-dropdown-icon" .code=${IconDown} />
 				</lu:else>
 			</template>
 		`

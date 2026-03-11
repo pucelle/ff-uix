@@ -119,7 +119,7 @@ export class Popover<E = {}> extends Popup<E> {
 
 				<lu:if ${this.closable && !this.slotElements.action}>
 					<div class="popover-close" @click=${this.close}>
-						<Icon .icon=${IconClose} />
+						<Icon .code=${IconClose} />
 					</div>
 				</lu:if>
 			</div>

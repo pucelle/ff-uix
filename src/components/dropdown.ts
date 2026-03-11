@@ -88,7 +88,7 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 				:popup=${this.renderPopup, this.popupOptions}
 			>
 				<slot />
-				<Icon class="dropdown-icon" .icon=${IconDown} />
+				<Icon class="dropdown-icon" .code=${IconDown} />
 			</template>
 		`
 	}

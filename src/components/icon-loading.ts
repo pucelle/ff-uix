@@ -11,7 +11,7 @@ import {IconRefresh} from '../icons'
 export class IconLoading extends Icon {
 
 	/** Loading icon code. */
-	override icon: string = IconRefresh
+	override code: string = IconRefresh
 
 	/** Whether in loading state. */
 	loading: boolean = false

@@ -194,7 +194,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 				${this.renderField()}
 
 				<lu:if ${this.touched && this.valid}>
-					<Icon class="input-valid-icon" .icon=${IconChecked} />
+					<Icon class="input-valid-icon" .code=${IconChecked} />
 				</lu:if>
 
 				<lu:if ${this.touched && this.errorMessage && !this.errorOnTooltip}>
@@ -212,7 +212,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 
 		return html`
 			<Icon class="input-icon" 
-				.icon=${this.icon}
+				.code=${this.icon}
 			/>
 		`
 	}

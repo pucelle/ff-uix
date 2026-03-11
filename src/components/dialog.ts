@@ -220,7 +220,7 @@ export class Dialog<E = {}> extends Component<E> {
 
 				<div class="dialog-content">
 					<lu:if ${options.icon}>
-						<Icon class="dialog-left" .icon=${options.icon!} />
+						<Icon class="dialog-left" .code=${options.icon!} />
 					</lu:if>
 
 					<div class="dialog-right">

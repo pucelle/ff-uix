@@ -341,7 +341,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		return html`
 			<Icon class="list-toggle-icon"
 				:style.transform=${expanded ? 'none': 'rotate(-90deg)'}
-				.icon=${expanded ? IconTriangleDown : IconTriangleRight}
+				.code=${expanded ? IconTriangleDown : IconTriangleRight}
 			/>`
 	}
 
@@ -353,7 +353,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		return html`
 			<div class="list-icon">
 				<lu:if ${item.icon}>
-					<Icon .icon=${item.icon!} />
+					<Icon .code=${item.icon!} />
 				</>
 			</div>
 		`
@@ -397,7 +397,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		}
 
 		return html`
-			<Icon class="list-selected-icon" .icon=${IconChecked} />
+			<Icon class="list-selected-icon" .code=${IconChecked} />
 		`
 	}
 

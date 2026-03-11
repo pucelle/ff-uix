@@ -116,7 +116,7 @@ export class Modal<E = {}> extends Component<E> {
 						${this.renderAction()}
 					</lu:if>
 					<lu:else>
-						<Icon class="modal-close" .icon=${IconClose}
+						<Icon class="modal-close" .code=${IconClose}
 							@click=${this.hide}
 						/>
 					</lu:else>

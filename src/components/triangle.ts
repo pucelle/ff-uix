@@ -26,7 +26,7 @@ export class Triangle<E = {}> extends Component<E> {
 	`
 
 	/** Triangle width when triangle point to top position. */
-	width: number = 10
+	width: number = 12
 
 	/** Triangle height when triangle point to top position. */
 	height: number = 6

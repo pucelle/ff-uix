@@ -80,7 +80,7 @@ export class Search<E = {}> extends Input<SearchEvents & E> {
 	protected renderClearIcon() {
 		return html`
 			<Icon class="search-clear-icon"
-				.icon=${IconClose}
+				.code=${IconClose}
 				@click.stop=${this.clear}
 			/>
 		`
