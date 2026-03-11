@@ -165,6 +165,8 @@ table{
 	--popup-shadow-color: light-dark(rgba(0, 0, 0, 0.5), black);
 	--popup-background: light-dark(white, #333);
 	--popup-border-radius: 4px;
+	--popup-border-color: var(--border-color);
+	--popup-border-width: 0;
 	--popup-shadow-blur-radius: 6px;
 	
 	--tooltip-background: light-dark(white, #333);
@@ -178,5 +180,4 @@ table{
 	--text-size: 14px;
 	--border-radius: 4px;
 	--focus-shadow-blur-radius: 4px;
-
 }

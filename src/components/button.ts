@@ -23,7 +23,7 @@ export class Button<E = {}> extends Component<E> {
 			text-overflow: ellipsis;
 		
 			&:hover, &:focus{
-				background-color: var(--border-color);
+				background: var(--border-color);
 				color: var(--background);
 			}
 

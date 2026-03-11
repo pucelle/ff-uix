@@ -14,6 +14,7 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 	static override style = css`
 		.dropdown{
 			display: inline-flex;
+			align-items: center;
 
 			&.opened{
 				.dropdown-icon{
@@ -47,6 +48,8 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 	 * A fixed render result to render popup content,
 	 * or a function to render dynamic render result.
 	 * use rendered result to render popup content.
+	 * 
+	 * Note normally you should bind a context for this renderer.
 	 * 
 	 * You may leave this property to null and choose to
 	 * overwrite `renderPopup` method to implement a new component.
