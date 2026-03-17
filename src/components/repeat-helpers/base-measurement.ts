@@ -317,7 +317,7 @@ export abstract class MeasurementBase {
 		let normalSize = this.getNormalFrontPlaceholderSize(startIndex)
 
 		// Limit by normal size if not change much.
-		if (getChangeRate(frontSize, normalSize) > 0.33) {
+		if (getChangeRate(frontSize, normalSize) > 0.5) {
 			frontSize = normalSize
 		}
 
@@ -333,7 +333,7 @@ export abstract class MeasurementBase {
 		let normalSize = this.getNormalBackPlaceholderSize(endIndex, dataCount)
 
 		// Limit by normal size if changed much.
-		if (getChangeRate(backSize, normalSize) > 0.33) {
+		if (getChangeRate(backSize, normalSize) > 0.5) {
 			backSize = normalSize
 		}
 
