@@ -494,6 +494,11 @@ export class QuickDialog {
 
 		return undefined
 	}
+
+	/** Hide dialog force before user clicking any action button. */
+	hide() {
+		this.dialog.hide()
+	}
 }
 
 
