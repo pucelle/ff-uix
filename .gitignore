@@ -6,3 +6,4 @@ node_modules
 /tests/**/*.js.map
 .VSCodeCounter
 *.tsbuildinfo
+*.DS_STORE
