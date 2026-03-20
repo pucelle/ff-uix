@@ -587,8 +587,8 @@ export abstract class RendererBase {
 				newEndIndex = newStartIndex + renderCount
 
 				// First item may be very large and can't skip it, but we must render more at end.
-				if (newEndIndex === this.endIndex) {
-					newEndIndex++
+				if (newEndIndex <= this.endIndex) {
+					newEndIndex = this.endIndex + 1
 				}
 			}
 
@@ -598,8 +598,8 @@ export abstract class RendererBase {
 				newStartIndex = newEndIndex - renderCount
 
 				// Last item may be very large and can't skip it, but we must render more at start.
-				if (newStartIndex === this.startIndex) {
-					newStartIndex--
+				if (newStartIndex >= this.startIndex) {
+					newStartIndex = this.startIndex - 1
 				}
 			}
 

@@ -171,11 +171,11 @@ export abstract class MeasurementBase {
 		let minimumCount = this.scrollerSize / itemSize
 		let count = totalSize / itemSize
 
-		if (Math.abs(count - proposed) < 0.5 && proposed > minimumCount) {
+		if (Math.abs(count - proposed) <= 0.5 && proposed > minimumCount) {
 			return proposed
 		}
 
-		return Math.ceil(totalSize / itemSize)
+		return Math.ceil(count)
 	}
 
 	/** If re-render from a new index, call this. */
