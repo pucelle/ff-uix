@@ -1,6 +1,6 @@
 import {css, html, Component, fade, RenderResultRenderer, RenderResult} from 'lupos.html'
 import {AnchorAligner, t, translations} from 'ff-kit'
-import {DOMEvents, EventKeys, promiseWithResolves} from 'lupos'
+import {DOMEvents, EventKeys} from 'lupos'
 import {Input} from './input'
 import {Textarea} from './textarea'
 import {Icon} from './icon'
@@ -334,7 +334,7 @@ export class Dialog<E = {}> extends Component<E> {
 
 	/** Add an option to stack. */
 	async addOptions(options: DialogOptions): Promise<string | undefined> {
-		let {promise, resolve} = promiseWithResolves<string | undefined>()
+		let {promise, resolve} = Promise.withResolvers<string | undefined>()
 
 		if (this.resolve) {
 			this.stack.push({

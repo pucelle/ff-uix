@@ -4,7 +4,6 @@ import {Popup} from '../components'
 import * as SharedPopups from './popup-helpers/shared-popups'
 import {PopupState} from './popup-helpers/popup-state'
 import {PopupTriggerBinder, TriggerType} from './popup-helpers/popup-binder'
-import {promiseWithResolves} from 'lupos'
 export {TriggerType}
 
 
@@ -468,7 +467,7 @@ export class popup implements Binding, Part {
 			return
 		}
 
-		let {promise, resolve} = promiseWithResolves()
+		let {promise, resolve} = Promise.withResolvers<void>()
 		this.updateComplete = promise
 
 		await this.updatePopup()
