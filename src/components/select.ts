@@ -110,8 +110,6 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 	`
 
 
-	size: ThemeSize = 'default'
-
 	override trigger: 'click' | 'contextmenu' | undefined = 'click'
 	override showDelay: number | undefined = 0
 	override hideDelay: number | undefined = 0

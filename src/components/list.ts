@@ -171,8 +171,6 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	`
 
 
-	size: ThemeSize = 'default'
-
 	/** 
 	 * Whether each item is selectable, only available for `selection` mode.
 	 * Default value is `false`.

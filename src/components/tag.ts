@@ -52,8 +52,6 @@ export class Tag<E = {}> extends Component<E & TagEvents> {
 	`
 
 
-	size: ThemeSize = 'default'
-
 	/** Unique value to identify current tag. */
 	value: string | number | null = null
 
