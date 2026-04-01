@@ -1,7 +1,7 @@
 import {css, html, fade} from 'lupos.html'
 import {Popup} from './popup'
 import {Triangle} from './triangle'
-import {ThemeSize} from '../style'
+
 
 
 /** `<Menu>` displays a menu with a `<List>` or `<DropList>` inside. */
@@ -46,14 +46,12 @@ export class Menu<E = {}> extends Popup<E> {
 	`
 
 
-	size: ThemeSize = 'default'
-
 	/** Menu title. */
 	title: string = ''
 
 	protected override render() {
 		return html`
-			<template class="popup menu size-${this.size}"
+			<template class="popup menu"
 				:transition.immediate=${fade()}
 			>
 				<lu:if ${this.triangle}>

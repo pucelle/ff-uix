@@ -1,7 +1,7 @@
 import {Component, css, html, RenderResult} from 'lupos.html'
 import {tooltip, TooltipOptions} from '../bindings'
 import {Icon} from './icon'
-import {ThemeSize} from '../style'
+
 import {DOMModifiableEvents, UpdateQueue, watch} from 'lupos'
 import {IconChecked} from '../icons'
 import {sleep} from 'ff-kit'
@@ -94,8 +94,6 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	`
 
 
-	size: ThemeSize = 'default'
-
 	/** Input type, same with `<input type=...>`. */
 	type: 'text' | 'password' | 'number' = 'text'
 
@@ -180,7 +178,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	
 	protected override render() {
 		return html`
-			<template class="input size-${this.size}"
+			<template class="input"
 				:class.focused=${this.focusGot}
 				:class.valid=${this.touched && this.valid}
 				:class.invalid=${this.touched && this.valid === false}

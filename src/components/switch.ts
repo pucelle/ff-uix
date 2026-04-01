@@ -1,5 +1,5 @@
 import {Component, html, css, getCSSEasingValue} from 'lupos.html'
-import {ThemeSize} from '../style'
+
 import {DOMEvents, EventKeys} from 'lupos'
 
 
@@ -57,15 +57,13 @@ export class Switch<E = {}> extends Component<E & SwitchEvents> {
 	`
 
 
-	size: ThemeSize = 'default'
-	
 	/** Whether the switch is in on state. */
 	value: boolean = false
 
 	protected override render() {
 		return html`
 			<template tabindex="0"
-				class="switch size-${this.size}"
+				class="switch"
 				:class.switch-on=${this.value}
 				@click=${this.onClick}
 				@focus=${this.onFocus}

@@ -1,7 +1,7 @@
 import {html, RenderResultRenderer} from 'lupos.html'
 import {popup, PopupOptions} from './popup'
 import {TooltipType, Tooltip} from '../components'
-import {ThemeSize} from '../style'
+
 
 
 export interface TooltipOptions extends PopupOptions{

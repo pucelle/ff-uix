@@ -1,5 +1,5 @@
 import {css, html, fade} from 'lupos.html'
-import {ThemeSize} from '../style'
+
 import {Popup} from './popup'
 import {Icon} from './icon'
 import {Triangle} from './triangle'
@@ -68,8 +68,6 @@ export class Tooltip<E = {}> extends Popup<E> {
 	`
 
 	
-	size: ThemeSize = 'default'
-
 	/** 
 	 * Tooltip type:
 	 * 
@@ -81,7 +79,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 
 	protected override render() {
 		return html`
-			<template class="popup tooltip size-${this.size} tooltip-type-${this.type}"
+			<template class="popup tooltip tooltip-type-${this.type}"
 				:transition.immediate=${fade()}
 			>
 				<lu:if ${this.triangle}>

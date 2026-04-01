@@ -1,5 +1,5 @@
 import {css, Component, html, RenderResult, RenderResultRenderer, fold, PerFrameTransitionEasingName, TransitionResult, FoldTransitionOptions} from 'lupos.html'
-import {ThemeSize} from '../style'
+
 import {DOMEvents, EventKeys, Observed, UpdateQueue, effect} from 'lupos'
 import {ListDataNavigator} from './list-helpers/list-data-navigator'
 import {Icon} from './icon'

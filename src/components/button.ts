@@ -1,5 +1,4 @@
 import {Component, css, html, TemplateResult} from 'lupos.html'
-import {ThemeSize} from '../style'
 
 
 /** `<Button>` is nearly equals `<button>` element. */
@@ -93,8 +92,6 @@ export class Button<E = {}> extends Component<E> {
 	`
 
 
-	size: ThemeSize = 'default'
-
 	/** Whether be primary button. */
 	primary: boolean = false
 
@@ -104,7 +101,7 @@ export class Button<E = {}> extends Component<E> {
 	protected override render(): TemplateResult {
 		return html`
 			<template
-				class="button size-${this.size}"
+				class="button"
 				tabindex="0"
 				:class.primary=${this.primary}
 				:class.flat=${this.flat}

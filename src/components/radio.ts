@@ -1,5 +1,5 @@
 import {Component, html, css} from 'lupos.html'
-import {ThemeSize} from '../style'
+
 import {Icon} from './icon'
 import {RadioGroup} from './radio-group'
 import {DOMEvents, DOMModifiableEvents} from 'lupos'
@@ -58,8 +58,6 @@ export class Radio<E = {}> extends Component<E & RadioEvents> {
 	`
 
 
-	size: ThemeSize = 'default'
-
 	/** Radio group container, readonly outside. */
 	group: RadioGroup | null = null
 
@@ -90,7 +88,7 @@ export class Radio<E = {}> extends Component<E & RadioEvents> {
 		return html`
 			<template
 				tabindex="0"
-				class="radio size-${this.size}"
+				class="radio"
 				:class.checked=${this.checked}
 				@click=${this.onClick}
 				@focus=${this.onFocus}

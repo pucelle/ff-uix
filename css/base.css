@@ -123,29 +123,6 @@ table{
 }
 
 
-
-.size-small{
-	font-size: 13px;
-}
-
-.size-medium{
-	font-size: 14px;
-}
-
-.size-large{
-	font-size: 16px;
-}
-
-.size-default{
-	font-size: var(--text-size);
-}
-
-.size-inherit{
-	font-size: inherit;
-}
-
-
-
 /* Theme variables. see https://css-tricks.com/come-to-the-light-dark-side/ */
 :root{
 	color-scheme: light dark;

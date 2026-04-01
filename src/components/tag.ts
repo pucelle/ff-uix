@@ -1,5 +1,5 @@
 import {Component, html, css} from 'lupos.html'
-import {ThemeSize} from '../style'
+
 import {Icon} from './icon'
 import {IconClose} from '../icons'
 

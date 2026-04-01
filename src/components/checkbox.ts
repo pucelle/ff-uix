@@ -1,5 +1,4 @@
 import {Component, html, css} from 'lupos.html'
-import {ThemeSize} from '../style'
 import {DOMModifiableEvents} from 'lupos'
 import {CheckboxGroup} from './checkbox-group'
 import {Icon} from './icon'
@@ -53,8 +52,6 @@ export class Checkbox<T = any, E = {}> extends Component<E & CheckboxEvents> {
 		}
 	`
 
-	size: ThemeSize = 'default'
-	
 	group: CheckboxGroup | null = null
 
 	/** Whether the checkbox get checked. */
@@ -92,7 +89,7 @@ export class Checkbox<T = any, E = {}> extends Component<E & CheckboxEvents> {
 
 		return html`
 			<template tabindex="0"
-				class="checkbox size-${this.size}" 
+				class="checkbox" 
 				:class.checked=${this.checked}
 				:class.indeterminate=${this.indeterminate}
 				@click=${this.onClick}

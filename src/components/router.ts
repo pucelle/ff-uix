@@ -86,6 +86,9 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 */
 	path: string = ''
 
+	/** Current hash with `#` excluded, like `location.hash`. */
+	hash: string = ''
+
 	/** 
 	 * If in hash mode, will apply hash instead of applying pathname.
 	 * Use this if there is only a single page.
@@ -113,11 +116,13 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		this.state = {index: 0, path: this.path}
 		this.replaceHistoryState(this.state)
 		DOMEvents.on(window, 'popstate', this.onWindowPopState, this)
+		DOMEvents.on(window, 'hashchange', this.onWindowHashChange, this)
 	}
 
 	protected override onWillDisconnect() {
 		super.onWillDisconnect()
 		DOMEvents.off(window, 'popstate', this.onWindowPopState, this)
+		DOMEvents.off(window, 'hashchange', this.onWindowHashChange, this)
 	}
 
 	protected onWindowPopState(e: PopStateEvent) {
@@ -126,6 +131,10 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		}
 
 		this.handleRedirectToState(e.state)
+	}
+
+	protected onWindowHashChange() {
+		this.hash = location.hash.replace(/^#/, '')
 	}
 
 	/** Goto a new path and update render result, add a history state. */

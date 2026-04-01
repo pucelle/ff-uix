@@ -1,5 +1,5 @@
 import {css, html, fade} from 'lupos.html'
-import {ThemeSize} from '../style'
+
 import {Popup} from './popup'
 import {Triangle} from './triangle'
 import {Icon} from './icon'
@@ -78,8 +78,6 @@ export class Popover<E = {}> extends Popup<E> {
 	/** Normally action button or a container of buttons. */
 	declare protected slotElements: {action: HTMLElement}
 
-	size: ThemeSize = 'default'
-
 	/** Popover title. */
 	title: string = ''
 
@@ -88,7 +86,7 @@ export class Popover<E = {}> extends Popup<E> {
 
 	protected override render() {
 		return html`
-			<template class="popup popover size-${this.size}"
+			<template class="popup popover"
 				:transition.immediate=${fade()}
 			>
 				<lu:if ${this.triangle}>

@@ -66,7 +66,7 @@ export class Search<E = {}> extends Input<SearchEvents & E> {
 
 	protected override render() {
 		return html`
-			<template class="input search size-${this.size}">
+			<template class="input search">
 				${this.renderIcon()}
 				${this.renderField()}
 
