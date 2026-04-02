@@ -48,6 +48,11 @@ html{
 
 	/** Not adjust character width. */
 	text-size-adjust: none;
+
+	/** Can easily reset cursor style. */
+	*, td{
+		cursor: inherit;
+	}
 }
 
 body{
