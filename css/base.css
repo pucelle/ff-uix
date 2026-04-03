@@ -48,11 +48,6 @@ html{
 
 	/** Not adjust character width. */
 	text-size-adjust: none;
-
-	/** Can easily reset cursor style. */
-	*, td{
-		cursor: inherit;
-	}
 }
 
 body{
@@ -68,10 +63,6 @@ a{
 
 	&:hover{
 		text-decoration: underline;
-	}
-
-	&:visited{
-		color: var(--visited-color);
 	}
 }
 
@@ -142,8 +133,7 @@ table{
 	--input-background: light-dark(#e5e5e5, #444);
 	--input-text-color: FieldText;
 	--link-color: LinkText;
-	--visited-color: VisitedColor;
-	
+
 	--popup-shadow-color: light-dark(rgba(0, 0, 0, 0.5), black);
 	--popup-background: light-dark(white, #333);
 	--popup-border-radius: 4px;
