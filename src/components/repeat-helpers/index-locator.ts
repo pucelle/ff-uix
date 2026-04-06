@@ -8,6 +8,8 @@ import {LowerIndexWithin} from '../../tools'
  * `minimumRatio` specifies the size of visible part relative to full size,
  * only when intersection rate greater the element get recognized as visible.
  * Returned range is `0 ~ list.length`.
+ * 
+ * It can automatically resolves slot child element.
  */
 export function locateVisibleIndex(
 	els: ArrayLike<HTMLElement>,

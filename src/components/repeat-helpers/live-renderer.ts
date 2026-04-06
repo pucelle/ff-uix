@@ -104,7 +104,7 @@ export class LiveRenderer extends RendererBase {
 		if (resetScroll && !this.asFollower) {
 			alignToStartIndex = Math.min(Math.max(alignToStartIndex, this.startIndex), this.endIndex - 1)
 			alignToEndIndex = Math.max(Math.min(alignToEndIndex, this.endIndex), this.startIndex)
-	
+
 			// Align scroller start with slider start.
 			let scrollPosition = this.measurement.calcScrollPosition(
 				this.alignDirection === 'start' ? alignToStartIndex : alignToEndIndex,
@@ -119,6 +119,23 @@ export class LiveRenderer extends RendererBase {
 			await barrierDOMWriting()
 			this.doa.setScrolled(this.scroller, scrollPosition)
 			this.justSetScrolled()
+						
+			// if trying to align with index 1, and because have not much data and finally renders 0~?,
+			// And if element at index 0 is only a title have very little height
+			if (this.alignDirection === 'start' && alignToStartIndex > this.startIndex) {
+				this.needToAlign = {
+					index: alignToStartIndex,
+					scrolled: scrollPosition,
+					offset: scrollPosition,
+				}
+			}
+			else if (this.alignDirection === 'end' && alignToEndIndex < this.endIndex) {
+				this.needToAlign = {
+					index: alignToEndIndex,
+					scrolled: scrollPosition,
+					offset: scrollPosition + this.measurement.scrollerSize,
+				}
+			}
 		}
 	}
 
@@ -171,7 +188,7 @@ export class LiveRenderer extends RendererBase {
 		// When reach start index but may not reach scroll start.
 		if (this.startIndex === 0 && this.endIndex > 0) {
 			this.alignDirection = 'start'
-			await this.setNeedToAlign(this.repeat.children[0] as HTMLElement)
+			await this.setNeedToAlign(0)
 
 			// Will not measure again, so need to reset positions.
 			await this.setPosition(0)
@@ -190,7 +207,7 @@ export class LiveRenderer extends RendererBase {
 				let newStartPosition = this.measurement.sliderPositions.startPosition + diff
 				let newEndPosition = this.measurement.sliderPositions.endPosition + diff
 
-				await this.setNeedToAlign(this.repeat.children[0] as HTMLElement)
+				await this.setNeedToAlign(0)
 
 				// Will not measure again, so need to reset positions.
 				await this.setPosition(newEndPosition)
@@ -224,7 +241,9 @@ export class LiveRenderer extends RendererBase {
 		}
 
 		await barrierDOMReading()
-		let newAlignOffset = this.doa.getOffset(this.needToAlign.el, this.scroller)
+
+		let child = this.getRepeatChild(this.needToAlign.index - this.startIndex)
+		let newAlignOffset = this.doa.getOffset(child, this.scroller)
 		let offsetDiff = newAlignOffset - this.needToAlign.offset
 
 		if (Math.abs(offsetDiff) > 5) {
@@ -244,11 +263,7 @@ export class LiveRenderer extends RendererBase {
 
 		if (alignDirection === 'start') {
 			let elIndex = this.startIndex - oldStartIndex
-			let el = this.repeat.children[elIndex] as HTMLElement
-
-			if (el.localName === 'slot') {
-				el = el.firstElementChild as HTMLElement
-			}
+			let el = this.getRepeatChild(elIndex)
 
 			// If el located at start, it will move by slider padding top,
 			// to keep it's position, should remove slider padding.
@@ -260,18 +275,14 @@ export class LiveRenderer extends RendererBase {
 		// Scrolling up, render more at end.
 		else {
 			let elIndex = this.endIndex - oldStartIndex - 1
-			let el = this.repeat.children[elIndex] as HTMLElement
-
-			if (el.localName === 'slot') {
-				el = el.firstElementChild as HTMLElement
-			}
+			let el = this.getRepeatChild(elIndex)
 
 			await barrierDOMReading()
 
 			// If el located at end, it will move up by slider padding bottom,
 			// to keep it's position, should add slider bottom padding.
 			position = this.measurement.sliderPositions.startPosition
-				+ this.doa.getEndOuterPosition(el, this.slider)
+				+ this.doa.getEndOuterOffset(el, this.slider)
 				+ this.doa.getEndPadding(this.slider)
 		}
 

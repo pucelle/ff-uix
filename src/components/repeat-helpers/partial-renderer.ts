@@ -123,7 +123,8 @@ export class PartialRenderer extends RendererBase {
 		// by +900px, but when next time scroll, will add another +900px scroll.
 
 		await barrierDOMReading()
-		let newOffset = this.doa.getOffset(this.needToAlign.el, this.scroller)
+		let child = this.getRepeatChild(this.needToAlign.index - this.startIndex)
+		let newOffset = this.doa.getOffset(child, this.scroller)
 		let offsetDiff = newOffset - this.needToAlign.offset
 
 		await barrierDOMWriting()
@@ -145,7 +146,7 @@ export class PartialRenderer extends RendererBase {
 		// Render more at end, can directly know the new position.
 		if (this.startIndex >= oldStartIndex) {
 			let elIndex = this.startIndex - oldStartIndex
-			let el = this.repeat.children[elIndex] as HTMLElement
+			let el = this.getRepeatChild(elIndex)
 
 			if (el.localName === 'slot') {
 				el = el.firstElementChild as HTMLElement
@@ -168,7 +169,7 @@ export class PartialRenderer extends RendererBase {
 			// Fix position to make sure it doesn't have more that 10x difference than normal.
 			//position = this.measurement.fixFrontPlaceholderSize(position, this.startIndex, 10)
 
-			await this.setNeedToAlign(this.repeat.children[0] as HTMLElement)
+			await this.setNeedToAlign(0)
 		}
 	
 		return position

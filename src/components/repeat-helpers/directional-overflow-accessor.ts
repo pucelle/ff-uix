@@ -165,10 +165,26 @@ export class DirectionalOverflowAccessor {
 	}
 
 	/** 
-	 * Get end position consider margin's affect.
+	 * Get end offset.
 	 * Offset value is not affected by scroll value.
 	 */
-	getEndOuterPosition(el: HTMLElement, container: HTMLElement): number {
+	getEndOffset(el: HTMLElement, container: HTMLElement): number {
+		if (this.direction === 'vertical') {
+			return this.getOffset(el, container) + el.offsetHeight + DOMUtils.getNumericStyleValue(el, 'marginBottom')
+		}
+		else if (this.direction === 'horizontal') {
+			return this.getOffset(el, container) + el.offsetWidth + DOMUtils.getNumericStyleValue(el, 'marginRight')
+		}
+		else {
+			return 0
+		}
+	}
+
+	/** 
+	 * Get end offset consider margin's affect.
+	 * Offset value is not affected by scroll value.
+	 */
+	getEndOuterOffset(el: HTMLElement, container: HTMLElement): number {
 		if (this.direction === 'vertical') {
 			return this.getOffset(el, container) + el.offsetHeight + DOMUtils.getNumericStyleValue(el, 'marginBottom')
 		}

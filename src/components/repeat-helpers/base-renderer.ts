@@ -35,7 +35,9 @@ export interface NeedToApply {
 
 /** Need to validate it's offset position after measured. */
 export interface NeedToAlign {
-	el: HTMLElement
+
+	/** Index of child element which whole index range to align. */
+	index: number
 
 	/** Scroll position may change because of rendering and reading size of previous content. */
 	scrolled: number
@@ -154,6 +156,17 @@ export abstract class RendererBase {
 	 */
 	setGuessedItemSize(size: number) {
 		this.measurement.setGuessedItemSize(size)
+	}
+
+	/** Get repeat child, and if it's a slot, returns the first element child. */
+	protected getRepeatChild(index: number): HTMLElement {
+		let el = this.repeat.children[index] as HTMLElement
+
+		if (el.localName === 'slot') {
+			el = el.firstElementChild as HTMLElement
+		}
+		
+		return el
 	}
 
 	/** 
@@ -683,19 +696,20 @@ export abstract class RendererBase {
 	/** Get new position for continuously update. */
 	protected abstract getContinuousPosition(oldStartIndex: number, _alignDirection: 'start' | 'end'): Promise<number>
 
-	/** Set `needToAlign` property, to align after measured. */
-	protected async setNeedToAlign(el: HTMLElement) {
-		if (el.localName === 'slot') {
-			el = el.firstElementChild as HTMLElement
-		}
-
+	/** 
+	 * Set `needToAlign` property, to align after measured.
+	 * `index` is the child element index within live data range.
+	 */
+	protected async setNeedToAlign(index: number) {
 		await barrierDOMReading()
+		
+		let child = this.getRepeatChild(index)
 
 		// To re-align element after measured.
 		this.needToAlign = {
-			el,
+			index: index + this.startIndex,
 			scrolled: this.doa.getScrolled(this.scroller),
-			offset: this.doa.getOffset(el, this.scroller),
+			offset: this.doa.getOffset(child, this.scroller),
 		}
 	}
 
