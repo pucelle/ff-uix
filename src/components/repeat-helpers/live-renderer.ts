@@ -197,25 +197,26 @@ export class LiveRenderer extends RendererBase {
 			await this.alignByResettingScroll()
 		}
 
-		// Front placeholder is too much difference when scrolling up.
-		else if (this.alignDirection === 'end') {
-			let frontSize = this.measurement.sliderPositions.startPosition
-			let fixedFrontSize = this.measurement.fixFrontPlaceholderSize(frontSize, this.startIndex)
+		// Front placeholder have too much difference when scrolling up.
+		// Assume we have a title have 50px, and other contents are all 200px.
+		// else if (this.alignDirection === 'end') {
+		// 	let frontSize = this.measurement.sliderPositions.startPosition
+		// 	let fixedFrontSize = this.measurement.fixFrontPlaceholderSize(frontSize, this.startIndex)
 
-			if (fixedFrontSize !== frontSize) {
-				let diff = fixedFrontSize - frontSize
-				let newStartPosition = this.measurement.sliderPositions.startPosition + diff
-				let newEndPosition = this.measurement.sliderPositions.endPosition + diff
+		// 	if (fixedFrontSize !== frontSize) {
+		// 		let diff = fixedFrontSize - frontSize
+		// 		let newStartPosition = this.measurement.sliderPositions.startPosition + diff
+		// 		let newEndPosition = this.measurement.sliderPositions.endPosition + diff
 
-				await this.setNeedToAlign(0)
+		// 		await this.setNeedToAlign(0)
 
-				// Will not measure again, so need to reset positions.
-				await this.setPosition(newEndPosition)
-				this.measurement.resetPositions(newStartPosition)
+		// 		// Will not measure again, so need to reset positions.
+		// 		await this.setPosition(newEndPosition)
+		// 		this.measurement.resetPositions(newStartPosition)
 
-				await this.alignByResettingScroll()
-			}
-		}
+		// 		await this.alignByResettingScroll()
+		// 	}
+		// }
 
 		// When reach end index but not scroll end.
 		if (this.endIndex === this.dataCount) {
