@@ -10,10 +10,8 @@ export class Button<E = {}> extends Component<E> {
 			justify-content: center;
 			align-items: center;
 			border: 1px solid var(--border-color);
-			color: var(--border-color);
 			border-radius: var(--border-radius);
-			padding: calc(0.2em - 1px) 0.6em;
-			background: var(--background);
+			padding: calc(0.2em - 1px) 0.8em;
 			text-align: center;
 			cursor: pointer;
 			vertical-align: top;
@@ -22,8 +20,7 @@ export class Button<E = {}> extends Component<E> {
 			text-overflow: ellipsis;
 		
 			&:hover, &:focus{
-				background: var(--border-color);
-				color: var(--background);
+				background: color-mix(in srgb, var(--background) 94%, var(--text-color));
 			}
 
 			&:focus{
@@ -31,9 +28,7 @@ export class Button<E = {}> extends Component<E> {
 			}
 
 			&:active{
-				background: var(--border-color);
-				border-color: var(--border-color);
-				color: var(--background);
+				background: color-mix(in srgb, var(--background) 88%, var(--text-color));
 			}
 
 			.icon{

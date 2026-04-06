@@ -1,4 +1,5 @@
 export * from './scroll-persist'
+export * from './scroll-to'
 export * from './loading'
 export * from './popup'
 export * from './tooltip'
