@@ -49,7 +49,7 @@ export interface DialogAction {
 	 * You may return `true` to interrupt dialog from closing,
 	 * and return `null` or void to continue closing.
 	 */
-	handler?: () => boolean | null | void
+	handler?: () => Promise<boolean | null | void> | boolean | null | void
 }
 
 export interface PromptDialogOptions extends DialogOptions {
@@ -63,8 +63,14 @@ export interface PromptDialogOptions extends DialogOptions {
 	/** Input type, same with `<input type=...>`. */
 	inputType?: 'text' | 'password' | 'textarea'
 
+	/** The input label on the left of dialog input. */
+	fieldLabel?: string
+
 	/** To validate current value, returns an error message, or `null` if passes. */
 	validator?: (value: string) => string | null
+
+	/** Submit the prompt value, and returns error if failed. */
+	submitter?: (value: string) => Promise<string | null>
 }
 
 interface DialogItem {
@@ -168,10 +174,21 @@ export class Dialog<E = {}> extends Component<E> {
 			}
 		}
 
+		.dialog-input-container{
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.dialog-input-label{
+			margin-right: 2em;
+			max-width: calc(50% - 2em);
+		}
+
 		.dialog-input{
 			margin-top: 0.6em;
 			margin-bottom: 0.6em;
-			width: 100%;
+			flex: 1;
 		}
 	`
 
@@ -269,11 +286,16 @@ export class Dialog<E = {}> extends Component<E> {
 		`)}</div>`
 	}
 
-	protected onClickActionButton(action: DialogAction) {
+	protected async onClickActionButton(action: DialogAction) {
 
 		// Prevent from closing.
 		if (action.handler) {
 			let returned = action.handler()
+
+			if (returned instanceof Promise) {
+				returned = await returned
+			}
+
 			if (returned === true) {
 				return
 			}
@@ -439,37 +461,60 @@ export class QuickDialog {
 	 * Show prompt type dialog or add it to dialog stack.
 	 * Have 'ok' and 'cancel' action by default.
 	 */
-	async prompt(message: RenderResultRenderer, options: PromptDialogOptions = {}): Promise<string | undefined> {
-		let value: string = options.defaultValue ? String(options.defaultValue) : ''
+	async prompt(message: RenderResultRenderer, options: PromptDialogOptions = {}): Promise<{
+		promise: Promise<string | undefined>
+		setErrorMessage: (errorMessage: string | null) => void
+	}> {
 
+		let value: string = options.defaultValue ? String(options.defaultValue) : ''
+		
 		let messageOverwritten = () => html`
 			${typeof message === 'function' ? message() : message}
 
-			<lu:if ${options.inputType === 'textarea'}>
-				<Textarea class="dialog-input" 
-					.placeholder=${options.placeholder ?? ''}
-					.validator=${options.validator ?? null}
-					.value=${value}
-				/>
-			</lu:if>
-			<lu:else>
-				<Input class="dialog-input" 
-					.placeholder=${options.placeholder ?? ''}
-					.validator=${options.validator ?? null}
-					.type=${options.inputType as 'text' | 'password' | 'text'}
-					.value=${value}
-				/>
-			</lu:else>
+			<div class="dialog-input-container">
+				<lu:if ${options.fieldLabel}>
+					<div class="dialog-input-label">
+						${options.fieldLabel}
+					</div>
+				</lu:if>
+
+				<lu:if ${options.inputType === 'textarea'}>
+					<Textarea class="dialog-input" 
+						.placeholder=${options.placeholder ?? ''}
+						.validator=${options.validator ?? null}
+						.value=${value}
+					/>
+				</lu:if>
+				<lu:else>
+					<Input class="dialog-input" 
+						.placeholder=${options.placeholder ?? ''}
+						.validator=${options.validator ?? null}
+						.type=${options.inputType as 'text' | 'password' | 'text'}
+						.value=${value}
+					/>
+				</lu:else>
+			</div>
 		`
 
 		let promise = this.addOptions({
 			message: messageOverwritten,
 			actions: [
 				{value: 'cancel', text: t('cancel')},
-				{value: 'ok', text: t('ok'), primary: true, handler() {
+				{value: 'ok', text: t('ok'), primary: true, async handler() {
+
+					// Directly clicked OK without inputting.
 					if (!input.touched || input.valid === false) {
 						input.touched = true
 						return true
+					}
+
+					// Submit failed, prevent prompt closing.
+					if (options.submitter) {
+						let errorMessage = await options.submitter(input.value)
+						if (errorMessage) {
+							input.errorMessage = errorMessage
+							return true
+						}
 					}
 
 					return null
@@ -487,12 +532,25 @@ export class QuickDialog {
 			this.dialog.triggerAction('ok')
 		})
 
-		let btn = await promise
-		if (btn === 'ok') {
-			return input.value
+		let setErrorMessage = (errorMessage: string | null) => {
+			input.errorMessage = errorMessage
 		}
 
-		return undefined
+		let valuePR = Promise.withResolvers<string | undefined>()
+
+		promise.then((btn: string | undefined) => {
+			if (btn === 'ok') {
+				valuePR.resolve(input.value)
+			}
+			else {
+				valuePR.resolve(undefined)
+			}
+		})
+		
+		return {
+			promise: valuePR.promise,
+			setErrorMessage,
+		}
 	}
 
 	/** Hide dialog force before user clicking any action button. */
