@@ -631,8 +631,6 @@ export abstract class RendererBase {
 		await this.setRestSize()
 		await this.measurement.measureAfterRendered(this.startIndex, this.endIndex)
 		await this.afterMeasured()
-
-		console.log(this.startIndex, this.endIndex, this.measurement.sliderPositions.startPosition, this.measurement.sliderPositions.endPosition)
 	}
 
 	/** Update and make render content continuous. */
