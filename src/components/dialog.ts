@@ -115,7 +115,7 @@ export class Dialog<E = {}> extends Component<E> {
 
 		.dialog-header{
 			display: flex;
-			font-size: 0.928em;
+			font-size: calc(1em - 1px);
 			padding-bottom: 0.4em;
 			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background));
 		}
@@ -163,15 +163,15 @@ export class Dialog<E = {}> extends Component<E> {
 			display: flex;
 			justify-content: flex-end;
 			margin-top: 1.2em;
+		}
 
-			.dialog-action{
-				margin-left: 0.6em;
-			}
+		.dialog-action{
+			margin-left: 0.6em;
+		}
 
-			.dialog-third{
-				margin-left: 0;
-				margin-right: auto;
-			}
+		.dialog-third{
+			margin-left: 0;
+			margin-right: auto;
 		}
 
 		.dialog-input-container{

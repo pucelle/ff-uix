@@ -37,7 +37,7 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 			width: calc(20em + 20px);
 			height: 2em;
 			padding: 0.2em 0;
-			background: var(--field-color);
+			background: var(--input-background);
 			justify-content: space-between;
 			align-items: center;
 			cursor: pointer;

@@ -1,4 +1,4 @@
-import {Binding, render, RenderResultRenderer, RenderedComponentLike, Part} from 'lupos.html'
+import {Binding, render, RenderResultRenderer, RenderedComponentLike, Part, inSSR} from 'lupos.html'
 import {AnchorAligner, AnchorPosition, AnchorAlignerOptions, MouseEventDelivery} from 'ff-kit'
 import {Popup} from '../components'
 import * as SharedPopups from './popup-helpers/shared-popups'
@@ -216,6 +216,10 @@ export class popup implements Binding, Part {
 
 	/** Whether should show popup content immediately after connected. */
 	protected shouldShowImmediately(): boolean {
+		if (inSSR) {
+			return false
+		}
+
 		if (!this.renderer) {
 			return false
 		}
@@ -225,6 +229,10 @@ export class popup implements Binding, Part {
 
 	/** Whether should keep popup content visible always. */
 	protected shouldKeepVisible(): boolean {
+		if (inSSR) {
+			return false
+		}
+		
 		if (!this.renderer) {
 			return false
 		}

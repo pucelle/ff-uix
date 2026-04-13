@@ -11,13 +11,13 @@
 }
 
 @font-face {
-	font-family: 'RobotoMono';
+	font-family: 'Roboto Mono';
 	font-style: normal;
-	src: local('RobotoMono'), url('fonts/roboto-mono.woff2') format('woff2');
+	src: local('Roboto Mono'), url('fonts/roboto-mono.woff2') format('woff2');
 }
 
 @font-face {
-	font-family: 'RobotoMono';
+	font-family: 'Roboto Mono';
 	font-style: italic;
 	src: local('RobotoMono Italic'), url('fonts/roboto-mono-italic.woff2') format('woff2');
 }

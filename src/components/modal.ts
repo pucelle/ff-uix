@@ -1,15 +1,38 @@
-import {css, html, Component, RenderResult, fade} from 'lupos.html'
+import {css, html, Component, RenderResult, fade, RenderResultRenderer} from 'lupos.html'
 import {AnchorAligner} from 'ff-kit'
 import {DOMEvents} from 'lupos'
 import {Icon} from './icon'
 import {IconClose} from '../icons'
+import {Button} from './button'
+import {tooltip} from '../bindings'
+
+
+export interface ModelAction {
+
+	/** Button text. */
+	text: string
+
+	/** Tooltip text or result. */
+	tooltip?: RenderResultRenderer
+
+	/** Action button becomes primary if set to `true`. */
+	primary?: boolean
+
+	/** Third action button of will be put on the left. */
+	third?: boolean
+
+	/** 
+	 * Calls after clicked the action button.
+	 * You may return `true` to interrupt model from closing,
+	 * and return `null` or void to continue closing.
+	 */
+	handler?: () => Promise<boolean | null | void> | boolean | null | void
+}
 
 
 /** 
  * `<Modal>` displays blocking-level content and help to
  * complete a child task on a popup modal.
- * 
- * `:slot="action"` - single action button or action buttons container.
  */
 export class Modal<E = {}> extends Component<E> {
 
@@ -41,7 +64,7 @@ export class Modal<E = {}> extends Component<E> {
 		.modal-header{
 			display: flex;
 			flex: none;
-			font-size: 0.928em;
+			font-size: calc(1em - 1px);
 			padding-bottom: 0.4em;
 			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background));
 			margin-bottom: 0.6em;
@@ -68,11 +91,16 @@ export class Modal<E = {}> extends Component<E> {
 
 		.modal-actions{
 			margin-left: 1.2em;
+		}
 
-			.button{
-				margin-left: 0.6em;
-				font-size: 0.928em;
-			}
+		.modal-action{
+			margin-left: 0.6em;
+			font-size: calc(1em - 1px);
+		}
+
+		.modal-third{
+			margin-left: 0;
+			margin-right: auto;
 		}
 
 		.modal-content{
@@ -94,8 +122,14 @@ export class Modal<E = {}> extends Component<E> {
 	/** Modal title. */
 	title: string = ''
 
-	/** Whether modal opened. */
+	/** 
+	 * Whether modal opened.
+	 * Can specified as `true` to auto-show modal after it created.
+	 */
 	opened: boolean = false
+
+	/** Model actions. */
+	actions: ModelAction[] | null = null
 
 	protected override render() {
 		return html`
@@ -112,8 +146,8 @@ export class Modal<E = {}> extends Component<E> {
 				<div class="modal-header">
 					<div class="modal-title">${this.title}</div>
 
-					<lu:if ${this.slotElements.action}>
-						${this.renderAction()}
+					<lu:if ${this.actions && this.actions.length > 0}>
+						${this.renderActions()}
 					</lu:if>
 					<lu:else>
 						<Icon class="modal-close" .code=${IconClose}
@@ -127,13 +161,36 @@ export class Modal<E = {}> extends Component<E> {
 		`
 	}
 
-	/** Can be overwritten. */
-	protected renderAction(): RenderResult {
-		return html`
-			<div class="modal-actions">
-				<slot name="action" />
-			</div>
-		`
+	/** Render action buttons, can be overwritten. */
+	protected renderActions(): RenderResult {
+		return html`<div class="modal-actions">${this.actions!.map(action => html`
+			<Button class="modal-action"
+				.primary=${!!action.primary}
+				:class.modal-third=${action.third}
+				:tooltip=${action.tooltip ?? null, {position: 'b'}}
+				@click=${() => this.onClickActionButton(action)}
+			>
+				${action.text}
+			</Button>
+		`)}</div>`
+	}
+
+	protected async onClickActionButton(action: ModelAction) {
+
+		// Prevent from closing.
+		if (action.handler) {
+			let returned = action.handler()
+
+			if (returned instanceof Promise) {
+				returned = await returned
+			}
+
+			if (returned === true) {
+				return
+			}
+		}
+
+		this.hide()
 	}
 
 	/** Can be overwritten. */
@@ -147,6 +204,14 @@ export class Modal<E = {}> extends Component<E> {
 
 	protected onLeaveTransitionEnded() {
 		this.maskEl.remove()
+	}
+
+	protected override onCreated() {
+		super.onCreated()
+		
+		if (this.opened) {
+			this.doShow()
+		}
 	}
 
 	protected override onConnected() {
@@ -188,6 +253,10 @@ export class Modal<E = {}> extends Component<E> {
 		}
 
 		this.opened = true
+		this.doShow()
+	}
+
+	protected doShow() {
 		this.appendTo(document.body)
 	}
 

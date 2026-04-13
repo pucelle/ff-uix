@@ -55,10 +55,9 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 		}
 
 		.input-icon{
-			width: 2em;
+			width: 1.6em;
 			height: 100%;
 			margin-block: auto;
-			margin-left: 8px;
 		}
 
 		.input-field{

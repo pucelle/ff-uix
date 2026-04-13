@@ -31,8 +31,8 @@ export class PartialRenderer extends RendererBase {
 		context: Component,
 		doa: DirectionalOverflowAccessor,
 		updateCallback: () => void,
-		frontPlaceholder: HTMLDivElement | null,
-		backPlaceholder: HTMLDivElement | null
+		frontPlaceholder: HTMLDivElement | null = null,
+		backPlaceholder: HTMLDivElement | null = null
 	) {
 		super(scroller, slider, repeat, context, doa, updateCallback)
 		this.frontPlaceholder = frontPlaceholder

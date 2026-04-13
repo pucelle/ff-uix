@@ -1,4 +1,4 @@
-import {html, Component, render} from 'lupos.html'
+import {html, Component, render, defineCustomElement, inSSR} from 'lupos.html'
 import {watch} from 'lupos'
 import {
 	Radio, RadioGroup, Checkbox, CheckboxGroup, Row, Col, Icon, Button, ButtonGroup,
@@ -16,15 +16,15 @@ import {
 	IconTips,
 	IconDown
 } from '../../out'
-import {sleep, range, EventUtils} from 'ff-kit'
+import {sleep, range} from 'ff-kit'
 
 
-class Preview extends Component {
+export class Preview extends Component {
 
 	protected render() {
 		return html`
-		<template class="preview size-default"
-			style="color: var(--text-color); background: var(--background-color)"
+		<template class="preview"
+			style="color: var(--text-color); background: var(--background)"
 		>
 			<div class="wrapper">
 				${this.renderTheme()}
@@ -105,19 +105,19 @@ class Preview extends Component {
 					<Col .span=${4}>
 						<header>Primary</header>
 						<Button style="margin: 8px 0;" .primary>Button Text</Button><br>
-						<Button style="margin: 8px 0;" .primary><Icon .icon=${IconLove} /><span>Button Text</span></Button><br>
-						<Button style="margin: 8px 0;" .primary><Icon .icon=${IconLove} /></Button><br>
+						<Button style="margin: 8px 0;" .primary><Icon .code=${IconLove} /><span>Button Text</span></Button><br>
+						<Button style="margin: 8px 0;" .primary><Icon .code=${IconLove} /></Button><br>
 					</Col>
 					<Col .span=${4}>
 						<header>Normal</header>
 						<Button style="margin: 8px 0;">Button Text</Button><br>
-						<Button style="margin: 8px 0;"><span>Button Text</span><Icon .icon=${IconLove} /></Button><br>
-						<Button style="margin: 8px 0;"><Icon .icon=${IconLove} /></Button><br>
+						<Button style="margin: 8px 0;"><span>Button Text</span><Icon .code=${IconLove} /></Button><br>
+						<Button style="margin: 8px 0;"><Icon .code=${IconLove} /></Button><br>
 					</Col>
 					<Col .span=${4}>
 						<header>Flat</header>
 						<Button style="margin: 8px 0;" .flat>Button Text</Button><br>
-						<Button style="margin: 8px 0;" .flat><Icon .icon=${IconLove} /><span>Button Text</span></Button><br>
+						<Button style="margin: 8px 0;" .flat><Icon .code=${IconLove} /><span>Button Text</span></Button><br>
 					</Col>
 				</Row>
 			</section>
@@ -137,9 +137,9 @@ class Preview extends Component {
 				</ButtonGroup><br>
 
 				<ButtonGroup style="margin: 8px 0;">
-					<Button .primary><Icon .icon=${IconLove} /></Button>
-					<Button><Icon .icon=${IconLove} /></Button>
-					<Button><Icon .icon=${IconLove} /></Button>
+					<Button .primary><Icon .code=${IconLove} /></Button>
+					<Button><Icon .code=${IconLove} /></Button>
+					<Button><Icon .code=${IconLove} /></Button>
 				</ButtonGroup><br>
 			</section>
 
@@ -180,7 +180,7 @@ class Preview extends Component {
 					<header>With Info</header>
 					<Label>
 						Last Name
-						<Icon .icon=${IconTips} :tooltip="Guide Tips" />
+						<Icon .code=${IconTips} :tooltip="Guide Tips" />
 					</Label>
 				</Col>
 			</Row>
@@ -483,7 +483,7 @@ class Preview extends Component {
 
 					<Col .span=${4}>
 						<header style="margin-bottom: 8px;">:loading</header>
-						<div style="position: relative; width: 100px; height: 100px" :loading=${true}></div>
+						<div style="position: relative; width: 100px; height: 100px" :loading=${true, {size: 38, strokeSize: 4, speed: 0.5}}></div>
 					</Col>
 				</Row>
 			</section>
@@ -499,29 +499,29 @@ class Preview extends Component {
 				<Row style="margin: 16px 0 8px 0;" .gutter=${24}>
 					<Col .span=${6}>
 						<header style="margin-bottom: 8px;">Non Selection</header>
-						<List .data=${[...range(1, 6)].map(value => ({value, text: 'Option ' + value}))} />
+						<List style="border: 1px solid var(--border-color); padding: 4px; border-radius: var(--border-radius)" .data=${[...range(1, 6)].map(value => ({value, text: 'Option ' + value}))} />
 					</Col>
 
 					<Col .span=${6}>
 						<header style="margin-bottom: 8px;">Single Selection</header>
-						<List .data=${[...range(1, 6)].map(value => ({value, text: 'Option ' + value}))} .selectable .selected=${[2]} />
+						<List style="border: 1px solid var(--border-color); padding: 4px; border-radius: var(--border-radius)" .data=${[...range(1, 6)].map(value => ({value, text: 'Option ' + value}))} .selectable .selected=${[2]} />
 					</Col>
 
 					<Col .span=${6}>
 						<header style="margin-bottom: 8px;">Multiple Selection</header>
-						<List .data=${[...range(1, 6)].map(value => ({value, text: 'Option ' + value}))} .selectable .multipleSelect .selected=${[1, 2]} />
+						<List style="border: 1px solid var(--border-color); padding: 4px; border-radius: var(--border-radius)" .data=${[...range(1, 6)].map(value => ({value, text: 'Option ' + value}))} .selectable .multipleSelect .selected=${[1, 2]} />
 					</Col>
 				</Row>
 
 				<Row style="margin: 32px 0 8px 0;" .gutter=${24}>
 					<Col .span=${6}>
 						<header style="margin-bottom: 8px;">With Icon</header>
-						<List .data=${[...range(1, 6)].map(value => ({value, text: 'Option ' + value, icon: 'love'}))} />
+						<List style="border: 1px solid var(--border-color); padding: 4px; border-radius: var(--border-radius)" .data=${[...range(1, 6)].map(value => ({value, text: 'Option ' + value, icon: 'love'}))} />
 					</Col>
 
 					<Col .span=${6}>
 						<header style="margin-bottom: 8px;">With Subsection</header>
-						<List .data=${[
+						<List style="border: 1px solid var(--border-color); padding: 4px; border-radius: var(--border-radius)" .data=${[
 							{value: 1, text: 'Folder A', children:
 								[
 									{value: 11, text: 'Sub Folder a', children: [
@@ -561,7 +561,7 @@ class Preview extends Component {
 
 				<Row style="margin: 16px 0 8px 0;" .gutter=${24}>
 					<Col .span=${6}>
-						<Navigation
+						<Navigation style="border: 1px solid var(--border-color); padding: 8px 12px; border-radius: var(--border-radius)"
 							.selected=${[111]}
 							.title="Navigation Menu"
 							.data=${[
@@ -599,8 +599,6 @@ class Preview extends Component {
 			`
 	}
 
-
-	popupWithActions!: Popover
 
 	private renderPopover() {
 		return html`
@@ -648,12 +646,13 @@ class Preview extends Component {
 						<header style="margin-bottom: 8px;">With actions</header>
 						<Button :popup=${
 							() => html`
-							<Popover .title="Popover title" :ref=${this.popupWithActions}>
+							<Popover .title="Popover title"
+								.actions=${[
+									{text: 'Cancel'},
+									{text: 'Save', primary: true,},
+								]}
+							>
 								This is Popover content.
-								<div :slot="action">
-									<Button @click=${() => this.popupWithActions.close()} .size="inherit">Cancel</Button>
-									<Button .primary @click=${() => this.popupWithActions.close()} .size="inherit">Save</Button>
-								</div>
 							</Popover>
 							`,
 							{trigger: 'click', position: 'b', fixTriangle: true} as Partial<PopupOptions>
@@ -681,7 +680,7 @@ class Preview extends Component {
 							{trigger: 'click', position: 'b', fixTriangle: true} as Partial<PopupOptions>
 						}>
 							<span>Click to Open Menu</span>
-							<Icon .icon=${IconDown} />
+							<Icon .code=${IconDown} />
 						</Button>
 					</Col>
 
@@ -694,7 +693,7 @@ class Preview extends Component {
 							{trigger: 'click', position: 'b', fixTriangle: true} as Partial<PopupOptions>
 						}>
 							<span>Menu with Title</span>
-							<Icon .icon=${IconDown} />
+							<Icon .code=${IconDown} />
 						</Button>
 					</Col>
 				</Row>
@@ -824,6 +823,8 @@ class Preview extends Component {
 			`
 	}
 
+	private input: Input | null = null
+
 	private renderDialog() {
 		return html`
 			<section>
@@ -892,8 +893,6 @@ class Preview extends Component {
 						<header style="margin-bottom: 8px;">Customize</header>
 						<Button @click=${
 							() => {
-								let input: Input
-
 								dialog.show(
 									html`
 										Please input the name of your account:
@@ -901,23 +900,30 @@ class Preview extends Component {
 											.placeholder="Input Name of Your Account"
 											.validator=${(v: string) => v ? null : 'Name field is required'}
 											.errorOnTooltip
-											:ref=${input!}
+											:ref=${this.input!}
 										/>
 										<Checkbox .checked style="margin-top: 8px;">Remember Me</Checkbox>
 									`,
 									{
 										title: 'Dialog Title',
-										actions: [{
-											value: 'ok',
-											text: 'OK',
-											handler() {
-												if (!input!.touched || !input!.valid) {
-													input!.touched = true
-													return true
+										actions: [
+											{
+												value: 'cancel',
+												text: 'Cancel'
+											},
+											{
+												value: 'ok',
+												text: 'OK',
+												primary: true,
+												handler: () => {
+													if (!this.input!.touched || !this.input!.valid) {
+														this.input!.touched = true
+														return true
+													}
+													return null
 												}
-												return null
 											}
-										}]
+										]
 									}
 								)
 							}
@@ -959,18 +965,16 @@ class Preview extends Component {
 						<header style="margin-bottom: 8px;">With Actions</header>
 
 						<Button @click=${() => {
-							let modal: Modal
-
 							render(html`
 								<Modal style="width: 25em;"
 									.title="Modal Title"
-									:ref=${((m: Modal) => {modal = m; m.show()})}
+									.opened
+									.actions=${[
+										{text: 'Cancel'},
+										{text: 'Save', primary: true,},
+									]}
 								>
 									This is modal content
-									<div :slot="action">
-										<Button @click=${() => modal.hide()}>Cancel</Button>
-										<Button .primary @click=${() => modal.hide()}>Save</Button>
-									</div>
 								</Modal>
 							`).connectManually()
 						}}>
@@ -1034,7 +1038,7 @@ class Preview extends Component {
 				.resizable
 				.live
 				.store=${new Store({
-					data: [...range(1, 1001)].map(n => ({id: n, value: Math.round(Math.random() * 100)})),
+					data: [...range(1, inSSR ? 11 : 1001)].map(n => ({id: n, value: Math.round(Math.random() * 100)})),
 				})}
 				.columns=${[
 					{
@@ -1109,7 +1113,7 @@ class Preview extends Component {
 			<section>
 				<h3>Drag & Drop</h3>
 					
-			<div style="display: inline-flex; vertical-align: top; padding: 4px; background: color-mix(in srgb, var(--background-color) 95%, var(--text-color)); line-height: 100px; font-size: 60px; text-align: center; height: 116px; min-width: 116px; v"
+			<div style="display: inline-flex; vertical-align: top; padding: 4px; background: color-mix(in srgb, var(--background) 95%, var(--text-color)); line-height: 100px; font-size: 60px; text-align: center; height: 116px; min-width: 116px; v"
 					:droppable=${((value: number, index: number) => {
 						this.leftData = this.leftData.filter(v => v !== value)
 						this.rightData = this.rightData.filter(v => v !== value)
@@ -1123,14 +1127,14 @@ class Preview extends Component {
 					}), {itemsAlignDirection: 'horizontal'} as DroppableOptions<number>}
 				>
 					${this.leftData.map((data: number, index: number) => html`
-						<div style="width: 100px; vertical-align: top; margin: 4px; cursor: grab; background: color-mix(in srgb, var(--background-color) 85%, var(--text-color))"
+						<div style="width: 100px; vertical-align: top; margin: 4px; cursor: grab; background: color-mix(in srgb, var(--background) 85%, var(--text-color))"
 							:orderable=${data, index}
 						>${data}</div>
 					`)}
 				</div>
 				<br>
 
-				<div style="display: inline-flex; padding: 4px; margin-top: -8px; background: color-mix(in srgb, var(--background-color) 95%, var(--text-color)); line-height: 100px; font-size: 60px; text-align: center; height: 116px; min-width: 116px;"
+				<div style="display: inline-flex; padding: 4px; margin-top: -8px; background: color-mix(in srgb, var(--background) 95%, var(--text-color)); line-height: 100px; font-size: 60px; text-align: center; height: 116px; min-width: 116px;"
 					:droppable=${((value: number, index: number) => {
 						this.leftData = this.leftData.filter(v => v !== value)
 						this.rightData = this.rightData.filter(v => v !== value)
@@ -1144,7 +1148,7 @@ class Preview extends Component {
 					}), {itemsAlignDirection: 'horizontal'} as DroppableOptions<number>}
 				>
 					${this.rightData.map((data: number, index: number) => html`
-						<div style="width: 100px; vertical-align: top; margin: 4px; cursor: grab; background: color-mix(in srgb, var(--background-color) 85%, var(--text-color));"
+						<div style="width: 100px; vertical-align: top; margin: 4px; cursor: grab; background: color-mix(in srgb, var(--background) 85%, var(--text-color));"
 							:orderable=${data, index}
 						>${data}</div>
 					`)}
@@ -1159,9 +1163,9 @@ class Preview extends Component {
 			<section>
 				<h3>Resizer</h3>
 
-				<div style="position: relative; display: inline-flex; justify-content: center; line-height: 100px; font-size: 14px; text-align: center; width: 200px; height: 100px; background: color-mix(in srgb, var(--background-color) 95%, var(--text-color));">
+				<div style="position: relative; display: inline-flex; justify-content: center; line-height: 100px; font-size: 14px; text-align: center; width: 328px; height: 100px; background: color-mix(in srgb, var(--background) 95%, var(--text-color));">
 					Resizer on the Right
-					<ParentalResizer .position="right" .min=${200} .max=${600} style="background: color-mix(in srgb, var(--background-color) 85%, var(--text-color));"></f-resizer>
+					<ParentalResizer .position="right" .min=${200} .max=${600} style="background: color-mix(in srgb, var(--background) 85%, var(--text-color));"></f-resizer>
 				</div>
 				<br>
 			</section>
@@ -1207,7 +1211,7 @@ class ExampleRemoteStore extends RemoteStore {
 	}
 
 	protected dataCountGetter() {
-		return 1000
+		return inSSR ? 11 : 1000
 	}
 
 	async pageDataGetter(start: number, end: number) {
@@ -1217,6 +1221,4 @@ class ExampleRemoteStore extends RemoteStore {
 }
 
 
-EventUtils.untilWindowLoaded().then(() => {
-	new Preview().appendTo(document.body)
-})
+defineCustomElement('ff-uix-preview', Preview)

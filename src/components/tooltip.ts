@@ -30,7 +30,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 		.tooltip-text{
 			flex: 1;
 			min-width: 0;
-			font-size: 0.928em;
+			font-size: calc(1em - 1px);
 		}
 
 		.tooltip-close{

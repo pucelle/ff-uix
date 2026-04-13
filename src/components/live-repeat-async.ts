@@ -1,6 +1,7 @@
 import {effect, watch} from 'lupos'
 import {LiveRepeat} from './live-repeat'
 import {PageDataCountGetter, PageDataGetter, PageDataLoader} from '../data'
+import {inSSR} from 'lupos.html'
 
 
 export interface AsyncLiveRepeatEvents {
@@ -68,7 +69,7 @@ export class AsyncLiveRepeat<T = any, E = {}> extends LiveRepeat<T | null, E & A
 	override onConnected(): void {
 		super.onConnected()
 
-		if (this.needsUpdateDataCount) {
+		if (!inSSR && this.needsUpdateDataCount) {
 			this.needsUpdateDataCount = false
 			this.updateDataCount()
 		}

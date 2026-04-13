@@ -7,7 +7,7 @@ export class Label<Events = any> extends Component<Events> {
 	static override style = css`
 		.label{
 			font-weight: bold;
-			font-size: 0.928em;
+			font-size: calc(1em - 1px);
 
 			&.required{
 				&::after{

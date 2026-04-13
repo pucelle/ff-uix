@@ -76,7 +76,7 @@ export class loading implements Binding, Part {
 		}
 
 		this.value = value
-		this.options = {...options, ...DefaultLoadingOptions}
+		this.options = {...DefaultLoadingOptions, ...options}
 
 		if (this.value) {
 			if (!this.loader) {

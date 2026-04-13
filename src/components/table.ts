@@ -133,7 +133,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			position: relative;
 			display: flex;
 			align-items: stretch;
-			font-size: 0.928em;
+			font-size: calc(1em - 1px);
 			padding: 0.2em 0.6em;
 			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 20%, var(--background));;
 
@@ -169,12 +169,9 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		}
 
 		.table-order{
-			width: 1.2em;
 			flex: none;
 			display: flex;
 			visibility: hidden;
-			margin-left: 0.4em;
-			margin-right: -1.2em;
 
 			&.current{
 				visibility: visible;

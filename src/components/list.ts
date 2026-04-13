@@ -4,7 +4,7 @@ import {DOMEvents, EventKeys, Observed, UpdateQueue, effect} from 'lupos'
 import {ListDataNavigator} from './list-helpers/list-data-navigator'
 import {Icon} from './icon'
 import {tooltip, contextmenu, PopupOptions} from '../bindings'
-import {IconChecked, IconTriangleDown, IconTriangleRight} from '../icons'
+import {IconChecked, IconTriangleRight} from '../icons'
 import {DOMScroll} from '../tools'
 import {PartialRepeat} from './partial-repeat'
 
@@ -338,8 +338,8 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	protected renderExpandIcon(expanded: boolean) {
 		return html`
 			<Icon class="list-toggle-icon"
-				:style.transform=${expanded ? 'none': 'rotate(-90deg)'}
-				.code=${expanded ? IconTriangleDown : IconTriangleRight}
+				:style.transform=${expanded ? 'rotate(90deg)': 'none'}
+				.code=${IconTriangleRight}
 			/>`
 	}
 
@@ -445,7 +445,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		if (this.selectable && (this.dirSelectable || !item.children)) {
 			if (this.multipleSelect) {
 				if (this.selected.includes(item.value)) {
-					this.selected.splice(this.selected.indexOf(item), 1)
+					this.selected.splice(this.selected.indexOf(item.value), 1)
 				}
 				else {
 					this.selected.push(item.value)

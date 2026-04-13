@@ -30,7 +30,6 @@ export class Checkbox<T = any, E = {}> extends Component<E & CheckboxEvents> {
 
 			&:focus{
 				color: var(--primary-color);
-				box-shadow: 0 0 0 1px var(--primary-color);
 			}
 
 			&.indeterminate, &.checked{

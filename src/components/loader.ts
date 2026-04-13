@@ -91,7 +91,8 @@ export class Loader<E = {}> extends Component<E> {
 		let size = this.size
 		let strokeWidth = this.strokeSize
 
-		this.snakeEl.animate([
+		// No animate in Worker.
+		this.snakeEl.animate?.([
 			{strokeDashoffset: 0},
 			{strokeDashoffset: - (size - strokeWidth) * 4},
 		], 

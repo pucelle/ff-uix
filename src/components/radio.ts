@@ -34,7 +34,6 @@ export class Radio<E = {}> extends Component<E & RadioEvents> {
 
 			&:focus{
 				color: var(--primary-color);
-				box-shadow: 0 0 0 1px var(--primary-color);
 			}
 			
 			&.checked{
@@ -93,7 +92,9 @@ export class Radio<E = {}> extends Component<E & RadioEvents> {
 				@click=${this.onClick}
 				@focus=${this.onFocus}
 			>
-				<Icon class="radio-icon" .code=${this.checked ? IconRadioChecked : IconRadioUnchecked} />
+				<Icon class="radio-icon"
+					.code=${this.checked ? IconRadioChecked : IconRadioUnchecked}
+				/>
 				<div class="radio-label">
 					<slot />
 				</div>

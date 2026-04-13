@@ -20,13 +20,13 @@ export class Switch<E = {}> extends Component<E & SwitchEvents> {
 			width: 2em;
 			height: 1.25em;
 			border-radius: 0.625em;
-			background: var(--field-color);
+			background: var(--switch-background);
 			padding: 1px;
 			transition: background 0.2s ${/*#__PURE__*/getCSSEasingValue('ease-out-cubic')};
 			cursor: pointer;
 
 			&:hover{
-				background: color-mix(in srgb, var(--field-color) 80%, var(--text-color));
+				background: color-mix(in srgb, var(--switch-background) 90%, var(--text-color));
 			}
 			
 			&:focus{

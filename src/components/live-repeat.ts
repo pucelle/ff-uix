@@ -50,13 +50,13 @@ export class LiveRepeat<T = any, E = {}> extends PartialRepeat<T, E> {
 	/** Apply `scrollSize` property to renderer. */
 	@effect
 	protected applyScrollSize() {
-		this.renderer!.setDirectScrollSize(this.scrollSize)
+		this.renderer?.setDirectScrollSize(this.scrollSize)
 	}
 
 	/** Apply `preEndPositions` to renderer. */
 	@effect
 	protected applyPreEndPositions() {
-		this.renderer!.setPreEndPositions(this.preEndPositions)
+		this.renderer?.setPreEndPositions(this.preEndPositions)
 	}
 
 	protected override initPlaceholders() {

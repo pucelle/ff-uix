@@ -1,6 +1,6 @@
 import {DOMUtils, ListUtils, ValueListUtils} from 'ff-kit'
 import type {TableColumn} from '../table'
-import {html, render} from 'lupos.html'
+import {html, inSSR, render} from 'lupos.html'
 import {DOMEvents, barrierDOMReading, barrierDOMWriting} from 'lupos'
 
 
@@ -51,7 +51,10 @@ export class ColumnWidthResizer {
 	async update(columns: TableColumn[], minColumnWidth: number) {
 		this.columns = columns
 		this.minColumnWidth = minColumnWidth
-		await this.updateColumnWidths()
+
+		if (!inSSR) {
+			await this.updateColumnWidths()
+		}
 	}
 
 	/** 

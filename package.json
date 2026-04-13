@@ -14,10 +14,10 @@
 	"types": "out/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"build": "luc -e",
-		"watch": "luc -e -w",
-		"build-docs": "cd docs && luc -e",
-		"watch-docs": "cd docs && luc -e -w",
+		"build": "luc -e -s",
+		"watch": "luc -e -s -w",
+		"build-docs": "cd docs && luc -e -s",
+		"watch-docs": "cd docs && luc -e -s -w",
 		"dev-docs": "webpack serve",
 		"dev-bundled-docs": "webpack serve --mode=\"production\"",
 		"bundle-docs": "webpack --mode=\"production\"",
@@ -32,6 +32,7 @@
 		"@pucelle/webpack-svg-loader": "^1.0.5",
 		"typescript": "^5.9.3",
 		"webpack": "^5.98.0",
-		"webpack-dev-server": "^5.2.1"
+		"webpack-dev-server": "^5.2.1",
+		"linkedom": "^0.18.12"
 	}
 }

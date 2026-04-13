@@ -19,21 +19,22 @@ export class Tag<E = {}> extends Component<E & TagEvents> {
 			display: inline-flex;
 			border: 1px solid var(--border-color);
 			border-radius: var(--border-radius);
-			line-height: 1.4;
 			padding: 0 0.4em;
 			cursor: pointer;
 
 			&:hover{
-				opacity: 0.9;
+				color: var(--primary-color);
+				border-color: var(--primary-color);
 			}
 
 			&:active{
-				opacity: 0.8;
+				color: var(--primary-color);
+				border-color: var(--primary-color);
 			}
 		}
 
 		.tag-label{
-			font-size: 0.928em;
+			font-size: calc(1em - 1px);
 			flex: 1;
 			white-space: nowrap;
 			overflow: hidden;
@@ -45,7 +46,12 @@ export class Tag<E = {}> extends Component<E & TagEvents> {
 			display: inline-flex;
 			margin-right: -0.2em;
 
+			&:hover{
+				color: var(--error-color);
+			}
+
 			&:active{
+				color: var(--error-color);
 				transform: translateY(1px);
 			}
 		}
@@ -67,7 +73,9 @@ export class Tag<E = {}> extends Component<E & TagEvents> {
 			<template class="tag">
 				<span class="tag-label"><slot /></span>
 				<lu:if ${this.closable}>
-					<Icon class="tag-close-icon" .code=${IconClose}
+					<Icon class="tag-close-icon"
+						.code=${IconClose}
+						.height=${19}
 						@click=${this.close}
 					/>
 				</lu:if>

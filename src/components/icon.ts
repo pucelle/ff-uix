@@ -8,15 +8,12 @@ export class Icon<Events = any> extends Component<Events> {
 	static override style = css`
 		.icon{
 			display: inline-flex;
+			justify-content: center;
+			align-items: center;
 			stroke: currentColor;
 			fill: none;
 			vertical-align: middle;
 			position: relative;
-
-			svg{
-				width: 100%;
-				height: 100%;
-			}
 		}
 	`
 
@@ -47,17 +44,12 @@ export class Icon<Events = any> extends Component<Events> {
 		let renderWidth = this.width ?? width
 		let renderHeight = this.height ?? height
 
-		let style = {
-			width: renderWidth + 'px',
-			height: renderHeight + 'px',
-		}
-
 		return html`
-			<template class="icon"
-				:style=${style}
-			>
+			<template class="icon">
 				<svg
 					viewBox=${[x, y, renderWidth, renderHeight].join(' ')}
+					width=${renderWidth}
+					height=${renderHeight}
 					:html=${inner}
 				></svg>
 			</template>

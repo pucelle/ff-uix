@@ -1,4 +1,4 @@
-import {html, RenderResultRenderer} from 'lupos.html'
+import {html, inSSR, RenderResultRenderer} from 'lupos.html'
 import {popup, PopupOptions} from './popup'
 import {TooltipType, Tooltip} from '../components'
 
@@ -70,6 +70,10 @@ export class tooltip extends popup {
 	}
 
 	protected override shouldShowImmediately(): boolean {
+		if (inSSR) {
+			return false
+		}
+
 		if (!this.renderer) {
 			return false
 		}
@@ -80,6 +84,10 @@ export class tooltip extends popup {
 	}
 
 	protected override shouldKeepVisible(): boolean {
+		if (inSSR) {
+			return false
+		}
+		
 		if (!this.renderer) {
 			return false
 		}

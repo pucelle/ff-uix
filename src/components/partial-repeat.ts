@@ -1,6 +1,6 @@
 import {effect, untilBarriersComplete, UpdateQueue} from 'lupos'
 import {Repeat, RepeatRenderFn} from './repeat'
-import {html, PartCallbackParameterMask, PerFrameTransitionEasingName} from 'lupos.html'
+import {html, inSSR, PartCallbackParameterMask, PerFrameTransitionEasingName} from 'lupos.html'
 import {PartialRenderer} from './repeat-helpers/partial-renderer'
 import {LowerIndexWithin} from '../tools'
 import {locateVisibleIndexAtOffset} from './repeat-helpers/index-locator'
@@ -47,17 +47,17 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 
 	/** The start index of the first item. */
 	get startIndex(): number {
-		return this.renderer!.startIndex
+		return this.renderer?.startIndex ?? 0
 	}
 
 	/** The end slicing index of the live data. */
 	get endIndex(): number {
-		return this.renderer!.endIndex
+		return this.renderer?.endIndex ?? this.data.length
 	}
 
 	/** Latest align direction. */
 	get alignDirection(): 'start' | 'end' | null {
-		return this.renderer!.alignDirection
+		return this.renderer?.alignDirection ?? 'start'
 	}
 
 	/** Live data, rendering part of all the data. */
@@ -68,20 +68,24 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 	/** Apply `guessedItemSize` property to renderer. */
 	@effect
 	protected applyGuessedItemSize() {
-		this.renderer!.setGuessedItemSize(this.guessedItemSize)
+		this.renderer?.setGuessedItemSize(this.guessedItemSize)
 	}
 
 	/** Apply `reservedPixels` property to renderer. */
 	@effect
 	protected applyReservedPixels() {
-		this.renderer!.reservedPixels = this.reservedPixels
+		if (this.renderer) {
+			this.renderer.reservedPixels = this.reservedPixels
+		}
 	}
 
 	/** Apply `data` count to renderer. */
 	@effect
 	protected applyDataCount() {
-		this.renderer!.dataCount = this.data.length
-		this.willUpdate()
+		if (this.renderer) {
+			this.renderer.dataCount = this.data.length
+			this.willUpdate()
+		}
 	}
 
 	/** Update after data change, and also wait for renderer render complete. */
@@ -93,11 +97,12 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 			return
 		}
 
-		await this.renderer!.update()
-
-		if (!this.connected) {
+		if (inSSR) {
+			super.update()
 			return
 		}
+
+		await this.renderer?.update()
 	}
 
 	/** 
@@ -114,6 +119,10 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 	}
 
 	protected override render() {
+		if (inSSR) {
+			return super.render()
+		}
+
 		return html`<lu:for ${this.liveData}>${this.renderLiveFn.bind(this)}</lu:for>`
 	}
 
@@ -125,10 +134,11 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 	protected override onConnected(this: PartialRepeat<any, {}>) {
 		super.onConnected()
 
-		this.initPlaceholders()
-		this.initRenderer()
-
-		this.renderer!.connect()
+		if (!inSSR) {
+			this.initPlaceholders()
+			this.initRenderer()
+			this.renderer?.connect()
+		}
 	}
 
 	override beforeDisconnectCallback(param: PartCallbackParameterMask) {
@@ -139,7 +149,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 		super.beforeDisconnectCallback(param)
 		
 		if (this.renderer) {
-			this.renderer!.disconnect()
+			this.renderer?.disconnect()
 		}
 
 		// If remove current component from parent, remove placeholder also.
@@ -223,11 +233,11 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 	}
 
 	override getStartVisibleIndex(minimumRatio: number = 0): number {
-		return this.renderer!.locateVisibleIndex('start', minimumRatio)
+		return this.renderer?.locateVisibleIndex('start', minimumRatio) ?? super.getStartVisibleIndex(minimumRatio)
 	}
 
 	override getEndVisibleIndex(minimumRatio: number = 0): number {
-		return this.renderer!.locateVisibleIndex('end', minimumRatio)
+		return this.renderer?.locateVisibleIndex('end', minimumRatio) ?? super.getEndVisibleIndex(minimumRatio)
 	}
 
 	/** 
@@ -236,7 +246,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 	 * You can safely call this before update complete, no additional rendering will cost.
 	 */
 	setStartVisibleIndex(startIndex: number) {
-		this.renderer!.setRenderIndices('start', startIndex)
+		this.renderer?.setRenderIndices('start', startIndex)
 		this.willUpdate()
 	}
 
@@ -261,7 +271,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 			endIndex = index + 1
 		}
 
-		this.renderer!.setRenderIndices(alignDirection, startIndex, endIndex, true)
+		this.renderer?.setRenderIndices(alignDirection, startIndex, endIndex, true)
 		this.willUpdate()
 
 		// Wait child to render complete.

@@ -1,3 +1,4 @@
+import {Coord, NumberUtils} from 'ff-kit'
 import {css, Component, html} from 'lupos.html'
 
 
@@ -37,73 +38,48 @@ export class Triangle<E = {}> extends Component<E> {
 	protected override render() {
 		let w = this.width
 		let h = this.height
-		let outputWidth = this.direction === 'top' || this.direction === 'bottom' ? w : h
-		let outputHeight = this.direction === 'top' || this.direction === 'bottom' ? h : w
-		let viewBox = [0, 0, outputWidth, outputHeight].join(' ')
+		let isVertical = this.direction === 'top' || this.direction === 'bottom'
+		
+		let outputWidth = isVertical ? w : h
+		let outputHeight = isVertical ? h : w
+		let viewBox = `0 0 ${outputWidth} ${outputHeight}`
 
-		let p1 = new DOMPoint(0, h)
-		let p2 = new DOMPoint(w / 2, 0)
-		let p3 = new DOMPoint(w, h)
+		// Calculation for stroke offset
+		let sita = Math.atan2(w / 2, h)
+		let deltaY = 0.5 / Math.sin(sita)
 
-		let rotateAngle = this.direction === 'left'
-			? 270
-			: this.direction === 'bottom'
-			? 180
-			: this.direction === 'right'
-			? 90
-			: 0
+		// Points for Fill
+		let p1 = this.transformPoint(0, h, w, h)
+		let p2 = this.transformPoint(w / 2, 0, w, h)
+		let p3 = this.transformPoint(w, h, w, h)
 
-		let m = new DOMMatrix()
-		m.rotateSelf(0, 0, rotateAngle)
-
-		p1 = p1.matrixTransform(m)
-		p2 = p2.matrixTransform(m)
-		p3 = p3.matrixTransform(m)
-
-		let tx = Math.max(0, -p3.x)
-		let ty = Math.max(0, -p3.y)
-
-		p1.x += tx
-		p1.y += ty
-		p2.x += tx
-		p2.y += ty
-		p3.x += tx
-		p3.y += ty
+		// Points for Stroke
+		let sp1 = this.transformPoint(0, h + deltaY, w, h)
+		let sp2 = this.transformPoint(w / 2, deltaY, w, h)
+		let sp3 = this.transformPoint(w, h + deltaY, w, h)
 
 		let fillD = `M${p1.x} ${p1.y} L${p2.x} ${p2.y} L${p3.x} ${p3.y}Z`
-
-		// Half of top triangle.
-		let sita = Math.atan2(this.width / 2, this.height)
-		let deltaY = 0.5 / Math.sin(sita)
-		let sp1 = new DOMPoint(0, h + deltaY)
-		let sp2 = new DOMPoint(w / 2, deltaY)
-		let sp3 = new DOMPoint(w, h + deltaY)
-
-		sp1 = sp1.matrixTransform(m)
-		sp2 = sp2.matrixTransform(m)
-		sp3 = sp3.matrixTransform(m)
-
-		sp1.x += tx
-		sp1.y += ty
-		sp2.x += tx
-		sp2.y += ty
-		sp3.x += tx
-		sp3.y += ty
-
-		let strokeD = `M${sp1.x} ${sp1.y} L${sp2.x} ${sp2.y} L${sp3.x} ${sp3.y}`
+		
+		let strokeD = `M${NumberUtils.toDecimal(sp1.x, 3)} ${NumberUtils.toDecimal(sp1.y, 3)} ` +
+					  `L${NumberUtils.toDecimal(sp2.x, 3)} ${NumberUtils.toDecimal(sp2.y, 3)} ` +
+					  `L${NumberUtils.toDecimal(sp3.x, 3)} ${NumberUtils.toDecimal(sp3.y, 3)}`
 
 		return html`
-			<template class="triangle"
-				style="${this.direction}: ${-this.height}px"
-			>
-				<svg viewBox=${viewBox}
-					width=${outputWidth}
-					height=${outputHeight}
-				>
+			<template class="triangle" style="${this.direction}: ${-this.height}px">
+				<svg viewBox=${viewBox} width=${outputWidth} height=${outputHeight}>
 					<path class="triangle-fill" d=${fillD} />
 					<path class="triangle-stroke" d=${strokeD} />
 				</svg>
 			</template>
 		`
+	}
+
+	private transformPoint(x: number, y: number, w: number, h: number): Coord {
+		switch (this.direction) {
+			case 'bottom': return {x: w - x, y: h - y } // 180°
+			case 'left':   return {x: y, y: w - x } 	// 270°
+			case 'right':  return {x: h - y, y: x} 		// 90°
+			case 'top':	   return {x, y} 					// 0°
+		}
 	}
 }

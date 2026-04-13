@@ -29,7 +29,7 @@ export class Menu<E = {}> extends Popup<E> {
 
 		.menu-header{
 			display: flex;
-			font-size: 0.928em;
+			font-size: calc(1em - 1px);
 			padding-bottom: 0.4em;
 			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background));
 		}
