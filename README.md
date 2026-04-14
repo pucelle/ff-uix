@@ -11,7 +11,7 @@ Here is the [Live Preview](https://pucelle.github.io/ff-uix/docs/).
 
 - **CSS**
 	- `css/base.css`: base css.
-	- `css/font.css`: **Roboto** font.
+	- `css/font.css`: **Roboto** and **Roboto Mono** font.
 
 - **Bindings**
 	- `:contextmenu`: pops-up a context menu when right click bound element.

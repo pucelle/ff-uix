@@ -31,12 +31,13 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.svg$/,
-				loader: '@pucelle/webpack-svg-loader',
+				test: /\.js$/,
+				loader: 'string-replace-loader',
 				options: {
-					mainColor: '#000000',
+					search: /static style = .+/g, 
+					replace: '',
 				}
-			},
-		],
-	},
+			}
+		]
+	}
 }

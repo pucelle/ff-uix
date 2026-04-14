@@ -1,4 +1,3 @@
-///<reference types="@pucelle/webpack-svg-loader" />
 import {BoxLike} from 'ff-kit'
 
 export {default as IconCheckboxChecked} from '../../icons/checkbox-checked.svg'

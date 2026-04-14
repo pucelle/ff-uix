@@ -1,4 +1,4 @@
-import '@pucelle/webpack-svg-loader'
+import './types'
 export * from './icons'
 export * from './data'
 export * from './components'
