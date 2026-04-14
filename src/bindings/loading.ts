@@ -41,6 +41,7 @@ export class loading implements Binding, Part {
 
 	protected options: LoadingOptions = DefaultLoadingOptions
 	protected value: boolean = false
+	protected rendering: boolean = false
 	protected loader: Loader | null = null
 
 	constructor(el: Element) {
@@ -48,7 +49,7 @@ export class loading implements Binding, Part {
 	}
 
 	async afterConnectCallback() {
-		if (this.value && !this.loader) {
+		if (this.value && !this.loader && !this.rendering) {
 			this.loader = await this.renderLoader()
 			this.loader.appendTo(this.el)
 		}
@@ -79,7 +80,7 @@ export class loading implements Binding, Part {
 		this.options = {...DefaultLoadingOptions, ...options}
 
 		if (this.value) {
-			if (!this.loader) {
+			if (!this.loader && !this.rendering) {
 				this.loader = await this.renderLoader()
 				this.loader.appendTo(this.el)
 			}
@@ -93,6 +94,8 @@ export class loading implements Binding, Part {
 	}
 
 	private async renderLoader(): Promise<Loader> {
+		this.rendering = true
+
 		let loaderRendered = render(html`
 			<Loader
 				.size=${this.options.size}
@@ -104,6 +107,8 @@ export class loading implements Binding, Part {
 		`)
 
 		await loaderRendered.connectManually()
-		return Loader.from(loaderRendered.el.firstElementChild!)!
+		this.rendering = false
+
+		return loaderRendered.getAs(Loader)!
 	}
 }

@@ -119,10 +119,6 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 	}
 
 	protected override render() {
-		if (inSSR) {
-			return super.render()
-		}
-
 		return html`<lu:for ${this.liveData}>${this.renderLiveFn.bind(this)}</lu:for>`
 	}
 
