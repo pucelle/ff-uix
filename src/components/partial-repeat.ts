@@ -45,20 +45,14 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 	/** Partial content renderer. */
 	protected renderer: RendererBase | null = null as any
 
-	/** The start index of the first item. */
-	get startIndex(): number {
-		return this.renderer?.startIndex ?? 0
-	}
+	/** The start index of the live data. */
+	startIndex: number = 0
 
-	/** The end slicing index of the live data. */
-	get endIndex(): number {
-		return this.renderer?.endIndex ?? this.data.length
-	}
+	/** The end index of the live data. */
+	endIndex: number = 0
 
 	/** Latest align direction. */
-	get alignDirection(): 'start' | 'end' | null {
-		return this.renderer?.alignDirection ?? 'start'
-	}
+	alignDirection: 'start' | 'end' = 'start'
 
 	/** Live data, rendering part of all the data. */
 	get liveData(): T[] {
@@ -110,12 +104,22 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 	 * May be called for several times for each time updating.
 	 */
 	protected updateLiveData(this: PartialRepeat) {
+		if (this.renderer) {
+			this.startIndex = this.renderer.startIndex
+			this.endIndex = this.renderer.endIndex
+			this.alignDirection = this.renderer.alignDirection
+		}
+		else {
+			this.endIndex = this.data.length
+			this.alignDirection = 'start'
+		}
+
 		UpdateQueue.onSyncUpdateStart(this)
 		this.updateRendering()
+		UpdateQueue.onSyncUpdateEnd()
 		
 		this.onUpdated()
 		this.fire('updated')
-		UpdateQueue.onSyncUpdateEnd()
 	}
 
 	protected override render() {

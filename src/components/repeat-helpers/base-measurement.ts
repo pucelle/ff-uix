@@ -216,7 +216,7 @@ export abstract class MeasurementBase {
 	/** Every time after update complete, do measurement. */
 	async measureAfterRendered(startIndex: number, endIndex: number) {
 
-		// Very important, ensure all child complete, but not all complete.
+		// Very important, ensure all children complete, but not all complete.
 		await this.context.untilChildComplete()
 
 		await barrierDOMReading()
