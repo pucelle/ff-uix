@@ -1,5 +1,4 @@
 import {fade, css, html, RenderResult, TemplateResult} from 'lupos.html'
-
 import {Dropdown} from './dropdown'
 import {ListItem, List} from './list'
 import {Popup} from './popup'

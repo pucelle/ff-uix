@@ -1,5 +1,4 @@
 import {Component, html, css, getCSSEasingValue} from 'lupos.html'
-
 import {DOMEvents, EventKeys} from 'lupos'
 
 

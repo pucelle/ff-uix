@@ -1,5 +1,4 @@
 import {css, html, fade} from 'lupos.html'
-
 import {Popup} from './popup'
 import {Icon} from './icon'
 import {Triangle} from './triangle'

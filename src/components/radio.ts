@@ -1,5 +1,4 @@
 import {Component, html, css} from 'lupos.html'
-
 import {Icon} from './icon'
 import {RadioGroup} from './radio-group'
 import {DOMEvents, DOMModifiableEvents} from 'lupos'

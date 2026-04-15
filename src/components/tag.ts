@@ -1,5 +1,4 @@
 import {Component, html, css} from 'lupos.html'
-
 import {Icon} from './icon'
 import {IconClose} from '../icons'
 
@@ -45,6 +44,7 @@ export class Tag<E = {}> extends Component<E & TagEvents> {
 		.tag-close-icon{
 			display: inline-flex;
 			margin-right: -0.2em;
+			color: var(--border-color);
 
 			&:hover{
 				color: var(--error-color);

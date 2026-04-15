@@ -33,7 +33,7 @@ const DefaultLoadingOptions: LoadingOptions = {
  * A `:loading` binding will show a `<Loader>` and cover current element when value is true like.
  * Note element to apply `:loading` should not be `static` position.
  * 
- * `:loading=${isLoading}`
+ * `:loading=${isLoading, ?options}`
  */
 export class loading implements Binding, Part {
 
