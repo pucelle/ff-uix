@@ -186,7 +186,7 @@ export class LiveRenderer extends RendererBase {
 	protected override async afterMeasured() {
 
 		// When reach start index but may not reach scroll start.
-		if (this.startIndex === 0 && this.endIndex > 0) {
+		if (this.startIndex === 0 && this.endIndex > 0 && this.alignDirection === 'end') {
 			this.alignDirection = 'start'
 			await this.setNeedToAlign(0)
 
@@ -237,15 +237,17 @@ export class LiveRenderer extends RendererBase {
 
 	/** Do element alignment by adjusting scroll offset. */
 	protected async alignByResettingScroll() {
-		if (!this.needToAlign) {
+		let needToAlign = this.needToAlign
+		if (!needToAlign) {
 			return
 		}
 
+		this.needToAlign = null
 		await barrierDOMReading()
 
-		let child = this.getRepeatChild(this.needToAlign.index - this.startIndex)
+		let child = this.getRepeatChild(needToAlign.index - this.startIndex)
 		let newAlignOffset = this.doa.getOffset(child, this.scroller)
-		let offsetDiff = newAlignOffset - this.needToAlign.offset
+		let offsetDiff = newAlignOffset - needToAlign.offset
 
 		if (Math.abs(offsetDiff) > 5) {
 			await barrierDOMWriting()
@@ -253,8 +255,6 @@ export class LiveRenderer extends RendererBase {
 			this.doa.setScrolled(this.scroller, scrolled + offsetDiff)
 			this.justSetScrolled()
 		}
-
-		this.needToAlign = null
 	}
 
 	/** Get new position for continuously update. */
