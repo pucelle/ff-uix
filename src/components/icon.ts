@@ -37,17 +37,30 @@ export class Icon<Events = any> extends Component<Events> {
 			return null
 		}
 	
-		let {box: {x, y, width, height}, inner} = parsed
-		x += this.width ? (width - this.width) / 2 : 0
-		y += this.height ? (height - this.height) / 2 : 0
+		let {box, size, inner} = parsed
+		let {x, y, width: viewWidth, height: viewHeight} = box
+		let xScaleToView = viewWidth / size.width
+		let yScaleToView = viewHeight / size.height
 
-		let renderWidth = this.width ?? width
-		let renderHeight = this.height ?? height
+		if (this.width) {
+			let widthChange = (this.width - size.width) * xScaleToView
+			x -= widthChange / 2
+			viewWidth += widthChange
+		}
+
+		if (this.height) {
+			let heightChange = (this.height - size.height) * yScaleToView
+			x -= heightChange / 2
+			viewHeight += heightChange
+		}
+
+		let renderWidth = this.width ?? parsed.size.width ?? box.width
+		let renderHeight = this.height ?? parsed.size.height ?? box.height
 
 		return html`
 			<template class="icon">
 				<svg
-					viewBox=${[x, y, renderWidth, renderHeight].join(' ')}
+					viewBox=${[x, y, viewWidth, viewHeight].join(' ')}
 					width=${renderWidth}
 					height=${renderHeight}
 					:html=${inner}
