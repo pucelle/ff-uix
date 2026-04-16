@@ -1,9 +1,11 @@
 import {css, html, RenderResult, fade} from 'lupos.html'
 import {List, ListItem} from './list'
-import {tooltip, contextmenu, popup, PopupOptions} from '../bindings'
+import {popup, PopupOptions} from '../bindings/popup'
 import {Popup} from './popup'
 import {Icon} from './icon'
 import {IconRight} from '../icons'
+import {tooltip} from '../bindings/tooltip'
+import {contextmenu} from '../bindings/contextmenu'
 
 
 /** `<DropList>` renders sub list as popup content. */

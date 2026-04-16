@@ -11,7 +11,7 @@ import {Icon} from './icon'
 import {RectSelection} from './rect-selection'
 import {IconOrderAsc, IconOrderDefault, IconOrderDesc} from '../icons'
 import {SelectionUtils, LowerIndexWithin} from '../tools'
-import {editable} from '../bindings'
+import {editable} from '../bindings/editable'
 
 
 export interface TableEvents {

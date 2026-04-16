@@ -1,7 +1,7 @@
 import {Component, html, css} from 'lupos.html'
 import {NumberUtils} from 'ff-kit'
 import {DOMEvents} from 'lupos'
-import {tooltip, TooltipOptions} from '../bindings'
+import {tooltip, TooltipOptions} from '../bindings/tooltip'
 
 
 interface SliderEvents {

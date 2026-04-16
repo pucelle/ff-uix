@@ -1,5 +1,5 @@
 import {fade, TransitionResult, Binding, render, html, Part, PartCallbackParameterMask} from 'lupos.html'
-import {Loader} from '../components'
+import {Loader} from '../components/loader'
 
 
 export interface LoadingOptions {

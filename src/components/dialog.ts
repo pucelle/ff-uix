@@ -5,7 +5,7 @@ import {Input} from './input'
 import {Textarea} from './textarea'
 import {Icon} from './icon'
 import {Button} from './button'
-import {tooltip} from '../bindings'
+import {tooltip} from '../bindings/tooltip'
 import {IconConfirm} from '../icons'
 
 

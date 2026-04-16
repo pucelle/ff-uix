@@ -1,6 +1,6 @@
 import {html, inSSR, RenderResultRenderer} from 'lupos.html'
 import {popup, PopupOptions} from './popup'
-import {TooltipType, Tooltip} from '../components'
+import {TooltipType, Tooltip} from '../components/tooltip'
 
 
 

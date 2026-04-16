@@ -1,7 +1,9 @@
 import {Binding, Component, Part, render, RenderedComponentLike, RenderResultRenderer} from 'lupos.html'
 import {BoxOffsets, DOMUtils, MouseEventDelivery, RectWatcher, StylePropertyName} from 'ff-kit'
 import {DOMEvents, EventKeys, UpdateQueue} from 'lupos'
-import {Input, Popup, Select} from '../components'
+import {Input} from '../components/input'
+import {Popup} from '../components/popup'
+import {Select} from '../components/select'
 
 
 /** 

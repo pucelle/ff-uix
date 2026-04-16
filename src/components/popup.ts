@@ -1,6 +1,6 @@
 import {css, Component, html, RenderResult, fade} from 'lupos.html'
-import {SharedPopups} from '../bindings'
 import {Triangle} from './triangle'
+import * as SharedPopups from '../bindings/popup-helpers/shared-popups'
 
 
 /** 

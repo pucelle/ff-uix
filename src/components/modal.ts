@@ -4,7 +4,7 @@ import {DOMEvents} from 'lupos'
 import {Icon} from './icon'
 import {IconClose} from '../icons'
 import {Button} from './button'
-import {tooltip} from '../bindings'
+import {tooltip} from '../bindings/tooltip'
 
 
 export interface ModelAction {

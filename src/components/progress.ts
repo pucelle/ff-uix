@@ -1,5 +1,5 @@
 import {Component, css, html} from 'lupos.html'
-import {tooltip, TooltipOptions} from '../bindings'
+import {tooltip, TooltipOptions} from '../bindings/tooltip'
 
 
 /** `<Progress>` displays a progress indicator in percentage, just like `<input type=progress>`. */

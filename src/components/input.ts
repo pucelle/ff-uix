@@ -1,5 +1,5 @@
 import {Component, css, html, RenderResult} from 'lupos.html'
-import {tooltip, TooltipOptions} from '../bindings'
+import {tooltip, TooltipOptions} from '../bindings/tooltip'
 import {Icon} from './icon'
 import {DOMModifiableEvents, UpdateQueue, watch} from 'lupos'
 import {IconChecked} from '../icons'

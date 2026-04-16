@@ -1,7 +1,8 @@
-import {Component, RenderResult} from 'lupos.html'
-import {DOMEvents} from 'lupos'
+import {Component, html, RenderResult} from 'lupos.html'
+import {computed, DOMEvents} from 'lupos'
 import {getPathMatcher} from './router-helpers/path-match'
 import {Popup} from './popup'
+import {PathMatcher} from './router-helpers/path-matcher'
 
 
 export interface RouterEvents {
@@ -17,26 +18,41 @@ export interface RouterHistoryState {
 	index: number
 
 	/** 
-	 * State path, normally starts with `/`.
+	 * State path and hash, normally starts with `/`.
 	 * It's the path after uri component decoded.
 	 */
-	path: string
+	href: string
 }
 
 
 /** Whether router has redirected or replaced. */
 type RouterChangeType = 'redirect' | 'goto'
 
+/** To handle each route. */
+type RouteHandler = (params: Record<string | number, string>) => RenderResult
+
+/** Routes list or object. */
+export type Routes = Record<string, RouteHandler> | {path: string | RegExp, handler: RouteHandler}[]
+
 
 /** 
  * `<Router>` serves as the top-level container for all routable content,
  * rendering things based on the current path.
+ * 
+ * You may handle each route manually:
  *
  * ```ts
  *   this.route('/user:id', ({id}) => {
  *     return html`User Id: ${id}`
  *   })
+ * 
+ *   this.route('/users*', ({0: user}) => {
+ *     return html`User Id: ${id}`
+ *   })
  * ```
+ * 
+ * Or defines routes if you want to interpolate
+ * links and do custom redirecting.
  */
 export class Router<E = {}> extends Component<RouterEvents & E> {
 
@@ -78,7 +94,6 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		return matcher.test(path)
 	}
 
-
 	/** 
 	 * Current path, no matter normal path or popup path.
 	 * If work as a sub router, it accepts rest path of outer router processed.
@@ -86,8 +101,11 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 */
 	path: string = ''
 
-	/** Current hash with `#` excluded, like `location.hash`. */
-	hash: string = ''
+	/** 
+	 * If can render popup content, it's the popup path to match popup routes.
+	 * Note `#` get excluded.
+	 */
+	popupPath: string = ''
 
 	/** 
 	 * If in hash mode, will apply hash instead of applying pathname.
@@ -95,34 +113,124 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 */
 	hashMode: boolean = false
 
+	/** 
+	 * If specified, will interpolate links and do custom redirecting.
+	 * You may define a `*` path of route to capture 404 and prevent redirecting.
+	 * You may leave it and choose to override `render`.
+	 */
+	routes: Record<string, RouteHandler> | {path: string | RegExp, handler: RouteHandler}[] | null = null
+
+	/** 
+	 * If specified, will match hash and render popup contents after normal contents.
+	 * You may leave it and choose to override `renderPopup`.
+	 */
+	popupRoutes: Record<string, RouteHandler> | {path: string | RegExp, handler: RouteHandler}[] | null = null
+
 	/** Current history state. */
 	protected state!: RouterHistoryState
 
 	/** To indicate latest state index. */
 	protected latestStateIndex: number = 0
 
+	@computed
+	protected get normalizedRoutes(): {matcher: PathMatcher, handler: RouteHandler}[] {
+		if (!this.routes) {
+			return []
+		}
+
+		return this.normalizeAnyRoutes(this.routes)
+	}
+
+	@computed
+	protected get normalizedPopupRoutes(): {matcher: PathMatcher, handler: RouteHandler}[] {
+		if (!this.popupRoutes) {
+			return []
+		}
+
+		return this.normalizeAnyRoutes(this.popupRoutes)
+	}
+
+	protected normalizeAnyRoutes(routes: Routes): {matcher: PathMatcher, handler: RouteHandler}[] {
+		if (!this.routes) {
+			return []
+		}
+
+		if (Array.isArray(routes)) {
+			return routes.map(r => {
+				return {
+					matcher: getPathMatcher(r.path),
+					handler: r.handler,
+				}
+			})
+		}
+		else {
+			return Object.entries(routes).map(([path, handler]) => {
+				return {
+					matcher: getPathMatcher(path),
+					handler: handler,
+				}
+			})
+		}
+	}
+
 	protected override onConnected() {
 		super.onConnected()
 
 		if (!this.path) {
 			if (this.hashMode) {
-				this.path = decodeURIComponent(location.hash.slice(1)) || '/'
+				this.path = decodeURIComponent(location.hash.replace(/^#/, '')) || '/'
 			}
 			else {
 				this.path = decodeURIComponent(location.pathname) || '/'
+				this.popupPath = decodeURIComponent(location.hash.replace(/^#/, ''))
 			}
 		}
 
-		this.state = {index: 0, path: this.path}
+		this.state = {index: 0, href: this.path}
 		this.replaceHistoryState(this.state)
+
 		DOMEvents.on(window, 'popstate', this.onWindowPopState, this)
 		DOMEvents.on(window, 'hashchange', this.onWindowHashChange, this)
+
+		if (this.routes) {
+			DOMEvents.on(this.el, 'click', this.handleLinkClick, this)
+		}
 	}
 
 	protected override onWillDisconnect() {
 		super.onWillDisconnect()
+
 		DOMEvents.off(window, 'popstate', this.onWindowPopState, this)
 		DOMEvents.off(window, 'hashchange', this.onWindowHashChange, this)
+
+		if (this.routes) {
+			DOMEvents.off(this.el, 'click', this.handleLinkClick, this)
+		}
+	}
+
+	protected handleLinkClick(e: MouseEvent) {
+		let anchor = (e.target as Element).closest('a')
+		if (!anchor) {
+			return
+		}
+
+		if (anchor.target !== '_self') {
+			return
+		}
+
+		let href = anchor.href
+		if (!href.startsWith('/') || !href.startsWith('#')) {
+			return
+		}
+		
+		let [path] = href.split('#')
+		let routes = this.normalizedRoutes
+		let routeMatch = path === '' || routes.find(r => r.matcher.test(path))
+
+		if (routeMatch) {
+			e.preventDefault()
+			this.goto(href)
+		}
 	}
 
 	protected onWindowPopState(e: PopStateEvent) {
@@ -134,24 +242,43 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	protected onWindowHashChange() {
-		this.hash = location.hash.replace(/^#/, '')
+		let hash = location.hash.replace(/^#/, '')
+
+		if (this.hashMode) {
+			let path = hash || '/'
+			if (!path.startsWith('/')) {
+				return
+			}
+
+			// Handle custom modifying hash.
+			if (path !== this.path) {
+				this.redirectTo(path)
+			}
+		}
+		else {
+			this.redirectTo('#' + hash)
+		}
 	}
 
 	/** Goto a new path and update render result, add a history state. */
-	goto(this: Router, path: string) {
-		if (path === this.path) {
-			return
+	goto(this: Router, href: string) {
+		let [path, hash] = href.split('#')
+
+		if (path === '') {
+			path = this.path
 		}
 
-		let newIndex = this.latestStateIndex = this.state.index + 1
-		let state = {index: newIndex, path}
-		this.handleGotoState(state)
+		if (path !== this.path || hash !== this.popupPath) {
+			let newIndex = this.latestStateIndex = this.state.index + 1
+			let state: RouterHistoryState = {index: newIndex, href}
+			this.handleGotoState(state)
+		}
 	}
 
 	protected handleGotoState(this: Router, state: RouterHistoryState) {
-		let oldState = this.state
+		let oldState = this.state;
 
-		this.path = state.path
+		[this.path, this.popupPath] = state.href.split('#')
 		this.state = state
 		this.pushHistoryState(state)
 
@@ -159,7 +286,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	protected pushHistoryState(state: RouterHistoryState) {
-		let uri = this.getHistoryURI(state.path)
+		let uri = this.getHistoryURI(state.href)
 		history.pushState(state, '', uri)
 	}
 
@@ -174,21 +301,24 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	/** Redirect to a new path and update render result, replace current history state. */
-	redirectTo(path: string) {
-		if (path === this.path) {
-			return
+	redirectTo(href: string) {
+		let [path, hash] = href.split('#')
+
+		if (path === '') {
+			path = this.path
 		}
 
-		let newIndex = this.latestStateIndex = this.state.index
-		let state = {index: newIndex, path}
-
-		this.handleRedirectToState(state)
+		if (path !== this.path || hash !== this.popupPath) {
+			let newIndex = this.latestStateIndex = this.state.index
+			let state: RouterHistoryState = {index: newIndex, href}
+			this.handleRedirectToState(state)
+		}
 	}
 
 	protected handleRedirectToState(this: Router, state: RouterHistoryState) {
 		let oldState = this.state
 
-		this.path = state.path
+		this.path = state.href
 		this.state = state
 		this.replaceHistoryState(state)
 
@@ -196,7 +326,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	protected replaceHistoryState(state: RouterHistoryState) {
-		let uri = this.getHistoryURI(state.path)
+		let uri = this.getHistoryURI(state.href)
 		history.replaceState(state, '', uri)
 	}
 
@@ -204,13 +334,13 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		this.fire('change', type, newState, oldState)
 	}
 
-	/** `isRedirection` determines redirect or go to a path.  */
-	navigateTo(path: string, isRedirection: boolean) {
+	/** `isRedirection` determines redirect or go to a href.  */
+	navigateTo(href: string, isRedirection: boolean) {
 		if (isRedirection) {
-			this.redirectTo(path)
+			this.redirectTo(href)
 		}
 		else {
-			this.goto(path)
+			this.goto(href)
 		}
 	}
 
@@ -218,9 +348,9 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 * Use this to push a history state separately without affecting rendering.
 	 * So later can navigate back to this path.
 	 */
-	pushHistoryOnly(path: string) {
+	pushHistoryOnly(href: string) {
 		let newIndex = this.latestStateIndex = this.state.index + 1
-		let state = {index: newIndex, path}
+		let state: RouterHistoryState = {index: newIndex, href}
 		this.pushHistoryState(state)
 	}
 
@@ -240,17 +370,74 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		return matcher.test(this.path)
 	}
 
+	/** Test whether current path match specified popup route path. */
+	testPopup(popupRoutePath: string | RegExp): boolean {
+		let matcher = getPathMatcher(popupRoutePath)
+		return matcher.test(this.popupPath)
+	}
+
 	/** 
 	 * Render content if route path match.
 	 * `renderFn` receives:
 	 *  - `{id: '12345'}` for router paths like `/user/:id`,
+	 *  - `{0: '12345'}` for router wild match like `/user/*`,
 	 *  - `{0: '12345'}` for router regexps like `/\/user\/(\d+)/`,
 	 *  - `{id: '12345'}` for router regexps like `/\/user\/(?<id>\d+)/`.
 	 */
-	route(routePath: string | RegExp, renderFn: (params: Record<string | number, string>) => RenderResult): RenderResult {
+	route(routePath: string | RegExp, renderFn: RouteHandler): RenderResult {
 		let matcher = getPathMatcher(routePath)
 		let params = matcher.match(this.path)!
 
 		return renderFn(params)
+	}
+
+	/** 
+	 * Render content if route path match.
+	 * `renderFn` receives:
+	 *  - `{id: '12345'}` for router paths like `user=:id`,
+	 *  - `{0: '12345'}` for router wild match like `user=*`,
+	 *  - `{0: '12345'}` for router regexps like `/user=(\d+)/`,
+	 *  - `{id: '12345'}` for router regexps like `/user=(?<id>\d+)/`.
+	 */
+	routePopup(popupRoutePath: string | RegExp, renderFn: RouteHandler): RenderResult {
+		let matcher = getPathMatcher(popupRoutePath)
+		let params = matcher.match(this.popupPath)!
+
+		return renderFn(params)
+	}
+
+	protected override render(): RenderResult {
+		return html`
+			${this.renderRoutes()}
+			${this.renderPopupRoutes()}
+		`
+	}
+
+	protected renderRoutes(): RenderResult {
+		if (!this.routes) {
+			return null
+		}
+
+		let route = this.normalizedRoutes.find(r => r.matcher.test(this.path))
+		if (!route) {
+			return null
+		}
+
+		let params = route.matcher.match(this.path)!
+		return route.handler(params)
+	}
+
+	protected renderPopupRoutes(): RenderResult {
+		if (!this.popupRoutes) {
+			return null
+		}
+
+		let route = this.normalizedPopupRoutes.find(r => r.matcher.test(this.popupPath))
+		if (!route) {
+			return null
+		}
+
+		let params = route.matcher.match(this.popupPath)!
+		return route.handler(params)
 	}
 }

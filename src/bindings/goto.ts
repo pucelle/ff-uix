@@ -1,6 +1,6 @@
 import {Binding} from 'lupos.html'
 import {DOMEvents} from 'lupos'
-import {Router} from '../components'
+import {Router} from '../components/router'
 
 
 /** 

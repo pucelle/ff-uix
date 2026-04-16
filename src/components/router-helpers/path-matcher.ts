@@ -1,7 +1,7 @@
 export class PathMatcher {
 
 	private re!: RegExp
-	private keys: string[] | null = null
+	private keys: (string | number)[] | null = null
 
 	constructor(routePath: string | RegExp) {
 		this.init(routePath)
@@ -13,12 +13,15 @@ export class PathMatcher {
 			return
 		}
 
-		let keys: string[] = []
+		let keys: (string | number)[] = []
 
 		let re = new RegExp(
 			routePath
 			.replace(/\./g, '\\.')
-			.replace(/\*/g, '.*?')
+			.replace(/\*/g, () => {
+				keys.push(keys.length)
+				return '\b(.*?)\b'
+			})
 			.replace(/(\/):(\w+)/g, (_m0, slash, property) => {
 				if (property) {
 					keys.push(property)

@@ -1,6 +1,6 @@
 import {Binding, render, RenderResultRenderer, RenderedComponentLike, Part, inSSR} from 'lupos.html'
 import {AnchorAligner, AnchorPosition, AnchorAlignerOptions, MouseEventDelivery} from 'ff-kit'
-import {Popup} from '../components'
+import {Popup} from '../components/popup'
 import * as SharedPopups from './popup-helpers/shared-popups'
 import {PopupState} from './popup-helpers/popup-state'
 import {PopupTriggerBinder, TriggerType} from './popup-helpers/popup-binder'

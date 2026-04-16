@@ -1,6 +1,6 @@
 import {ListMap, MouseEventDelivery} from 'ff-kit'
 import {RenderedComponentLike} from 'lupos.html'
-import {Popup} from '../../components'
+import {Popup} from '../../components/popup'
 import {popup} from '../popup'
 
 
