@@ -1,9 +1,13 @@
 export class PathMatcher {
 
+	/** To identify current matcher. */
+	readonly identifier: string
+
 	private re!: RegExp
 	private keys: (string | number)[] | null = null
 
 	constructor(routePath: string | RegExp) {
+		this.identifier = String(routePath)
 		this.init(routePath)
 	}
 

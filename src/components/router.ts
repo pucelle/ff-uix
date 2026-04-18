@@ -18,10 +18,13 @@ export interface RouterHistoryState {
 	index: number
 
 	/** 
-	 * State path and hash, normally starts with `/`.
+	 * State path and hash, must start with `/`, and may have hash in the tail.
 	 * It's the path after uri component decoded.
 	 */
-	href: string
+	path: string
+
+	/** The prefix separate from url path. */
+	prefix: string
 }
 
 
@@ -33,6 +36,9 @@ type RouteHandler = (params: Record<string | number, string>) => RenderResult
 
 /** Routes list or object. */
 export type Routes = Record<string, RouteHandler> | {path: string | RegExp, handler: RouteHandler}[]
+
+/** Parsed path and prefix. */
+export type PrefixedPath = {prefix: string, path: string}
 
 
 /** 
@@ -95,7 +101,16 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	/** 
-	 * Current path, no matter normal path or popup path.
+	 * Whether cache content rendering, and quickly restore after navigate back.
+	 * Default value is `false`.
+	 */
+	cache: boolean = true
+
+	/** Prefix separated from uri path. */
+	prefix: string = ''
+
+	/** 
+	 * Current path, unprefixed, no matter normal path or popup path.
 	 * If work as a sub router, it accepts rest path of outer router processed.
 	 * If `path` is not get initialized, it will be initialized by pathname part of current uri.
 	 */
@@ -131,6 +146,14 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 	/** To indicate latest state index. */
 	protected latestStateIndex: number = 0
+
+	/** 
+	 * Use it to parse uri path to prefix and a path and.
+	 * If it returns null, means we should reload whole page.
+	 */
+	protected parsePath(href: string): PrefixedPath | null {
+		return {prefix: '', path: href}
+	}
 
 	@computed
 	protected get normalizedRoutes(): {matcher: PathMatcher, handler: RouteHandler}[] {
@@ -178,16 +201,21 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 		if (!this.path) {
 			if (this.hashMode) {
-				this.path = decodeURIComponent(location.hash.replace(/^#/, '')) || '/'
+				let parsed = this.parsePath(decodeURIComponent(location.hash.replace(/^#/, '')) || '/') || {prefix: '', path: '/'}
+				this.path = parsed.path
+				this.prefix = parsed.prefix
 			}
 			else {
-				this.path = decodeURIComponent(location.pathname) || '/'
+				let parsed = this.parsePath(decodeURIComponent(location.pathname)) || {prefix: '', path: '/'}
+				this.path = parsed.path
+				this.prefix = parsed.prefix
 				this.popupPath = decodeURIComponent(location.hash.replace(/^#/, ''))
 			}
 		}
 
-		this.state = {index: 0, href: this.path}
-		this.replaceHistoryState(this.state)
+		// Replace current state, also normalize current path.
+		this.state = {index: 0, path: this.path, prefix: this.prefix}
+		this.acceptState(this.state, true)
 
 		DOMEvents.on(window, 'popstate', this.onWindowPopState, this)
 		DOMEvents.on(window, 'hashchange', this.onWindowHashChange, this)
@@ -214,18 +242,38 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			return
 		}
 
-		if (anchor.target !== '_self') {
+		if (anchor.target && anchor.target !== '_self') {
 			return
 		}
 
-		let href = anchor.href
-		if (!href.startsWith('/') || !href.startsWith('#')) {
+		let href = anchor.getAttribute('href')
+		if (!href || !(href.startsWith('/') || href.startsWith('#'))) {
 			return
 		}
 		
-		let [path] = href.split('#')
+		let [path, hash] = href.split('#')
+		let prefix = ''
+
+		if (path) {
+			let parsed = this.parsePath(path)
+			if (parsed === null) {
+				return
+			}
+
+			path = parsed.path
+			prefix = parsed.prefix
+		}
+
 		let routes = this.normalizedRoutes
 		let routeMatch = path === '' || routes.find(r => r.matcher.test(path))
+
+		// Use current path when hash only
+		if (!path) {
+			path = this.path
+			prefix = this.prefix
+		}
+
+		href = prefix + (path === '/' && prefix ? '' : path) + (hash ? '#' + hash : '')
 
 		if (routeMatch) {
 			e.preventDefault()
@@ -238,7 +286,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			return
 		}
 
-		this.handleRedirectToState(e.state)
+		this.acceptState(e.state, true)
 	}
 
 	protected onWindowHashChange() {
@@ -261,97 +309,89 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	/** Goto a new path and update render result, add a history state. */
-	goto(this: Router, href: string) {
+	goto(href: string): boolean {
+		return this.navigateTo(href, false)
+	}
+
+	/** Redirect to a new path and update render result, replace current history state. */
+	redirectTo(href: string): boolean {
+		return this.navigateTo(href, true)
+	}
+
+	/** `isRedirection` determines redirect or go to a href. */
+	navigateTo(href: string, isRedirection: boolean): boolean {
 		let [path, hash] = href.split('#')
+		if (!path && !hash) {
+			return false
+		}
+
+		let state: RouterHistoryState
 
 		if (path === '') {
-			path = this.path
+			if (hash === this.popupPath) {
+				return false
+			}
+
+			state = {
+				index: this.state.index + 1,
+				prefix: '',
+				path: '#' + hash
+			}
+		}
+		else {
+			let parsed = this.parsePath(path)
+			if (!parsed) {
+				return false
+			}
+
+			if (parsed.path === this.path
+				&& parsed.prefix === this.popupPath
+				&& hash === this.popupPath
+			) {
+				return false
+			}
+			
+			state = {
+				index: this.state.index + 1,
+				prefix: parsed.prefix,
+				path: parsed.path + (hash ? '#' + hash : ''),
+			}
 		}
 
-		if (path !== this.path || hash !== this.popupPath) {
-			let newIndex = this.latestStateIndex = this.state.index + 1
-			let state: RouterHistoryState = {index: newIndex, href}
-			this.handleGotoState(state)
-		}
+		this.acceptState(state, isRedirection)
+		return true
 	}
 
-	protected handleGotoState(this: Router, state: RouterHistoryState) {
-		let oldState = this.state;
-
-		[this.path, this.popupPath] = state.href.split('#')
+	protected acceptState(this: Router, state: RouterHistoryState, isRedirecting: boolean) {
+		let oldState = this.state
+		let uri = this.getHistoryURI(state)
+		
+		this.prefix = state.prefix;
+		[this.path, this.popupPath] = state.path.split('#')
 		this.state = state
-		this.pushHistoryState(state)
 
-		this.onRouterChange('goto', this.state, oldState)
+		if (isRedirecting) {
+			history.replaceState(state, '', uri)
+		}
+		else {
+			history.pushState(state, '', uri)
+		}
+
+		this.onRouterChange(isRedirecting ? 'redirect' : 'goto', this.state, oldState)
 	}
 
-	protected pushHistoryState(state: RouterHistoryState) {
-		let uri = this.getHistoryURI(state.href)
-		history.pushState(state, '', uri)
-	}
-
-	protected getHistoryURI(path: string) {
-		let uri = path
+	protected getHistoryURI(state: RouterHistoryState) {
+		let uri = state.prefix + (state.path === '/' && state.prefix ? '' : state.path)
 
 		if (this.hashMode) {
-			uri = location.pathname + location.search + '#' + path
+			uri = location.pathname + location.search + '#' + state
 		}
 
 		return uri
 	}
 
-	/** Redirect to a new path and update render result, replace current history state. */
-	redirectTo(href: string) {
-		let [path, hash] = href.split('#')
-
-		if (path === '') {
-			path = this.path
-		}
-
-		if (path !== this.path || hash !== this.popupPath) {
-			let newIndex = this.latestStateIndex = this.state.index
-			let state: RouterHistoryState = {index: newIndex, href}
-			this.handleRedirectToState(state)
-		}
-	}
-
-	protected handleRedirectToState(this: Router, state: RouterHistoryState) {
-		let oldState = this.state
-
-		this.path = state.href
-		this.state = state
-		this.replaceHistoryState(state)
-
-		this.onRouterChange('redirect', this.state, oldState)
-	}
-
-	protected replaceHistoryState(state: RouterHistoryState) {
-		let uri = this.getHistoryURI(state.href)
-		history.replaceState(state, '', uri)
-	}
-
 	protected onRouterChange(this: Router, type: RouterChangeType, newState: RouterHistoryState, oldState: RouterHistoryState | null) {
 		this.fire('change', type, newState, oldState)
-	}
-
-	/** `isRedirection` determines redirect or go to a href.  */
-	navigateTo(href: string, isRedirection: boolean) {
-		if (isRedirection) {
-			this.redirectTo(href)
-		}
-		else {
-			this.goto(href)
-		}
-	}
-
-	/** 
-	 * Use this to push a history state separately without affecting rendering.
-	 * So later can navigate back to this path.
-	 */
-	pushHistoryOnly(href: string) {
-		let newIndex = this.latestStateIndex = this.state.index + 1
-		let state: RouterHistoryState = {index: newIndex, href}
-		this.pushHistoryState(state)
 	}
 
 	/** Check whether can go back. */
@@ -424,7 +464,17 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		}
 
 		let params = route.matcher.match(this.path)!
-		return route.handler(params)
+
+		if (this.cache) {
+			return html`
+				<lu:keyed ${route.matcher.identifier} cache>
+					${route.handler(params)}
+				</lu:keyed>
+			`
+		}
+		else {
+			return route.handler(params)
+		}
 	}
 
 	protected renderPopupRoutes(): RenderResult {
@@ -438,6 +488,16 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		}
 
 		let params = route.matcher.match(this.popupPath)!
-		return route.handler(params)
+
+		if (this.cache) {
+			return html`
+				<lu:keyed ${route.matcher.identifier} cache>
+					${route.handler(params)}
+				</lu:keyed>
+			`
+		}
+		else {
+			return route.handler(params)
+		}
 	}
 }
