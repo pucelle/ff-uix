@@ -23,7 +23,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 			max-width: 16em;
 			padding: 0.4em 0.8em;
 			line-height: 1.4;
-			color: var(--tooltip-text-color);
+			color: var(--popup-text-color);
 		}
 
 		.tooltip-text{
@@ -50,8 +50,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 		}
 
 		.tooltip-type-default{
-			--popup-background: var(--tooltip-background);
-			color: var(--tooltip-text-color);
+			color: var(--popup-text-color);
 		}
 
 		.tooltip-type-prompt{

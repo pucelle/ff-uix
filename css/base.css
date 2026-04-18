@@ -122,6 +122,10 @@ table{
 :root{
 	color-scheme: light dark;
 
+	--text-size: 14px;
+	--border-radius: 3px;
+	--focus-shadow-blur-radius: 4px;
+
 	--primary-color: ActiveText;
 	--background: light-dark(white, #333);
 	--text-color: CanvasText;
@@ -136,22 +140,17 @@ table{
 
 	--switch-background: light-dark(#ddd, #444);
 
-	--popup-shadow-color: light-dark(rgba(0, 0, 0, 0.5), black);
 	--popup-background: light-dark(white, #333);
+	--popup-text-color: var(--text-color);
 	--popup-border-radius: 4px;
 	--popup-border-color: var(--border-color);
 	--popup-border-width: 0;
+	--popup-shadow-color: light-dark(rgba(0, 0, 0, 0.5), black);
 	--popup-shadow-blur-radius: 6px;
 	
-	--tooltip-background: light-dark(white, #333);
-	--tooltip-text-color: CanvasText;
-
 	--info-color: #3369fa;
 	--success-color: #29bc04;
 	--error-color: #e10000;
 	--warning-color: #f3b907;
 
-	--text-size: 14px;
-	--border-radius: 3px;
-	--focus-shadow-blur-radius: 4px;
 }

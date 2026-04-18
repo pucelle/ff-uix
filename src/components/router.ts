@@ -214,7 +214,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		}
 
 		// Replace current state, also normalize current path.
-		this.state = {index: 0, path: this.path, prefix: this.prefix}
+		this.state = {index: 0, path: this.path + (this.popupPath ? '#' + this.popupPath : ''), prefix: this.prefix}
 		this.acceptState(this.state, true)
 
 		DOMEvents.on(window, 'popstate', this.onWindowPopState, this)

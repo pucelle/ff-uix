@@ -45,9 +45,9 @@ export class Modal<E = {}> extends Component<E> {
 			border-radius: var(--popup-border-radius);
 			box-shadow: 0 0 var(--popup-shadow-blur-radius) var(--popup-shadow-color);
 			background: var(--popup-background);
+			border: var(--popup-border-width) solid var(--popup-border-color);
 			max-width: 100%;
 			max-height: 100%;
-			padding: 0.6em 1.2em;
 			overflow: hidden;
 		}
 
@@ -65,9 +65,9 @@ export class Modal<E = {}> extends Component<E> {
 			display: flex;
 			flex: none;
 			font-size: calc(1em - 1px);
-			padding-bottom: 0.4em;
+			height: 2.8em;
+			padding: 0 1.2em;
 			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background));
-			margin-bottom: 0.6em;
 		}
 
 		.modal-title{
@@ -81,8 +81,13 @@ export class Modal<E = {}> extends Component<E> {
 		.modal-close{
 			display: flex;
 			margin-top: 0;
-			margin-right: -0.4em;
+			margin-right: -1.2em;
+			width: 2.8em;
 			cursor: pointer;
+
+			&:hover{
+				color: var(--primary-color);
+			}
 
 			&:active{
 				transform: translateY(1px);
@@ -109,10 +114,7 @@ export class Modal<E = {}> extends Component<E> {
 			display: flex;
 			flex-direction: column;
 			overflow-y: auto;
-			margin-right: -1.2em;
-			padding-right: 1.2em;
-			padding-top: 0.2em;
-			padding-bottom: 0.2em;
+			padding: 0.6em 1.2em;
 		}
 	`
 	
@@ -142,22 +144,27 @@ export class Modal<E = {}> extends Component<E> {
 					:ref=${this.maskEl}
 					:transition.immediate.global=${fade()}
 				/>
-
-				<div class="modal-header">
-					<div class="modal-title">${this.title}</div>
-
-					<lu:if ${this.actions && this.actions.length > 0}>
-						${this.renderActions()}
-					</lu:if>
-					<lu:else>
-						<Icon class="modal-close" .code=${IconClose}
-							@click=${this.hide}
-						/>
-					</lu:else>
-				</div>
-
+				
+				${this.renderHeader()}
 				${this.renderContent()}
 			</template>
+		`
+	}
+
+	protected renderHeader() {
+		return html`
+			<div class="modal-header">
+				<div class="modal-title">${this.title}</div>
+
+				<lu:if ${this.actions && this.actions.length > 0}>
+					${this.renderActions()}
+				</lu:if>
+				<lu:else>
+					<Icon class="modal-close" .code=${IconClose}
+						@click=${this.hide}
+					/>
+				</lu:else>
+			</div>
 		`
 	}
 
@@ -208,7 +215,11 @@ export class Modal<E = {}> extends Component<E> {
 
 	protected override onCreated() {
 		super.onCreated()
-		
+	}
+
+	protected override onReady() {
+		super.onReady()
+
 		if (this.opened) {
 			this.doShow()
 		}
