@@ -79,7 +79,7 @@ export class Triangle<E = {}> extends Component<E> {
 			case 'bottom': return {x: w - x, y: h - y } // 180°
 			case 'left':   return {x: y, y: w - x } 	// 270°
 			case 'right':  return {x: h - y, y: x} 		// 90°
-			case 'top':	   return {x, y} 					// 0°
+			case 'top':	   return {x, y} 				// 0°
 		}
 	}
 }

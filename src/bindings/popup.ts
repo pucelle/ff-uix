@@ -152,6 +152,10 @@ export const DefaultPopupOptions: PopupOptions = {
  */
 export class popup implements Binding, Part {
 
+	/** For overwriting default popup options. */
+	static Default: Partial<PopupOptions> = DefaultPopupOptions 
+
+
 	readonly el: HTMLElement
 	readonly context: any
 

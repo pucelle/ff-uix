@@ -9,7 +9,7 @@ export interface TooltipOptions extends PopupOptions{
 	/** Tooltip type, `default | prompt | error`. */
 	readonly type: TooltipType
 
-	/** Class name which will be assigned to tooltip element. */
+	/** Class name which will be assigned to `<Tooltip>` element. */
 	className?: string
 
 	triangleWidth: number
@@ -32,7 +32,7 @@ const DefaultTooltipOptions: Partial<TooltipOptions> = {
 
 	type: 'default',
 
-	triangleWidth: 10,
+	triangleWidth: 12,
 	triangleHeight: 6,
 }
 
@@ -46,6 +46,10 @@ const DefaultTooltipOptions: Partial<TooltipOptions> = {
  * `:tooltip=${() => message, {position, ...}}`
  */
 export class tooltip extends popup {
+
+	/** For overwriting default tooltip options. */
+	static override Default: Partial<TooltipOptions> = DefaultTooltipOptions 
+
 
 	declare options: TooltipOptions
 

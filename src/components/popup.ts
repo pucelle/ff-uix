@@ -19,6 +19,9 @@ export class Popup<E = {}> extends Component<E> {
 			top: 0;
 			background: var(--popup-background);
 			border-radius: var(--popup-border-radius);
+			border-style: solid;
+			border-color: var(--popup-border-color);
+			border-width: var(--popup-border-width);
 
 			/** Avoid become narrower after alignment when touches page edges. */
 			width: max-content;
@@ -36,7 +39,7 @@ export class Popup<E = {}> extends Component<E> {
 			filter: drop-shadow(0 0 calc(var(--popup-shadow-blur-radius)) var(--popup-shadow-color));
 		}
 	`
-
+	
 
 	/** Whether shows triangle element. */
 	triangle: boolean = true
@@ -45,7 +48,7 @@ export class Popup<E = {}> extends Component<E> {
 	triangleDirection: 'top' | 'bottom' | 'left' | 'right' = 'top'
 
 	/** Triangle width, the size of bottom side of the triangle. */
-	triangleWidth: number = 10
+	triangleWidth: number = 12
 
 	/** Triangle height, the size of height of the triangle. */
 	triangleHeight: number = 6
