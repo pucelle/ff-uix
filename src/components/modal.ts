@@ -46,8 +46,8 @@ export class Modal<E = {}> extends Component<E> {
 			box-shadow: 0 0 var(--popup-shadow-blur-radius) var(--popup-shadow-color);
 			background: var(--popup-background);
 			border: var(--popup-border-width) solid var(--popup-border-color);
-			max-width: 100%;
-			max-height: 100%;
+			max-width: calc(100vw - 20px);
+			max-height: calc(100vh - 20px);
 			overflow: hidden;
 		}
 

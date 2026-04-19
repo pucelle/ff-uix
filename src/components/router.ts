@@ -3,6 +3,7 @@ import {computed, DOMEvents} from 'lupos'
 import {getPathMatcher} from './router-helpers/path-match'
 import {Popup} from './popup'
 import {PathMatcher} from './router-helpers/path-matcher'
+import {HrefParsed, HrefParser, PrefixedPath} from './router-helpers/path-parser'
 
 
 export interface RouterEvents {
@@ -12,19 +13,10 @@ export interface RouterEvents {
 }
 
 /** Current history state. */
-export interface RouterHistoryState {
+export interface RouterHistoryState extends HrefParsed {
 
 	/** An unique auto increment id. */
 	index: number
-
-	/** 
-	 * State path and hash, must start with `/`, and may have hash in the tail.
-	 * It's the path after uri component decoded.
-	 */
-	path: string
-
-	/** The prefix separate from url path. */
-	prefix: string
 }
 
 
@@ -36,9 +28,6 @@ type RouteHandler = (params: Record<string | number, string>) => RenderResult
 
 /** Routes list or object. */
 export type Routes = Record<string, RouteHandler> | {path: string | RegExp, handler: RouteHandler}[]
-
-/** Parsed path and prefix. */
-export type PrefixedPath = {prefix: string, path: string}
 
 
 /** 
@@ -110,7 +99,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	prefix: string = ''
 
 	/** 
-	 * Current path, unprefixed, no matter normal path or popup path.
+	 * Current path, unprefixed, no hash.
 	 * If work as a sub router, it accepts rest path of outer router processed.
 	 * If `path` is not get initialized, it will be initialized by pathname part of current uri.
 	 */
@@ -149,10 +138,21 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 	/** 
 	 * Use it to parse uri path to prefix and a path and.
+	 * Note `path` parameter should have no `#hash` on the tail.
 	 * If it returns null, means we should reload whole page.
 	 */
-	protected parsePath(href: string): PrefixedPath | null {
-		return {prefix: '', path: href}
+	protected parsePath(path: string): PrefixedPath | null {
+		return {prefix: '', path: path}
+	}
+
+	/** 
+	 * Use it to parse uri path to prefix and a path and.
+	 * Note `path` parameter should have no `#hash` on the tail.
+	 * If it returns null, means we should reload whole page.
+	 */
+	@computed
+	protected get hrefParser(): HrefParser {
+		return new HrefParser(this.parsePath.bind(this))
 	}
 
 	@computed
@@ -200,21 +200,28 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		super.onConnected()
 
 		if (!this.path) {
+			let parsed: HrefParsed
+
 			if (this.hashMode) {
-				let parsed = this.parsePath(decodeURIComponent(location.hash.replace(/^#/, '')) || '/') || {prefix: '', path: '/'}
-				this.path = parsed.path
-				this.prefix = parsed.prefix
+				parsed = this.hrefParser.parse(decodeURIComponent(location.hash.replace(/^#/, '')) || '/') ?? this.hrefParser.empty()
 			}
 			else {
-				let parsed = this.parsePath(decodeURIComponent(location.pathname)) || {prefix: '', path: '/'}
-				this.path = parsed.path
-				this.prefix = parsed.prefix
-				this.popupPath = decodeURIComponent(location.hash.replace(/^#/, ''))
+				parsed = this.hrefParser.parse(decodeURIComponent(location.pathname + location.hash)) ?? this.hrefParser.empty()
 			}
+
+			this.path = parsed.path
+			this.prefix = parsed.prefix
+			this.popupPath = parsed.hash
 		}
 
 		// Replace current state, also normalize current path.
-		this.state = {index: 0, path: this.path + (this.popupPath ? '#' + this.popupPath : ''), prefix: this.prefix}
+		this.state = {
+			index: 0,
+			prefix: this.prefix,
+			path: this.path,
+			hash: this.popupPath,
+		}
+
 		this.acceptState(this.state, true)
 
 		DOMEvents.on(window, 'popstate', this.onWindowPopState, this)
@@ -251,29 +258,13 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			return
 		}
 		
-		let [path, hash] = href.split('#')
-		let prefix = ''
-
-		if (path) {
-			let parsed = this.parsePath(path)
-			if (parsed === null) {
-				return
-			}
-
-			path = parsed.path
-			prefix = parsed.prefix
+		let parsed = this.hrefParser.parse(href)
+		if (!parsed) {
+			return
 		}
 
 		let routes = this.normalizedRoutes
-		let routeMatch = path === '' || routes.find(r => r.matcher.test(path))
-
-		// Use current path when hash only
-		if (!path) {
-			path = this.path
-			prefix = this.prefix
-		}
-
-		href = prefix + (path === '/' && prefix ? '' : path) + (hash ? '#' + hash : '')
+		let routeMatch = parsed.path === '' || routes.find(r => r.matcher.test(parsed.path))
 
 		if (routeMatch) {
 			e.preventDefault()
@@ -294,14 +285,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 		if (this.hashMode) {
 			let path = hash || '/'
-			if (!path.startsWith('/')) {
-				return
-			}
-
-			// Handle custom modifying hash.
-			if (path !== this.path) {
-				this.redirectTo(path)
-			}
+			this.redirectTo(path)
 		}
 		else {
 			this.redirectTo('#' + hash)
@@ -320,41 +304,40 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 	/** `isRedirection` determines redirect or go to a href. */
 	navigateTo(href: string, isRedirection: boolean): boolean {
-		let [path, hash] = href.split('#')
-		if (!path && !hash) {
+		if (!href) {
+			return false
+		}
+
+		let parsed = this.hrefParser.parse(href)
+		if (!parsed) {
 			return false
 		}
 
 		let state: RouterHistoryState
 
-		if (path === '') {
-			if (hash === this.popupPath) {
+		if (parsed.path === '') {
+			if (parsed.hash === this.popupPath) {
 				return false
 			}
 
 			state = {
-				index: this.state.index + 1,
-				prefix: '',
-				path: '#' + hash
+				index: this.state.index + (isRedirection ? 0 : 1),
+				prefix: this.prefix,
+				path: this.path,
+				hash: parsed.hash,
 			}
 		}
 		else {
-			let parsed = this.parsePath(path)
-			if (!parsed) {
-				return false
-			}
-
 			if (parsed.path === this.path
 				&& parsed.prefix === this.popupPath
-				&& hash === this.popupPath
+				&& parsed.hash === this.popupPath
 			) {
 				return false
 			}
 			
 			state = {
-				index: this.state.index + 1,
-				prefix: parsed.prefix,
-				path: parsed.path + (hash ? '#' + hash : ''),
+				index: this.state.index + (isRedirection ? 0 : 1),
+				...parsed,
 			}
 		}
 
@@ -364,10 +347,11 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 	protected acceptState(this: Router, state: RouterHistoryState, isRedirecting: boolean) {
 		let oldState = this.state
-		let uri = this.getHistoryURI(state)
+		let uri = this.buildHistoryURI(state)
 		
-		this.prefix = state.prefix;
-		[this.path, this.popupPath] = state.path.split('#')
+		this.prefix = state.prefix
+		this.path = state.path
+		this.popupPath = state.hash
 		this.state = state
 
 		if (isRedirecting) {
@@ -380,11 +364,11 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		this.onRouterChange(isRedirecting ? 'redirect' : 'goto', this.state, oldState)
 	}
 
-	protected getHistoryURI(state: RouterHistoryState) {
-		let uri = state.prefix + (state.path === '/' && state.prefix ? '' : state.path)
+	protected buildHistoryURI(state: RouterHistoryState) {
+		let uri = this.hrefParser.build(state)
 
 		if (this.hashMode) {
-			uri = location.pathname + location.search + '#' + state
+			uri = '#' + state
 		}
 
 		return uri
@@ -479,6 +463,10 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 	protected renderPopupRoutes(): RenderResult {
 		if (!this.popupRoutes) {
+			return null
+		}
+
+		if (!this.popupPath) {
 			return null
 		}
 

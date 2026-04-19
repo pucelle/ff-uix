@@ -21,11 +21,11 @@ export class Popup<E = {}> extends Component<E> {
 			border-radius: var(--popup-border-radius);
 			border: var(--popup-border-width) solid var(--popup-border-color);
 
-			/** Avoid become narrower after alignment when touches page edges. */
+			/** Avoid becoming narrower after alignment when touches page edges. */
 			width: max-content;
 
-			max-width: 100vw;
-			max-height: 100vh;
+			max-width: calc(100vw - 20px);
+			max-height: calc(100vh - 20px);
 
 			/* 
 			Same with window type components, so if inside of a window,
