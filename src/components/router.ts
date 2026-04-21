@@ -368,7 +368,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		let uri = this.hrefParser.build(state)
 
 		if (this.hashMode) {
-			uri = '#' + state
+			uri = '#' + uri
 		}
 
 		return uri

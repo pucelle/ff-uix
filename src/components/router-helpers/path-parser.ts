@@ -37,7 +37,7 @@ export class HrefParser {
 			return {
 				prefix: '',
 				path: '',
-				hash,
+				hash: hash ?? '',
 			}
 		}
 
@@ -48,7 +48,7 @@ export class HrefParser {
 
 		return {
 			...parsed,
-			hash,
+			hash: hash ?? '',
 		}
 	}
 

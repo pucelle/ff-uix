@@ -50,7 +50,7 @@ export class Icon<Events = any> extends Component<Events> {
 
 		if (this.height) {
 			let heightChange = (this.height - size.height) * yScaleToView
-			x -= heightChange / 2
+			y -= heightChange / 2
 			viewHeight += heightChange
 		}
 
