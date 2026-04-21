@@ -59,14 +59,3 @@ export class HrefParser {
 			+ (parsed.hash ? '#' + parsed.hash : '')
 	}
 }
-
-/** Parse href with prefix and hash. */
-export function parseHref(href: string) {
-
-}
-
-
-/** Parse href with prefix and hash. */
-export function makeHref(parsed: HrefParsed) {
-
-}
