@@ -45,10 +45,11 @@ export class LiveRenderer extends RendererBase {
 		context: Component,
 		doa: DirectionalOverflowAccessor,
 		updateCallback: () => void,
+		onAfterMeasured: () => void,
 		placeholder: HTMLDivElement | null,
 		asFollower: boolean
 	) {
-		super(scroller, slider, repeat, context, doa, updateCallback)
+		super(scroller, slider, repeat, context, doa, updateCallback, onAfterMeasured)
 		this.placeholder = placeholder
 		this.asFollower = asFollower
 	}
@@ -233,6 +234,8 @@ export class LiveRenderer extends RendererBase {
 				await this.setRestSize()
 			}
 		}
+
+		super.afterMeasured()
 	}
 
 	/** Do element alignment by adjusting scroll offset. */

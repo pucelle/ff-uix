@@ -31,10 +31,11 @@ export class PartialRenderer extends RendererBase {
 		context: Component,
 		doa: DirectionalOverflowAccessor,
 		updateCallback: () => void,
+		onAfterMeasured: () => void,
 		frontPlaceholder: HTMLDivElement | null = null,
 		backPlaceholder: HTMLDivElement | null = null
 	) {
-		super(scroller, slider, repeat, context, doa, updateCallback)
+		super(scroller, slider, repeat, context, doa, updateCallback, onAfterMeasured)
 		this.frontPlaceholder = frontPlaceholder
 		this.backPlaceholder = backPlaceholder
 	}
@@ -102,8 +103,9 @@ export class PartialRenderer extends RendererBase {
 		this.measurement.setBackPlaceholderSize(backSize)
 	}
 
-	protected async afterMeasured() {
+	protected override async afterMeasured() {
 		await this.alignByResettingFrontSize()
+		super.afterMeasured()
 	}
 
 	/** Do element alignment by adjusting scroll offset. */

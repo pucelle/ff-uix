@@ -19,8 +19,11 @@ export interface TableEvents {
 	/** After column order get changed. */
 	'order-change': (columnName: string | null, orderDirection: 'asc' | 'desc' | null) => void
 
-	/** Triggers after live data get updated on live mode. */
+	/** Fires after live data get updated on live mode. */
 	'live-updated': () => void
+
+	/** Fires after live data update complete and measured complete. */
+	'live-measured': () => void
 }
 
 
@@ -592,7 +595,8 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 					.scrollSize=${this.scrollSize}
 					.guessedItemSize=${this.guessedItemSize}
 					.dataLoader=${(this.store as RemoteStore).dataLoader}
-					@freshly-updated=${this.onLiveDataUpdated}
+					@freshly-updated=${this.onLiveUpdated}
+					@measured=${this.onLiveMeasured}
 				/>
 			`
 		}
@@ -605,7 +609,8 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 					.scrollSize=${this.scrollSize}
 					.guessedItemSize=${this.guessedItemSize}
 					.data=${this.store.currentData}
-					@updated=${this.onLiveDataUpdated}
+					@updated=${this.onLiveUpdated}
+					@measured=${this.onLiveMeasured}
 				/>
 			`
 		}
@@ -663,9 +668,14 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		`
 	}
 
-	/** Triggers `liveDataUpdated` event. */
-	protected onLiveDataUpdated(this: Table) {
+	/** Triggers `live-updated` event. */
+	protected onLiveUpdated(this: Table) {
 		this.fire('live-updated')
+	}
+
+	/** Triggers `live-measured` event. */
+	protected onLiveMeasured(this: Table) {
+		this.fire('live-measured')
 	}
 
 	/** Do column ordering for column with specified index. */

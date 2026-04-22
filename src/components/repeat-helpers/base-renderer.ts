@@ -73,6 +73,7 @@ export abstract class RendererBase {
 	readonly repeat: HTMLElement
 	readonly context: Component
 	readonly updateCallback: () => void
+	readonly onAfterMeasured: () => void
 
 	/** Do rendered items measurement. */
 	readonly measurement: MeasurementBase
@@ -136,7 +137,8 @@ export abstract class RendererBase {
 		repeat: HTMLElement,
 		context: Component,
 		doa: DirectionalOverflowAccessor,
-		updateCallback: () => void
+		updateCallback: () => void,
+		onAfterMeasured: () => void
 	) {
 		this.scroller = scroller
 		this.slider = slider
@@ -144,6 +146,7 @@ export abstract class RendererBase {
 		this.context = context
 		this.doa = doa
 		this.updateCallback = updateCallback
+		this.onAfterMeasured = onAfterMeasured
 		this.measurement = this.initMeasurement()
 	}
 
@@ -542,7 +545,9 @@ export abstract class RendererBase {
 	protected abstract setRestSize(): Promise<void>
 
 	/** After update complete, and after `measureAfterRendered`, do more check or do element alignment. */
-	protected abstract afterMeasured(): Promise<void>
+	protected afterMeasured(): Promise<void> | void {
+		this.onAfterMeasured()
+	}
 
 	/** 
 	 * Check whether rendered result can cover scroll viewport,

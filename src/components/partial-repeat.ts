@@ -1,10 +1,22 @@
-import {effect, untilBarriersComplete, UpdateQueue} from 'lupos'
+import {effect, trackGet, untilBarriersComplete, UpdateQueue} from 'lupos'
 import {Repeat, RepeatRenderFn} from './repeat'
 import {html, inSSR, PartCallbackParameterMask, PerFrameTransitionEasingName} from 'lupos.html'
 import {PartialRenderer} from './repeat-helpers/partial-renderer'
 import {LowerIndexWithin} from '../tools'
 import {locateVisibleIndexAtOffset} from './repeat-helpers/index-locator'
 import {RendererBase} from './repeat-helpers/base-renderer'
+
+
+export interface PartialRepeatEvents {
+
+	/** 
+	 * 'updated' event only ensure dom tree update,
+	 * either scroll position or further adjustment still in progress.
+	 * `after-measured` to be fired after partial or live rendering complete and measured.
+	 * Can safely read it's properties, like scroll positions and live indices right now.
+	 */
+	'measured': () => void
+}
 
 
 /** 
@@ -16,7 +28,7 @@ import {RendererBase} from './repeat-helpers/base-renderer'
  * and may cause additional re-layout to adjust scroll position when scrolling up,
  * especially when item sizes are different from each other.
  */
-export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
+export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatEvents> {
 
 	/** 
 	 * Render function to generate render result by each item.
@@ -55,9 +67,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 	alignDirection: 'start' | 'end' = 'start'
 
 	/** Live data, rendering part of all the data. */
-	get liveData(): T[] {
-		return this.data.slice(this.startIndex, this.endIndex)
-	}
+	liveData: T[] = []
 
 	/** Apply `guessedItemSize` property to renderer. */
 	@effect
@@ -114,6 +124,8 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 			this.alignDirection = 'start'
 		}
 
+		this.liveData = this.data.slice(this.startIndex, this.endIndex)
+
 		UpdateQueue.onSyncUpdateStart(this)
 		this.updateRendering()
 		UpdateQueue.onSyncUpdateEnd()
@@ -123,12 +135,25 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 	}
 
 	protected override render() {
+
+		// Do custom tracking.
+		// Here we want the `liveData` and other properties to be observed by outside,
+		// but later doing update immediately to persist sync update process,
+		// so we should track the `data` property manually and skip `liveData`.
+		trackGet(this, 'data')
+
 		return html`<lu:for ${this.liveData}>${this.renderLiveFn.bind(this)}</lu:for>`
 	}
 
 	/** Replace local index to live index. */
 	protected renderLiveFn(item: T, index: number) {
+		trackGet(this, 'renderFn')
+
 		return this.renderFn(item, this.startIndex + index)
+	}
+
+	protected onAfterMeasured(this: PartialRepeat) {
+		this.fire('measured')
 	}
 
 	protected override onConnected(this: PartialRepeat<any, {}>) {
@@ -191,6 +216,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E> {
 			this,
 			this.doa,
 			this.updateLiveData.bind(this),
+			this.onAfterMeasured.bind(this),
 			this.placeholders![0],
 			this.placeholders![1]
 		)
