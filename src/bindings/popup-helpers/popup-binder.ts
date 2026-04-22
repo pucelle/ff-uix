@@ -226,6 +226,10 @@ export class PopupTriggerBinder {
 	/** Trigger when mouse down on document, and not inside `el` or popup. */
 	private onDocMouseDownOrTouch(e: Event) {
 		let target = e.target as Element
+
+		if (this.el.contains(target)) {
+			return
+		}
 		
 		if (!this.content
 			|| this.clickToHide
