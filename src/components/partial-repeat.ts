@@ -1,4 +1,4 @@
-import {effect, trackGet, untilBarriersComplete, UpdateQueue} from 'lupos'
+import {effect, trackSet, UnObserved, untilBarriersComplete, UpdateQueue} from 'lupos'
 import {Repeat, RepeatRenderFn} from './repeat'
 import {html, inSSR, PartCallbackParameterMask, PerFrameTransitionEasingName} from 'lupos.html'
 import {PartialRenderer} from './repeat-helpers/partial-renderer'
@@ -55,19 +55,27 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	protected placeholders: HTMLDivElement[] | null = null
 
 	/** Partial content renderer. */
-	protected renderer: RendererBase | null = null as any
+	protected renderer: UnObserved<RendererBase> | null = null as any
 
-	/** The start index of the live data. */
-	startIndex: number = 0
+	/** The start index of the first item. */
+	get startIndex(): number {
+		return this.renderer?.startIndex ?? 0
+	}
 
-	/** The end index of the live data. */
-	endIndex: number = 0
+	/** The end slicing index of the live data. */
+	get endIndex(): number {
+		return this.renderer?.endIndex ?? this.data.length
+	}
 
 	/** Latest align direction. */
-	alignDirection: 'start' | 'end' = 'start'
+	get alignDirection(): 'start' | 'end' | null {
+		return this.renderer?.alignDirection ?? 'start'
+	}
 
 	/** Live data, rendering part of all the data. */
-	liveData: T[] = []
+	get liveData(): T[] {
+		return this.data.slice(this.startIndex, this.endIndex)
+	}
 
 	/** Apply `guessedItemSize` property to renderer. */
 	@effect
@@ -114,17 +122,10 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	 * May be called for several times for each time updating.
 	 */
 	protected updateLiveData(this: PartialRepeat) {
-		if (this.renderer) {
-			this.startIndex = this.renderer.startIndex
-			this.endIndex = this.renderer.endIndex
-			this.alignDirection = this.renderer.alignDirection
-		}
-		else {
-			this.endIndex = this.data.length
-			this.alignDirection = 'start'
-		}
-
-		this.liveData = this.data.slice(this.startIndex, this.endIndex)
+				
+		// Do custom tracking, we ignored the tracking of renderer,
+		// but still want these getters to be tracked.
+		trackSet(this, 'startIndex', 'endIndex', 'alignDirection')
 
 		UpdateQueue.onSyncUpdateStart(this)
 		this.updateRendering()
@@ -135,20 +136,11 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	}
 
 	protected override render() {
-
-		// Do custom tracking.
-		// Here we want the `liveData` and other properties to be observed by outside,
-		// but later doing update immediately to persist sync update process,
-		// so we should track the `data` property manually and skip `liveData`.
-		trackGet(this, 'data')
-
 		return html`<lu:for ${this.liveData}>${this.renderLiveFn.bind(this)}</lu:for>`
 	}
 
 	/** Replace local index to live index. */
 	protected renderLiveFn(item: T, index: number) {
-		trackGet(this, 'renderFn')
-
 		return this.renderFn(item, this.startIndex + index)
 	}
 

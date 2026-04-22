@@ -1,4 +1,4 @@
-import {effect, watch} from 'lupos'
+import {effect, trackGet, watch} from 'lupos'
 import {LiveRepeat} from './live-repeat'
 import {PageDataCountGetter, PageDataGetter, PageDataLoader} from '../data'
 import {inSSR} from 'lupos.html'
@@ -47,6 +47,13 @@ export class AsyncLiveRepeat<T = any, E = {}> extends LiveRepeat<T | null, E & A
 
 	/** Live data, rendering part of all the data. */
 	override get liveData(): (T | null)[] {
+
+		// Do custom tracking.
+		// Here we want the `liveData` and other properties to be observed by outside,
+		// but later doing update immediately to persist sync update process,
+		// so we should track the `data` property manually and skip `liveData`.
+		trackGet(this, 'data')
+		
 		return this.dataLoader.getImmediateData(this.startIndex, this.endIndex)
 	}
 
