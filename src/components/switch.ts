@@ -16,41 +16,42 @@ export class Switch<E = {}> extends Component<E & SwitchEvents> {
 		.switch{
 			display: inline-block;
 			vertical-align: top;
-			width: 2em;
-			height: 1.25em;
-			border-radius: 0.625em;
+			width: var(--switch-width);
+			height: var(--switch-height);
+			border: var(--switch-border-width) solid var(--border-color);
+			border-radius: calc(var(--switch-height) / 2);
 			background: var(--switch-background);
 			padding: 1px;
 			transition: background 0.2s ${/*#__PURE__*/getCSSEasingValue('ease-out-cubic')};
 			cursor: pointer;
 
-			&:hover{
-				background: color-mix(in srgb, var(--switch-background) 90%, var(--text-color));
-			}
-			
-			&:focus{
-				box-shadow: 0 0 var(--focus-shadow-blur-radius) var(--primary-color);
+			&:hover, &:focus{
+				.switch-ball{
+					background: color-mix(in srgb, var(--switch-background) 50%, var(--primary-color));
+				}
 			}
 		}
 	
 		.switch-ball{
-			width: calc(1.25em - 2px);
-			height: calc(1.25em - 2px);
-			background: var(--background);
+			width: calc(var(--switch-height) - 2px - var(--switch-border-width) * 2);
+			height: calc(var(--switch-height) - 2px - var(--switch-border-width) * 2);
+			background: var(--border-color);
 			border-radius: 50%;
 			transition: margin 0.2s ${/*#__PURE__*/getCSSEasingValue('ease-out-cubic')};
 		}
 	
-		.switch-on{		
-			background: var(--primary-color);
+		.switch-on{	
+			border-color: var(--primary-color);
 
 			.switch-ball{
-				border-color: var(--background);
-				margin-left: 0.75em;
+				background: var(--primary-color);
+				margin-left: calc(var(--switch-width) - var(--switch-height));
 			}
 
-			&:hover{
-				background: var(--primary-color);
+			&:hover, &:focus{
+				.switch-ball{
+					background: var(--primary-color);
+				}
 			}
 		}
 	`

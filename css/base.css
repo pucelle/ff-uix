@@ -139,6 +139,9 @@ table{
 	--link-color: LinkText;
 
 	--switch-background: light-dark(#ddd, #444);
+	--switch-width: 2em;
+	--switch-height: 1.25em;
+	--switch-border-width: 0;
 
 	--popup-background: light-dark(white, #333);
 	--popup-text-color: var(--text-color);

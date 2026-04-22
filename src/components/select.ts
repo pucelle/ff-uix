@@ -43,15 +43,13 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 			box-shadow: inset 0 -1px 0 0 var(--border-color);
 
 			&:hover, &.opened{
-				box-shadow: inset 0 -1px 0 0 var(--primary-color);
-
 				.select-dropdown-icon{
 					color: var(--primary-color);
 				}
 			}
 
-			&.cant-input input{
-				cursor: pointer;
+			&.cant-input .select-input{
+				cursor: inherit;
 			}
 		}
 
@@ -142,10 +140,10 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 	hideAfterSelected: boolean | null = null
 
 	/** 
-	 * Renderer to render text content.
+	 * Renderer to render text content to a template result.
 	 * If specifies, it overwrites default action of rendering `text` property.
 	 */
-	textRenderer: ((item: ListItem<T>) => RenderResult | string | number) | null = null
+	textRenderer: ((item: ListItem<T>) => TemplateResult) | null = null
 
 
 	/** The element of popup component. */
@@ -265,7 +263,7 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 	}
 
 	/** Render text display to represent currently selected. */
-	protected renderDisplay(): string | null {
+	protected renderDisplay(): RenderResult | null {
 		let filteredData: ListItem<T>[] = []
 
 		if (this.multiple) {
@@ -279,12 +277,18 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 			}
 		}
 
-		let displays = filteredData.map(item => item.text)
-		if (displays.length === 0) {
-			return null
+		if (this.textRenderer) {
+			let displays = filteredData.map(item => this.textRenderer!(item))
+			return displays
 		}
+		else {
+			let displays = filteredData.map(item => item.text)
+			if (displays.length === 0) {
+				return null
+			}
 
-		return displays.join('; ')
+			return displays.join('; ')
+		}
 	}
 
 	protected getFilteredData(): ListItem<T>[] {
