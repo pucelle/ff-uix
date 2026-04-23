@@ -1,4 +1,4 @@
-import {effect, trackSet, untilBarriersComplete, UpdateQueue} from 'lupos'
+import {effect, trackGet, UnObserved, untilBarriersComplete, UpdateQueue} from 'lupos'
 import {Repeat, RepeatRenderFn} from './repeat'
 import {html, inSSR, PartCallbackParameterMask, PerFrameTransitionEasingName} from 'lupos.html'
 import {PartialRenderer} from './repeat-helpers/partial-renderer'
@@ -55,25 +55,20 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	protected placeholders: HTMLDivElement[] | null = null
 
 	/** Partial content renderer. */
-	protected renderer: RendererBase | null = null as any
+	protected renderer: UnObserved<RendererBase> | null = null as any
 
 	/** The start index of the first item. */
-	get startIndex(): number {
-		return this.renderer?.startIndex ?? 0
-	}
+	startIndex: number = 0
 
 	/** The end slicing index of the live data. */
-	get endIndex(): number {
-		return this.renderer?.endIndex ?? this.data.length
-	}
+	endIndex: number = 0
 
 	/** Latest align direction. */
-	get alignDirection(): 'start' | 'end' | null {
-		return this.renderer?.alignDirection ?? 'start'
-	}
+	alignDirection: 'start' | 'end' = 'start'
 
 	/** Live data, rendering part of all the data. */
 	get liveData(): T[] {
+		trackGet(this, 'data')
 		return this.data.slice(this.startIndex, this.endIndex)
 	}
 
@@ -126,7 +121,12 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 		// Do custom tracking, we ignored the tracking of renderer,
 		// but still want these getters to be tracked.
 		if (this.renderer) {
-			trackSet(this.renderer, 'startIndex', 'endIndex', 'alignDirection')
+			this.startIndex = this.renderer.startIndex
+			this.endIndex = this.renderer.endIndex
+			this.alignDirection = this.renderer.alignDirection
+		}
+		else {
+			this.endIndex = this.data.length
 		}
 
 		UpdateQueue.onSyncUpdateStart(this)
@@ -143,6 +143,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 
 	/** Replace local index to live index. */
 	protected renderLiveFn(item: T, index: number) {
+		trackGet(this, 'renderFn')
 		return this.renderFn(item, this.startIndex + index)
 	}
 
