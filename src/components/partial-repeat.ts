@@ -68,7 +68,11 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 
 	/** Live data, rendering part of all the data. */
 	get liveData(): T[] {
+
+		// Here we need to ignore tracking indices, or it will cause additional
+		// enqueuing when doing custom `updateLiveData`.
 		trackGet(this, 'data')
+
 		return this.data.slice(this.startIndex, this.endIndex)
 	}
 
@@ -124,9 +128,11 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 			this.startIndex = this.renderer.startIndex
 			this.endIndex = this.renderer.endIndex
 			this.alignDirection = this.renderer.alignDirection
+			trackGet(this, 'startIndex', 'endIndex', 'alignDirection')
 		}
 		else {
 			this.endIndex = this.data.length
+			trackGet(this, 'endIndex')
 		}
 
 		UpdateQueue.onSyncUpdateStart(this)

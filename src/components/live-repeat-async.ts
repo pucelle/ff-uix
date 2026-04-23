@@ -48,10 +48,8 @@ export class AsyncLiveRepeat<T = any, E = {}> extends LiveRepeat<T | null, E & A
 	/** Live data, rendering part of all the data. */
 	override get liveData(): (T | null)[] {
 
-		// Do custom tracking.
-		// Here we want the `liveData` and other properties to be observed by outside,
-		// but later doing update immediately to persist sync update process,
-		// so we should track the `data` property manually and skip `liveData`.
+		// Here we need to ignore tracking indices, or it will cause additional
+		// enqueuing when doing custom `updateLiveData`.
 		trackGet(this, 'data')
 		
 		return this.dataLoader.getImmediateData(this.startIndex, this.endIndex)
