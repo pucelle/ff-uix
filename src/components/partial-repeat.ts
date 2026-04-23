@@ -1,4 +1,4 @@
-import {effect, trackSet, UnObserved, untilBarriersComplete, UpdateQueue} from 'lupos'
+import {effect, trackSet, untilBarriersComplete, UpdateQueue} from 'lupos'
 import {Repeat, RepeatRenderFn} from './repeat'
 import {html, inSSR, PartCallbackParameterMask, PerFrameTransitionEasingName} from 'lupos.html'
 import {PartialRenderer} from './repeat-helpers/partial-renderer'
@@ -55,7 +55,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	protected placeholders: HTMLDivElement[] | null = null
 
 	/** Partial content renderer. */
-	protected renderer: UnObserved<RendererBase> | null = null as any
+	protected renderer: RendererBase | null = null as any
 
 	/** The start index of the first item. */
 	get startIndex(): number {
@@ -125,7 +125,9 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 				
 		// Do custom tracking, we ignored the tracking of renderer,
 		// but still want these getters to be tracked.
-		trackSet(this, 'startIndex', 'endIndex', 'alignDirection')
+		if (this.renderer) {
+			trackSet(this.renderer, 'startIndex', 'endIndex', 'alignDirection')
+		}
 
 		UpdateQueue.onSyncUpdateStart(this)
 		this.updateRendering()
