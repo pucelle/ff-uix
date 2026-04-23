@@ -25,9 +25,14 @@ export class Search<E = {}> extends Input<SearchEvents & E> {
 			padding: 0 0.2em;
 			box-shadow: none;
 			
-			&:focus{
-				border-color: var(--primary-color);
-				box-shadow: 0 0 var(--focus-shadow-blur-radius) var(--primary-color);
+			&.focused{
+				border-color: color-mix(in srgb, var(--primary-color) 50%, var(--border-color));
+				box-shadow: none;
+
+				.input-icon{
+					color: color-mix(in srgb, var(--primary-color) 50%, var(--border-color));
+					height: 100%;
+				}
 			}
 
 			.input-icon{
@@ -40,11 +45,6 @@ export class Search<E = {}> extends Input<SearchEvents & E> {
 				height: 100%;
 				padding: 0.2em 0.2em;
 			}
-		}
-
-		.search-icon{
-			color: var(--border-color);
-			height: 100%;
 		}
 
 		.search-clear-icon{
@@ -66,7 +66,9 @@ export class Search<E = {}> extends Input<SearchEvents & E> {
 
 	protected override render() {
 		return html`
-			<template class="input search">
+			<template class="input search"
+				:class.focused=${this.focusGot}
+			>
 				${this.renderIcon()}
 				${this.renderField()}
 

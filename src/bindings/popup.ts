@@ -75,7 +75,10 @@ export interface PopupOptions extends AnchorAlignerOptions {
 	 */
 	autoFocus: boolean
 
-	/** If specified as `true`, popup get hidden after click at. */
+	/** 
+	 * If specified as `true`, popup get hidden after click at.
+	 * Default value is `false`.
+	 */
 	autoHide: boolean
 
 	/** 

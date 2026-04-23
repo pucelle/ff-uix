@@ -1,4 +1,4 @@
-import {html, Component, render, defineCustomElement, inSSR} from 'lupos.html'
+import {html, Component, render, defineCustomElement, inSSR, RenderResult} from 'lupos.html'
 import {watch} from 'lupos'
 import {
 	Radio, RadioGroup, Checkbox, CheckboxGroup, Row, Col, Icon, Button, ButtonGroup,
@@ -1190,13 +1190,15 @@ class PrimaryColorSelect extends Select<string> {
 		{value: '#888888', text: `Grey`},
 	]
 
-	textRenderer = (item: ListItem<string>) => html`<div style="color: ${item.value};">${item.text}</div>`
-
 	value: string = 'ActiveText'
 
 	@watch('value')
 	protected onValueChange(value: string) {
 		document.documentElement.style.setProperty('--primary-color', value)
+	}
+
+	protected override renderItemContent(item: ListItem<string>): RenderResult | undefined {
+		return html`<div style="color: ${item.value};">${item.text}</div>`
 	}
 }
 

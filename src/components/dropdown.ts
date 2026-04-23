@@ -39,6 +39,7 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 	hideDelay: number | undefined = undefined
 	showImmediately: boolean | undefined = undefined
 	autoFocus: boolean | undefined = undefined
+	autoHide: boolean | undefined = undefined
 	pointable: boolean | undefined = undefined
 	cacheable: boolean | undefined = undefined
 	keepVisible: boolean | undefined = undefined
@@ -87,9 +88,13 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 				:popup=${this.renderPopup, this.popupOptions}
 			>
 				<slot />
-				<Icon class="dropdown-icon" .code=${IconDown} />
+				${this.renderIcon()}
 			</template>
 		`
+	}
+
+	protected renderIcon() {
+		return html`<Icon class="dropdown-icon" .code=${IconDown} />`
 	}
 
 	/** Avoid this option object get changed, and cause `:popup` re-update. */
@@ -109,6 +114,7 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 			hideDelay: this.hideDelay,
 			showImmediately: this.showImmediately,
 			autoFocus: this.autoFocus,
+			autoHide: this.autoHide,
 			pointable: this.pointable,
 			cacheable: this.cacheable,
 			keepVisible: this.keepVisible,

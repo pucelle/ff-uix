@@ -1,5 +1,7 @@
 //const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
+const inProduction = process.argv.mode === 'production'
+
 
 module.exports = {
 	entry: './docs/out/index.js',
@@ -29,7 +31,7 @@ module.exports = {
 		extensions: ['.tsx', '.ts', '.js']
 	},
 	module: {
-		rules: [
+		rules: inProduction ? [
 			{
 				test: /\.js$/,
 				loader: 'string-replace-loader',
@@ -38,6 +40,6 @@ module.exports = {
 					replace: '',
 				}
 			}
-		]
+		] : []
 	}
 }

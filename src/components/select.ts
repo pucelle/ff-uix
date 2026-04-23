@@ -1,4 +1,4 @@
-import {fade, css, html, RenderResult, TemplateResult} from 'lupos.html'
+import {fade, css, html, RenderResult, TemplateResult, CompiledTemplateResult} from 'lupos.html'
 import {Dropdown} from './dropdown'
 import {ListItem, List} from './list'
 import {Popup} from './popup'
@@ -139,12 +139,6 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 	 */
 	hideAfterSelected: boolean | null = null
 
-	/** 
-	 * Renderer to render text content to a template result.
-	 * If specifies, it overwrites default action of rendering `text` property.
-	 */
-	textRenderer: ((item: ListItem<T>) => TemplateResult) | null = null
-
 
 	/** The element of popup component. */
 	protected popupEl: HTMLElement | null = null
@@ -252,7 +246,6 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 					:ref.el=${this.listEl}
 					.selectable
 					.data=${data}
-					.textRenderer=${this.textRenderer}
 					.selected=${(this.multiple ? this.value : this.value === null ? [] : [this.value])}
 					.multipleSelect=${this.multiple}
 					.keyComeFrom=${this.inputRef}
@@ -277,18 +270,22 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 			}
 		}
 
-		if (this.textRenderer) {
-			let displays = filteredData.map(item => this.textRenderer!(item))
-			return displays
+		let displays = filteredData.map(item => this.renderItemContent(item))
+		if (displays.length === 0) {
+			return null
 		}
-		else {
-			let displays = filteredData.map(item => item.text)
-			if (displays.length === 0) {
-				return null
-			}
 
+		if (typeof displays[0] === 'string') {
 			return displays.join('; ')
 		}
+		else {
+			return displays as TemplateResult[] | CompiledTemplateResult[]
+		}
+	}
+
+	/** Render content or text for select display. */
+	protected renderItemContent(item: ListItem<T>): RenderResult | undefined {
+		return item.content ?? item.text
 	}
 
 	protected getFilteredData(): ListItem<T>[] {

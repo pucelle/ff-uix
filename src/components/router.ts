@@ -228,7 +228,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		DOMEvents.on(window, 'hashchange', this.onWindowHashChange, this)
 
 		if (this.routes) {
-			DOMEvents.on(this.el, 'click', this.handleLinkClick, this)
+			DOMEvents.on(document.body, 'click', this.handleLinkClick, this)
 		}
 	}
 

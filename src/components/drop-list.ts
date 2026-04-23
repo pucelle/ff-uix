@@ -77,7 +77,7 @@ export class DropList<T> extends List<T> {
 				@click.prevent=${() => this.onClickItem(item)}
 			>
 				${this.renderItemIcon(item)}
-				${this.renderItemContent(item)}
+				${this.renderListContent(item)}
 				${this.renderSelectedIcon(item)}
 				${this.renderDropListSelectedIcon(item)}
 			</div>

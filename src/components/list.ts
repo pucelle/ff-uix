@@ -28,10 +28,16 @@ export interface ListItem<T = any> extends Observed {
 	value?: T
 
 	/** 
-	 * List item content, can be a pre-generated template result.
-	 * If wanting to render template result, overwrite `List.renderText` or specifies `textRenderer`.
+	 * List item text.
+	 * If list should support searching, you should specify this text.
 	 */
 	text?: string
+
+	/** 
+	 * Render result to show as list content.
+	 * Note it doesn't support searching.
+	 */
+	content?: RenderResult
 
 	/** 
 	 * List item icon type.
@@ -199,12 +205,6 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	/** Input data list. */
 	data: ListItem<T>[] = []
 
-	/** 
-	 * Renderer to render text content.
-	 * If specifies, it overwrites default action of rendering `text` property.
-	 */
-	textRenderer: ((item: ListItem<T>) => RenderResult | string | number) | null = null
-
 	/** Indicates currently selected values. */
 	selected: T[] = []
 
@@ -218,7 +218,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	 * If specified, when this element get focus,
 	 * you can use keyboard arrow keys to navigate across current list.
 	 */
-	keyComeFrom: HTMLInputElement | HTMLTextAreaElement | null = null
+	keyComeFrom: HTMLInputElement | HTMLTextAreaElement | null | (() => HTMLInputElement | HTMLTextAreaElement | null) = null
 
 	/** 
 	 * Selected and all parental indices by keyboard navigation.
@@ -297,7 +297,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 					${this.renderIndents(depth)}
 					${this.renderItemPlaceholder(item, expanded)}
 					${this.renderItemIcon(item)}
-					${this.renderItemContent(item)}
+					${this.renderListContent(item)}
 					${this.renderSelectedIcon(item)}
 				</div>
 
@@ -371,25 +371,20 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	}
 
 	/** 
-	 * Render item content, can be overwritten for sub classes
+	 * Render list content, can be overwritten for sub classes
 	 * who know about more details about data items.
 	 */
-	protected renderItemContent(item: ListItem<T>): RenderResult {
+	protected renderListContent(item: ListItem<T>): RenderResult {
 		return html`
 			<div class="list-content">
-				${this.renderText(item)}
+				${this.renderItemContent(item)}
 			</div>
 		`
 	}
 
-	/** Render text content within each list item. */
-	protected renderText(item: ListItem<T>): RenderResult | undefined {
-		if (this.textRenderer) {
-			return this.textRenderer(item)
-		}
-		else {
-			return item.text
-		}
+	/** Render content or text within each list content. */
+	protected renderItemContent(item: ListItem<T>): RenderResult | undefined {
+		return item.content ?? item.text
 	}
 
 	protected renderSelectedIcon(item: ListItem<T>) {
@@ -644,7 +639,11 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	/** On `keyComeFrom` property change. */
 	@effect
 	protected onKeyComeFromChange() {
-		if (!this.keyComeFrom) {
+		let comeFrom = typeof this.keyComeFrom === 'function'
+			? this.keyComeFrom()
+			: this.keyComeFrom
+
+		if (!comeFrom) {
 			return
 		}
 
@@ -653,12 +652,12 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 			DOMEvents.off(this.lastKeyComeFrom, 'blur', this.onKeyComeFromBlur, this)
 		}
 
-		if (this.keyComeFrom) {
-			DOMEvents.on(this.keyComeFrom, 'keydown', this.keyNavigateByEvent, this)
-			DOMEvents.on(this.keyComeFrom, 'blur', this.onKeyComeFromBlur, this)
+		if (comeFrom) {
+			DOMEvents.on(comeFrom, 'keydown', this.keyNavigateByEvent, this)
+			DOMEvents.on(comeFrom, 'blur', this.onKeyComeFromBlur, this)
 		}
 
-		this.lastKeyComeFrom = this.keyComeFrom
+		this.lastKeyComeFrom = comeFrom
 	}
 
 	/** Moves arrow selected by a keyboard event. */

@@ -54,7 +54,6 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 		}
 
 		.input-icon{
-			width: 1.6em;
 			height: 100%;
 			margin-block: auto;
 		}
@@ -150,11 +149,11 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	/** Specifies the icon shown on the left. */
 	icon: string | null = null
 
+	/** Input field element reference. */
+	readonly fieldRef!: HTMLInputElement | HTMLTextAreaElement
+
 	/** Whether haven got focus already. */
 	protected focusGot: boolean = false
-
-	/** Input field element reference. */
-	protected fieldRef!: HTMLInputElement | HTMLTextAreaElement
 
 	protected override async onConnected() {
 		super.onConnected()

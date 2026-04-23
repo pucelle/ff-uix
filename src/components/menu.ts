@@ -10,7 +10,7 @@ export class Menu<E = {}> extends Popup<E> {
 	static override style = css`
 		.menu{
 			max-width: 30em;
-			padding: 0.5em 0;
+			padding: 0.4em 1.2em;
 			
 			.list{
 				border-bottom: none;
@@ -19,7 +19,20 @@ export class Menu<E = {}> extends Popup<E> {
 			}
 
 			.list-item{
-				padding-inline: 0.8em;
+				&:hover, &.selected{
+					background: none;
+					color: var(--primary-color);
+				}
+			}
+
+			.list-content{
+				padding-inline: 0;
+			}
+
+			.list-item-container{
+				&:not(:last-child){
+					border-bottom: 1px solid color-mix(in srgb, var(--border-color) 20%, transparent);
+				}
 			}
 		}
 
@@ -31,7 +44,7 @@ export class Menu<E = {}> extends Popup<E> {
 			display: flex;
 			font-size: calc(1em - 1px);
 			padding-bottom: 0.4em;
-			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background));
+			border-bottom: 1px solid var(--border-color);
 		}
 
 		.menu-title{
@@ -55,7 +68,11 @@ export class Menu<E = {}> extends Popup<E> {
 				:transition.immediate=${fade()}
 			>
 				<lu:if ${this.triangle}>
-					<Triangle class="menu-triangle" .direction=${this.triangleDirection} />
+					<Triangle class="menu-triangle"
+						.direction=${this.triangleDirection}
+						.width=${this.triangleWidth}
+						.height=${this.triangleHeight}
+					/>
 				</lu:if>
 				${this.renderHead()}
 				<slot />
