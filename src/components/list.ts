@@ -118,19 +118,19 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 			cursor: pointer;
 
 			&:hover{
-				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
+				background: color-mix(in srgb, var(--text-color) 4%, var(--background));
 			}
 
 			&.selected{
-				background: color-mix(in srgb, var(--primary-color) 5%, var(--background));
+				background: color-mix(in srgb, var(--primary-color) 8%, var(--background));
 			}
 
 			&.list-menu-active{
-				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
+				background: color-mix(in srgb, var(--text-color) 4%, var(--background));
 			}
 
 			&.arrow-selected{
-				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
+				background: color-mix(in srgb, var(--text-color) 4%, var(--background));
 			}
 		}
 
@@ -204,6 +204,9 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 
 	/** Input data list. */
 	data: ListItem<T>[] = []
+
+	/** Renderer to render list item to content. */
+	contentRenderer: ((item: ListItem<T>) => RenderResult) | null = null
 
 	/** Indicates currently selected values. */
 	selected: T[] = []
@@ -382,9 +385,9 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		`
 	}
 
-	/** Render content or text within each list content. */
+	/** Render content or text for select display. */
 	protected renderItemContent(item: ListItem<T>): RenderResult | undefined {
-		return item.content ?? item.text
+		return this.contentRenderer ? this.contentRenderer(item) : item.content ?? item.text
 	}
 
 	protected renderSelectedIcon(item: ListItem<T>) {

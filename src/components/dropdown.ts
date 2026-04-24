@@ -86,6 +86,7 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 			<template class="dropdown"
 				:class.opened=${this.opened}
 				:popup=${this.renderPopup, this.popupOptions}
+				:ref.binding=${this.binding}
 			>
 				<slot />
 				${this.renderIcon()}

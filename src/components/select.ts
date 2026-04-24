@@ -130,6 +130,9 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 	/** Input text data list. */
 	data: ListItem<T>[] = []
 	
+	/** Renderer to render list item to content. */
+	contentRenderer: ((item: ListItem<T>) => RenderResult) | null = null
+
 	/** Current selected value or values. */
 	value: M extends true ? T[] | null : T | null = null
 
@@ -138,7 +141,6 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 	 * If omitted as `null`, equals `true` when single selection, `false` otherwise.
 	 */
 	hideAfterSelected: boolean | null = null
-
 
 	/** The element of popup component. */
 	protected popupEl: HTMLElement | null = null
@@ -246,6 +248,7 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 					:ref.el=${this.listEl}
 					.selectable
 					.data=${data}
+					.contentRenderer=${this.contentRenderer}
 					.selected=${(this.multiple ? this.value : this.value === null ? [] : [this.value])}
 					.multipleSelect=${this.multiple}
 					.keyComeFrom=${this.inputRef}
@@ -285,7 +288,7 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 
 	/** Render content or text for select display. */
 	protected renderItemContent(item: ListItem<T>): RenderResult | undefined {
-		return item.content ?? item.text
+		return this.contentRenderer ? this.contentRenderer(item) : item.content ?? item.text
 	}
 
 	protected getFilteredData(): ListItem<T>[] {

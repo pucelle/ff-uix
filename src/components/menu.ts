@@ -10,23 +10,16 @@ export class Menu<E = {}> extends Popup<E> {
 	static override style = css`
 		.menu{
 			max-width: 30em;
-			padding: 0.4em 1.2em;
+			padding: 0.6em;
 			
+			.triangle{
+				left: 1em;
+			}
+
 			.list{
 				border-bottom: none;
 				max-height: 100%;
 				overflow-y: auto;
-			}
-
-			.list-item{
-				&:hover, &.selected{
-					background: none;
-					color: var(--primary-color);
-				}
-			}
-
-			.list-content{
-				padding-inline: 0;
 			}
 
 			.list-item-container{
@@ -34,10 +27,6 @@ export class Menu<E = {}> extends Popup<E> {
 					border-bottom: 1px solid color-mix(in srgb, var(--border-color) 20%, transparent);
 				}
 			}
-		}
-
-		.menu-triangle{
-			left: 1em;
 		}
 
 		.menu-header{
@@ -68,7 +57,7 @@ export class Menu<E = {}> extends Popup<E> {
 				:transition.immediate=${fade()}
 			>
 				<lu:if ${this.triangle}>
-					<Triangle class="menu-triangle"
+					<Triangle
 						.direction=${this.triangleDirection}
 						.width=${this.triangleWidth}
 						.height=${this.triangleHeight}

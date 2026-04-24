@@ -37,6 +37,12 @@ export class Popup<E = {}> extends Component<E> {
 			filter: drop-shadow(0 0 calc(var(--popup-shadow-blur-radius)) var(--popup-shadow-color));
 		}
 	`
+
+	/** Default triangle width, the size of bottom side of the triangle. */
+	static triangleWidth: number = 12
+
+	/** Default triangle height, the size of height of the triangle. */
+	static triangleHeight: number = 6
 	
 
 	/** Whether shows triangle element. */
@@ -46,10 +52,10 @@ export class Popup<E = {}> extends Component<E> {
 	triangleDirection: 'top' | 'bottom' | 'left' | 'right' = 'top'
 
 	/** Triangle width, the size of bottom side of the triangle. */
-	triangleWidth: number = 12
+	triangleWidth: number = Popup.triangleWidth
 
 	/** Triangle height, the size of height of the triangle. */
-	triangleHeight: number = 6
+	triangleHeight: number = Popup.triangleHeight
 
 	/** 
 	 * Get the trigger element, which cause current popup pop-up.

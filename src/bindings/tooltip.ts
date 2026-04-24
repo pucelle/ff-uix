@@ -12,7 +12,10 @@ export interface TooltipOptions extends PopupOptions{
 	/** Class name which will be assigned to `<Tooltip>` element. */
 	className?: string
 
+	/** Tooltip triangle width, default equals to <Tooltip> default triangle width. */
 	triangleWidth: number
+
+	/** Tooltip triangle width, default equals to <Tooltip> default triangle height. */
 	triangleHeight: number
 }
 
@@ -32,8 +35,8 @@ const DefaultTooltipOptions: Partial<TooltipOptions> = {
 
 	type: 'default',
 
-	triangleWidth: 12,
-	triangleHeight: 6,
+	triangleWidth: Tooltip.triangleWidth,
+	triangleHeight: Tooltip.triangleHeight,
 }
 
 

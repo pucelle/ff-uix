@@ -51,6 +51,9 @@ export type Routes = Record<string, RouteHandler> | {path: string | RegExp, hand
  */
 export class Router<E = {}> extends Component<RouterEvents & E> {
 
+	/** Current router. */
+	static currentRouter: Router | null = null
+
 	/** `Router.fromClosest` can locate original component when within popup content. */
 	static override fromClosest<C extends {new(...args: any): any}>(this: C, element: Element, searchDepth: number = 50): InstanceType<C> | null {
 		let parent: Element | null = element
@@ -230,6 +233,8 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		if (this.routes) {
 			DOMEvents.on(document.body, 'click', this.handleLinkClick, this)
 		}
+
+		Router.currentRouter = this
 	}
 
 	protected override onWillDisconnect() {
@@ -240,6 +245,10 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 		if (this.routes) {
 			DOMEvents.off(this.el, 'click', this.handleLinkClick, this)
+		}
+
+		if (Router.currentRouter === this) {
+			Router.currentRouter = null
 		}
 	}
 

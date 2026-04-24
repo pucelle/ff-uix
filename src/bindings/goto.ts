@@ -26,17 +26,9 @@ export class goto implements Binding {
 	}
 
 	protected onClick() {
-		this.findRouter()?.goto(this.path)
+		Router.currentRouter?.goto(this.path)
 	}
 	
-	protected findRouter() {
-		let router = Router.fromClosest(this.el.parentElement!)
-		if (!router) {
-			console.error(`":goto" must be contained in "<Router>"!`)
-		}
-
-		return router
-	}
 }
 
 
@@ -50,7 +42,7 @@ export class goto implements Binding {
 export class redirectTo extends goto{
 
 	protected override onClick() {
-		this.findRouter()?.redirectTo(this.path)
+		Router.currentRouter?.redirectTo(this.path)
 	}
 }
 
