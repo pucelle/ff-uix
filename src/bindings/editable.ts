@@ -1,5 +1,5 @@
 import {Binding, Component, Part, render, RenderedComponentLike, RenderResultRenderer} from 'lupos.html'
-import {BoxOffsets, DOMUtils, MouseEventDelivery, RectWatcher, StylePropertyName} from 'ff-kit'
+import {BoxOffsets, DOMUtils, PopupStacker, RectWatcher, StylePropertyName} from 'ff-kit'
 import {DOMEvents, EventKeys, UpdateQueue} from 'lupos'
 import {Input} from '../components/input'
 import {Popup} from '../components/popup'
@@ -163,7 +163,7 @@ export class editable<T> implements Binding, Part {
 
 		DOMEvents.on(document, 'mousedown', this.onDOMMouseDown, this)
 		DOMEvents.on(document, 'keydown', this.onDOMKeyDown, this)
-		MouseEventDelivery.attach(this.target!, popup.el)
+		PopupStacker.onEnter(this.target!, popup.el)
 
 		RectWatcher.watch(this.target!, this.updateSizeAndPosition, this)
 
@@ -193,7 +193,7 @@ export class editable<T> implements Binding, Part {
 
 		DOMEvents.off(document, 'mousedown', this.onDOMMouseDown, this)
 		DOMEvents.off(document, 'keydown', this.onDOMKeyDown, this)
-		MouseEventDelivery.detach(this.target!)
+		PopupStacker.destroy(this.target!)
 
 		this.target = null
 		this.popup = null
@@ -274,7 +274,7 @@ export class editable<T> implements Binding, Part {
 	protected onDOMMouseDown(e: MouseEvent) {
 		let target = e.target as HTMLElement
 
-		if (!MouseEventDelivery.hasDeliveredFrom(this.target!, target)) {
+		if (!PopupStacker.hasContainedOrPopped(this.target!, target)) {
 			let value = this.inputSelectRef!.value
 
 			this.options.onCommit?.(value, () => this.reshowPopup(value))

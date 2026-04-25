@@ -1,4 +1,4 @@
-import {MouseEventDelivery, EventUtils, MouseLeaveControl} from 'ff-kit'
+import {PopupStacker, EventUtils, PopupControl} from 'ff-kit'
 import {DOMEvents} from 'lupos'
 
 
@@ -212,7 +212,7 @@ export class PopupTriggerBinder {
 
 	/** Bind events to hide popup element after mouse leave both trigger and popup element. */
 	protected bindMouseLeave(hideDelay: number, popupEl: Element) {
-		this.unwatchLeave = MouseLeaveControl.on(this.el, popupEl,
+		this.unwatchLeave = PopupControl.on(this.el, popupEl,
 			() => {
 				this.callbacks.onImmediateHide()
 			},
@@ -233,7 +233,7 @@ export class PopupTriggerBinder {
 		
 		if (!this.content
 			|| this.clickToHide
-			|| !MouseEventDelivery.hasDeliveredFrom(this.content, target)
+			|| !PopupStacker.hasContainedOrPopped(this.content, target)
 		) {
 			this.callbacks.onWillHide()
 		}

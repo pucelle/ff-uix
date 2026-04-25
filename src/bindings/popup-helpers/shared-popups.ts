@@ -1,4 +1,4 @@
-import {ListMap, MouseEventDelivery} from 'ff-kit'
+import {ListMap, PopupStacker} from 'ff-kit'
 import {RenderedComponentLike} from 'lupos.html'
 import {Popup} from '../../components/popup'
 import {popup} from '../popup'
@@ -78,7 +78,7 @@ function findCache(key: string): RenderedComponentLike | null {
 			continue
 		}
 
-		if (MouseEventDelivery.hasAnyDeliveredTo(popup.el)) {
+		if (PopupStacker.hasLocked(popup.el)) {
 			continue
 		}
 

@@ -1,5 +1,5 @@
 import {Binding, render, RenderResultRenderer, RenderedComponentLike, Part, inSSR} from 'lupos.html'
-import {AnchorAligner, AnchorPosition, AnchorAlignerOptions, MouseEventDelivery} from 'ff-kit'
+import {AnchorAligner, AnchorPosition, AnchorAlignerOptions, PopupStacker} from 'ff-kit'
 import {Popup} from '../components/popup'
 import * as SharedPopups from './popup-helpers/shared-popups'
 import {PopupState} from './popup-helpers/popup-state'
@@ -344,7 +344,7 @@ export class popup implements Binding, Part {
 		await this.updatePopupQueued()
 		
 		if (this.opened) {
-			MouseEventDelivery.attach(this.el, this.popup!.el)
+			PopupStacker.onEnter(this.el, this.popup!.el)
 			
 			this.appendPopup()
 			this.alignPopup()
@@ -377,7 +377,7 @@ export class popup implements Binding, Part {
 		this.binder.unbindLeave()
 
 		// Release trigger element.
-		MouseEventDelivery.detach(this.el)
+		PopupStacker.destroy(this.el)
 
 		// Only remove popup is not enough.
 		// Rendered content to be referenced as a slot content by popup,
@@ -623,7 +623,7 @@ export class popup implements Binding, Part {
 
 		// opened, and mouse still in.
 		if (this.opened
-			&& MouseEventDelivery.isFullyActivated(this.el)
+			&& PopupStacker.hasLocked(this.el)
 		) {
 			return false
 		}
