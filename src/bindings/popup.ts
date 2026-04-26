@@ -1,5 +1,5 @@
 import {Binding, render, RenderResultRenderer, RenderedComponentLike, Part, inSSR} from 'lupos.html'
-import {AnchorAligner, AnchorPosition, AnchorAlignerOptions, PopupStacker} from 'ff-kit'
+import {AnchorAligner, AnchorPosition, AnchorAlignerOptions, PopupStacker, ObjectUtils} from 'ff-kit'
 import {Popup} from '../components/popup'
 import * as SharedPopups from './popup-helpers/shared-popups'
 import {PopupState} from './popup-helpers/popup-state'
@@ -8,7 +8,7 @@ export {TriggerType}
 
 
 /** Options for `:popup` */
-export interface PopupOptions extends AnchorAlignerOptions {
+export interface PopupOptions extends Partial<AnchorAlignerOptions> {
 
 	/** Whether popup content will be aligned to follow trigger events.
 	 * Default value is `false`.
@@ -123,14 +123,9 @@ export interface PopupOptions extends AnchorAlignerOptions {
 
 
 /** Default popup options. */
-export const DefaultPopupOptions: PopupOptions = {
+export const DefaultPopupOptions: Omit<PopupOptions, 'position'> & Required<Pick<PopupOptions, 'position'>> = {
 
 	position: 'b',
-	gaps: 0,
-	edgeGaps: 0,
-	stickToEdges: true,
-	flipDirection: 'auto',
-	fixedTriangle: false,
 
 	followEvents: false, 
 	trigger: 'hover',
@@ -192,8 +187,8 @@ export class popup implements Binding, Part {
 		})
 
 		this.state = new PopupState({
-			onDoShow: this.onDoShow.bind(this),
-			onDoHide: this.onDoHide.bind(this),
+			onDoShow: this.doShow.bind(this),
+			onDoHide: this.doHide.bind(this),
 		})
 	}
 
@@ -328,7 +323,7 @@ export class popup implements Binding, Part {
 	}
 
 	/** Do show popup action. */
-	protected async onDoShow() {
+	protected async doShow() {
 		if (!this.renderer) {
 			return
 		}
@@ -340,15 +335,16 @@ export class popup implements Binding, Part {
 		this.options.onOpenedChange?.(true)
 		this.createRendered()
 		
-		// Wait until update complete
+		// Wait until queue connected.
 		await this.updatePopupQueued()
 		
 		if (this.opened) {
 			PopupStacker.onEnter(this.el, this.popup!.el)
 			
 			this.appendPopup()
-			this.alignPopup()
 			this.binder.bindLeave(this.options.hideDelay, this.popup!.el)
+
+			this.alignPopup()
 		}
 	}
 	
@@ -367,7 +363,7 @@ export class popup implements Binding, Part {
 	 * Do hide popup action.
 	 * If `forReuse`, will leave element in document.
 	 */
-	protected async onDoHide() {
+	protected async doHide() {
 		if (this.options.activeClassName) {
 			this.el.classList.remove(this.options.activeClassName)
 		}
@@ -376,7 +372,7 @@ export class popup implements Binding, Part {
 		this.binder.unbindLeaveBeforeShow()
 		this.binder.unbindLeave()
 
-		// Release trigger element.
+		// Release popup group by trigger element.
 		PopupStacker.destroy(this.el)
 
 		// Only remove popup is not enough.
@@ -399,6 +395,8 @@ export class popup implements Binding, Part {
 
 	/** Clears popup content, reset to initial state. */
 	clearPopup() {
+
+		// Normally clear from hide, but if not hide yet, hide here.
 		if (this.opened) {
 			this.hidePopup()
 		}
@@ -518,7 +516,7 @@ export class popup implements Binding, Part {
 		}
 
 		// Update popup properties.
-		popup.triangleDirection = AnchorAligner.getAnchorFaceDirection(this.options.position).opposite.toBoxOffsetKey()!
+		popup.triangleDirection = AnchorAligner.getAnchorFaceDirection(this.options.position ?? DefaultPopupOptions.position).opposite.toBoxOffsetKey()!
 		popup.el.style.pointerEvents = this.options.pointable ? '' : 'none'
 
 		// Update popup property and related transition.
@@ -539,7 +537,11 @@ export class popup implements Binding, Part {
 		// but transition will stop playing.
 		let alreadyInDOM = document.body.contains(this.popup!.el)
 		let playTransition = !alreadyInDOM
-		this.popup!.appendTo(document.body, playTransition)
+
+		// Append if not the last child.
+		if (this.popup!.el !== document.body.lastChild) {
+			this.popup!.appendTo(document.body, playTransition)
+		}
 
 		// Get focus if needed.
 		this.mayGetFocus()
@@ -557,6 +559,10 @@ export class popup implements Binding, Part {
 	
 		// Update aligner if required.
 		if (!this.aligner || this.aligner.anchor !== anchor || this.aligner.target !== this.popup!.el) {
+			if (this.aligner) {
+				this.aligner.stop()
+			}
+
 			this.aligner = new AnchorAligner(this.popup!.el, this.getAlignerOptions())
 		}
 
@@ -585,11 +591,11 @@ export class popup implements Binding, Part {
 	}
 
 	/** Get options for Aligner. */
-	protected getAlignerOptions(): AnchorAlignerOptions {
+	protected getAlignerOptions(): Partial<AnchorAlignerOptions> {
 		let triangle = this.popup!.el.querySelector("[class*='triangle']") as HTMLElement | null
 		let keepVisible = this.shouldKeepVisible()
 
-		return {
+		return ObjectUtils.cleanEmptyValues({
 			position: this.options?.position as AnchorPosition,
 			gaps: this.options?.gaps,
 			edgeGaps: this.options?.edgeGaps,
@@ -598,8 +604,8 @@ export class popup implements Binding, Part {
 			fixedTriangle: this.options?.fixedTriangle,
 			triangle: triangle ?? undefined,
 			targetSelectorToAlign: this.options?.targetSelectorToAlign,
-			onStop: this.hidePopup.bind(this),
-		}
+			onAbort: this.hidePopup.bind(this),
+		})
 	}
 
 	/** Make element of popup content get focus if possible. */

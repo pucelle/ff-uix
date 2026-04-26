@@ -169,7 +169,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 
 		.list-selected-icon{
 			display: flex;
-			margin: auto 0 auto 0.4em;
+			margin: auto 0.2em auto 0.4em;
 		}
 
 		.list-partial-repeat{}

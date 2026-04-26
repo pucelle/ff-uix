@@ -29,7 +29,7 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 	position: AnchorPosition | undefined = undefined
 	gaps: number | number[] | undefined = undefined
 	stickToEdges: boolean | undefined = undefined
-	flipDirection: HVDirection | 'auto' | undefined = undefined
+	flipDirection: HVDirection | 'auto' | 'none' | undefined = undefined
 	fixedTriangle: boolean | undefined = undefined
 
 	key: string | undefined = undefined
