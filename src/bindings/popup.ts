@@ -8,7 +8,7 @@ export {TriggerType}
 
 
 /** Options for `:popup` */
-export interface PopupOptions extends Partial<AnchorAlignerOptions> {
+export interface PopupOptions extends AnchorAlignerOptions {
 
 	/** Whether popup content will be aligned to follow trigger events.
 	 * Default value is `false`.
@@ -123,7 +123,7 @@ export interface PopupOptions extends Partial<AnchorAlignerOptions> {
 
 
 /** Default popup options. */
-export const DefaultPopupOptions: Omit<PopupOptions, 'position'> & Required<Pick<PopupOptions, 'position'>> = {
+export const DefaultPopupOptions: Partial<PopupOptions> = {
 
 	position: 'b',
 
@@ -160,7 +160,7 @@ export class popup implements Binding, Part {
 	protected readonly state: PopupState
 	protected readonly binder: PopupTriggerBinder
 
-	protected options: PopupOptions = DefaultPopupOptions
+	protected options: PopupOptions = DefaultPopupOptions as PopupOptions
 	protected renderer: RenderResultRenderer | null = null
 	protected updateComplete: Promise<void> | null = null
 	protected persistVisible: boolean = false
@@ -516,7 +516,7 @@ export class popup implements Binding, Part {
 		}
 
 		// Update popup properties.
-		popup.triangleDirection = AnchorAligner.getAnchorFaceDirection(this.options.position ?? DefaultPopupOptions.position).opposite.toBoxOffsetKey()!
+		popup.triangleDirection = AnchorAligner.getAnchorFaceDirection(this.options.position).opposite.toBoxOffsetKey()!
 		popup.el.style.pointerEvents = this.options.pointable ? '' : 'none'
 
 		// Update popup property and related transition.
@@ -603,7 +603,7 @@ export class popup implements Binding, Part {
 			flipDirection: this.options?.flipDirection,
 			fixedTriangle: this.options?.fixedTriangle,
 			triangle: triangle ?? undefined,
-			targetSelectorToAlign: this.options?.targetSelectorToAlign,
+			targetSelector: this.options?.targetSelector,
 			onAbort: this.hidePopup.bind(this),
 		})
 	}

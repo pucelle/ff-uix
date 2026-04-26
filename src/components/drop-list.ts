@@ -67,7 +67,7 @@ export class DropList<T> extends List<T> {
 						key: 'drop-list',
 						position: 'tl-tr',
 						hideDelay: 100,
-						targetSelectorToAlign: '.list-item',
+						targetSelector: '.list-item',
 						activeClassName: 'list-menu-active',
 						onOpenedChange: (opened: boolean) => {
 							this.onPopupOpenedChange(item, opened)
