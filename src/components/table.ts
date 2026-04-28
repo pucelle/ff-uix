@@ -12,6 +12,7 @@ import {RectSelection} from './rect-selection'
 import {IconOrderAsc, IconOrderDefault, IconOrderDesc} from '../icons'
 import {SelectionUtils, LowerIndexWithin} from '../tools'
 import {editable} from '../bindings/editable'
+import {TableStateCacher, TableStateOptions} from './table-helpers/table-state'
 
 
 export interface TableEvents {
@@ -276,8 +277,11 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	 */
 	store!: Store | RemoteStore
 
-	/** Table column configuration, must be provided. */
-	columns!: TableColumn<T>[]
+	/** 
+	 * Table column configuration, must be provided.
+	 * Can either provide as property, or provide by a getter.
+	 */
+	columns: TableColumn<T>[] = []
 
 	/** Minimum column width in pixels. */
 	minColumnWidth: number = 48
@@ -348,6 +352,9 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 	/** Prevent selections change when has just completed rect selection. */
 	protected preventingLoseSelections: boolean = false
+
+	/** To cache and restore table state. */
+	protected stateCacher: TableStateCacher | null = null
 
 	/** Initialize selections if needed. */
 	@effect
@@ -492,10 +499,10 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 	protected override render(): TemplateResult {
 		return html`
-		<template class="table" @mousedown=${this.onMouseDown}>
-			${this.renderHead()}
-			${this.renderBody()}
-		</template>
+			<template class="table" @mousedown=${this.onMouseDown}>
+				${this.renderHead()}
+				${this.renderBody()}
+			</template>
 		`
 	}
 
@@ -505,29 +512,6 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 				<div class="table-columns">
 					${this.renderColumns()}
 				</div>
-			</div>
-		`
-	}
-
-	protected renderBody() {
-		return html`
-			<div class="table-body">
-				<table class="table-table">
-					<colgroup>
-						${this.columns.map(column => html`
-							<col :style.text-align=${column.align || ''} />
-						`)}
-					</colgroup>
-					${this.renderRows()}
-				</table>
-				<lu:if ${this.rowSelectable}>
-					<RectSelection
-						.ignoreSelector=${this.rowRectSelectionIgnoreSelector}
-						@select-started=${this.onRectSelectStarted}
-						@select-ended=${this.onRectSelectEnded}
-						@select-update=${this.onRectSelectUpdate}
-					/>
-				</lu:if>
 			</div>
 		`
 	}
@@ -583,6 +567,42 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		}
 
 		return IconOrderDefault
+	}
+
+	protected renderBody() {
+		return html`
+			<div class="table-body">
+				${this.renderTable()}
+				
+				<lu:if ${this.rowSelectable}>
+					<RectSelection
+						.ignoreSelector=${this.rowRectSelectionIgnoreSelector}
+						@select-started=${this.onRectSelectStarted}
+						@select-ended=${this.onRectSelectEnded}
+						@select-update=${this.onRectSelectUpdate}
+					/>
+				</lu:if>
+			</div>
+		`
+	}
+
+	protected renderTable() {
+		return html`
+			<table class="table-table">
+				${this.renderColGroups()}
+				${this.renderRows()}
+			</table>
+		`
+	}
+
+	protected renderColGroups() {
+		return html`
+			<colgroup>
+				${this.columns.map(column => html`
+					<col :style.text-align=${column.align || ''} />
+				`)}
+			</colgroup>
+		`
 	}
 
 	protected renderRows() {
@@ -853,5 +873,40 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		}
 
 		return this.repeatRef.scrollIndexToView(index, gap, duration, easing)
+	}
+
+	protected ensureStateCacher(): TableStateCacher {
+		if (!this.stateCacher) {
+			this.stateCacher = new TableStateCacher(this)
+		}
+
+		return this.stateCacher
+	}
+
+	/** Checks whether have state cached by cache name. */
+	hasState(name: string): boolean {
+		return this.ensureStateCacher().has(name)
+	}
+
+	/** 
+	 * Caches table state includes order, filter, startIndex...
+	 * Remember the `name` must be unique.
+	 */
+	cacheState(name: string, options: TableStateOptions = {}) {
+		this.ensureStateCacher().cache(name, options)
+	}
+
+	/** 
+	 * Restore table state includes order, filter, startIndex by it's cached name.
+	 * Returns customized data with `{}` as default value if restored successfully,
+	 * or returns `undefined` if have no cache to restore.
+	 */
+	restoreState(name: string): object | undefined {
+		return this.ensureStateCacher().restore(name)
+	}
+
+	/** Clear cached state by specified name. */
+	clearState(name: string) {
+		this.ensureStateCacher().clear(name)
 	}
 }

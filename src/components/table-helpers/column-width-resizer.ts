@@ -51,9 +51,19 @@ export class ColumnWidthResizer {
 	async update(columns: TableColumn[], minColumnWidth: number) {
 		this.columns = columns
 		this.minColumnWidth = minColumnWidth
+		await this.updateColumnWidths()
+	}
 
-		if (!inSSR) {
-			await this.updateColumnWidths()
+	/** Update column widths to equivalent size. */
+	updateColumnWidthsInSSR() {
+		let count = this.columns.length
+
+		for (let i = 0; i < count - 1; i++) {
+			let col = this.colgroup.children[i] as HTMLElement
+			let headCol = this.columnContainer.children[i] as HTMLElement
+			let percent = 1 / count
+
+			headCol.style.width = col.style.width = percent * 100 + '%'
 		}
 	}
 
@@ -64,7 +74,7 @@ export class ColumnWidthResizer {
 	async updateColumnWidths() {
 		await barrierDOMReading()
 
-		let headAvailableWidth = this.head.clientWidth
+		let headAvailableWidth = inSSR ? 1200 : this.head.clientWidth
 			- DOMUtils.getNumericStyleValue(this.head, 'paddingLeft')
 			- DOMUtils.getNumericStyleValue(this.head, 'paddingRight')
 

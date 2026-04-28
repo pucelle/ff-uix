@@ -31,9 +31,6 @@ export class orderable<T = any> extends DraggableBase<T> implements Binding, Par
 
 	override options: OrderableOptions = DefaultOrderableOptions
 
-	/** Data item index within it's siblings. */
-	index: number = -1
-
 	update(data: T, index: number, options: Partial<DraggableOptions> = {}) {
 		this.data = data
 		this.index = index

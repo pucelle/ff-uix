@@ -74,6 +74,9 @@ export abstract class DraggableBase<T = any> implements Part {
 	/** Data can be passed to droppable. */
 	data: T | null = null
 
+	/** Draggable index between siblings. */
+	index: number = -1
+
 	private connected: boolean = false
 	private inHanding: boolean = false
 	private inDragging: boolean = false

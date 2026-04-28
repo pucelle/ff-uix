@@ -18,7 +18,7 @@ export interface RemoteStoreOptions<T> {
 	orderDirection: ListUtils.OrderDirection | null
 
 	/** Search word to do data filtering. */
-	filterWord: string | null
+	filter: string | null
 }
 
 
@@ -35,7 +35,7 @@ export abstract class RemoteStore<T = any> implements RemoteStoreOptions<T>, Obs
 	preloadPageCount: number = 0
 	orderName: keyof T | null = null
 	orderDirection: ListUtils.OrderDirection | null = null
-	filterWord: string | null = null
+	filter: string | null = null
 
 	constructor(options: Partial<RemoteStoreOptions<T>> = {}) {
 		Object.assign(this, options)

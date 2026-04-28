@@ -335,7 +335,7 @@ export class popup implements Binding, Part {
 		this.options.onOpenedChange?.(true)
 		this.createRendered()
 		
-		// Wait until queue connected.
+		// Wait until queue connected and updated.
 		await this.updatePopupQueued()
 		
 		if (this.opened) {

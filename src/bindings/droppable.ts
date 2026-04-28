@@ -57,7 +57,7 @@ const DefaultDroppableOptions: DroppableOptions<any> = {
  * A `:droppable` element should normally contains several `:draggable`.
  * 
  * :droppable=${onDrop, ?options}
- * - onDrop: `(dropData, dragIndex) => void`, if `fileDroppable`, will accept `DataTransfer` as drop data.
+ * - onDrop: `(dropData, toIndex, fromIndex) => void`, if `fileDroppable`, will accept `DataTransfer` as drop data.
  * - options: droppable options.
  */
 export class droppable<T = any> implements Binding, Part {
@@ -67,7 +67,7 @@ export class droppable<T = any> implements Binding, Part {
 
 	options: DroppableOptions<T> = DefaultDroppableOptions
 
-	private dropCallback!: (data: T, toIndex: number) => void
+	private dropCallback!: (data: T, toIndex: number, fromIndex: number) => void
 	private connected: boolean = false
 
 	constructor(el: Element, context: any) {
@@ -107,7 +107,7 @@ export class droppable<T = any> implements Binding, Part {
 		this.connected = false
 	}
 
-	update(ondrop: (data: T, toIndex: number) => void, options: Partial<DroppableOptions<T>> = {}) {
+	update(ondrop: (data: T, toIndex: number, fromIndex: number) => void, options: Partial<DroppableOptions<T>> = {}) {
 		this.dropCallback = ondrop
 		this.options = {...DefaultDroppableOptions, ...options}
 	}
@@ -227,7 +227,7 @@ export class droppable<T = any> implements Binding, Part {
 		e.preventDefault()
 		this.mayRemoveEnterClassName()
 
-		this.dropCallback.call(this.context, e.dataTransfer as T, 0)
+		this.dropCallback.call(this.context, e.dataTransfer as T, 0, -1)
 		DOMEvents.off(this.el, 'dragleave', this.onDragLeave, this)
 	}
 
@@ -259,6 +259,6 @@ export class droppable<T = any> implements Binding, Part {
 	 */
 	fireDrop(dragging: DraggableBase, insertIndex: number) {
 		this.mayRemoveEnterClassName()
-		this.dropCallback.call(this.context, dragging.data as T, insertIndex)
+		this.dropCallback.call(this.context, dragging.data as T, insertIndex, dragging.index)
 	}
 }
