@@ -251,7 +251,13 @@ export class PopupTriggerBinder {
 	private onDocMouseWheel(e: WheelEvent) {
 		let target = e.target as Element
 
-		if (!this.content?.contains(target)) {
+		if (this.el.contains(target)) {
+			return
+		}
+
+		if (!this.content
+			|| !PopupStacker.hasContainedOrPopped(this.content, target)
+		) {
 			this.callbacks.onWillHide()
 		}
 	}
