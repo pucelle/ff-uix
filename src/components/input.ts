@@ -222,6 +222,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 				@focus=${this.onFocus}
 				@blur=${this.onBlur}
 				@input=${this.onInput}
+				@compositionend=${this.onCompositionEnd}
 				@change=${this.onChange}
 			/>
 		`
@@ -254,11 +255,19 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 		this.validate()
 	}
 
-	protected onInput(this: Input, e: KeyboardEvent) {
+	protected onInput(e: KeyboardEvent) {
 		if (e.isComposing) {
 			return
 		}
 
+		this.handleInput()
+	}
+
+	protected onCompositionEnd(_e: KeyboardEvent) {
+		this.handleInput()
+	}
+
+	protected handleInput(this: Input) {
 		let value = this.fieldRef.value
 		if (this.formatter) {
 			value = this.formatter(value)
