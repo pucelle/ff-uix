@@ -28,6 +28,7 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 
 	position: AnchorPosition | undefined = undefined
 	gaps: number | number[] | undefined = undefined
+	edgeGaps: number | number[] | undefined = undefined
 	stickToEdges: boolean | undefined = undefined
 	flipDirection: HVDirection | 'auto' | 'none' | undefined = undefined
 	fixedTriangle: boolean | undefined = undefined
@@ -104,6 +105,7 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 		return ObjectUtils.cleanEmptyValues({
 			position: this.position,
 			gaps: this.gaps,
+			edgeGaps: this.edgeGaps,
 			stickToEdges: this.stickToEdges,
 			flipDirection: this.flipDirection,
 			fixedTriangle: this.fixedTriangle,
