@@ -21,10 +21,10 @@ export interface RouterHistoryState extends HrefParsed {
 
 
 /** Whether router has redirected or replaced. */
-type RouterChangeType = 'redirect' | 'goto'
+export type RouterChangeType = 'redirect' | 'goto'
 
 /** To handle each route. */
-type RouteHandler = (params: Record<string | number, string>) => RenderResult
+export type RouteHandler = (params: Record<string | number, string>) => RenderResult
 
 /** Routes list or object. */
 export type Routes = Record<string, RouteHandler> | {path: string | RegExp, handler: RouteHandler}[]

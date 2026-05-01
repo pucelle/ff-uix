@@ -45,11 +45,8 @@ export interface ListItem<T = any> extends Observed {
 	 */
 	icon?: string
 
-	/** 
-	 * Tooltip content to show as tooltip when mouse hover.
-	 * If wanting to render template result, overwrite `List.renderTooltip`.
-	 */
-	tooltip?: string
+	/** Tooltip content to show as tooltip when mouse hover. */
+	tooltip?: RenderResultRenderer
 
 	/** 
 	 * Child items to render subsection list.
