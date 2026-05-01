@@ -27,7 +27,13 @@ export type RouterChangeType = 'redirect' | 'goto'
 export type RouteHandler = (params: Record<string | number, string>) => RenderResult
 
 /** Routes list or object. */
-export type Routes = Record<string, RouteHandler> | {path: string | RegExp, handler: RouteHandler}[]
+export type Routes = Record<string, RouteHandler>
+
+/** To handle each redirection. */
+export type RouteRedirect = string | ((params: Record<string | number, string>) => string)
+
+/** To handle redirection. */
+export type RouteRedirects = Record<string, RouteRedirect>
 
 
 /** 
@@ -52,7 +58,7 @@ export type Routes = Record<string, RouteHandler> | {path: string | RegExp, hand
 export class Router<E = {}> extends Component<RouterEvents & E> {
 
 	/** Current router. */
-	static currentRouter: Router | null = null
+	static current: Router | null = null
 
 	/** `Router.fromClosest` can locate original component when within popup content. */
 	static override fromClosest<C extends {new(...args: any): any}>(this: C, element: Element, searchDepth: number = 50): InstanceType<C> | null {
@@ -81,13 +87,13 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	/** Match a path with a target route path, and get match parameters. */
-	static match(path: string, routePath: string | RegExp): Record<string | number, string> | null {
+	static match(path: string, routePath: string): Record<string | number, string> | null {
 		let matcher = getPathMatcher(routePath)
 		return matcher.match(path)
 	}
 
 	/** Test whether a path match specified route path. */
-	static test(path: string, routePath: string | RegExp): boolean {
+	static test(path: string, routePath: string): boolean {
 		let matcher = getPathMatcher(routePath)
 		return matcher.test(path)
 	}
@@ -121,17 +127,24 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	hashMode: boolean = false
 
 	/** 
-	 * If specified, will interpolate links and do custom redirecting.
+	 * If specified, will do rendering by route match result.
 	 * You may define a `*` path of route to capture 404 and prevent redirecting.
 	 * You may leave it and choose to override `render`.
 	 */
-	routes: Record<string, RouteHandler> | {path: string | RegExp, handler: RouteHandler}[] | null = null
+	routes: Routes | null = null
 
 	/** 
 	 * If specified, will match hash and render popup contents after normal contents.
 	 * You may leave it and choose to override `renderPopup`.
 	 */
-	popupRoutes: Record<string, RouteHandler> | {path: string | RegExp, handler: RouteHandler}[] | null = null
+	popupRoutes: Routes | null = null
+
+	/** 
+	 * If specified, will interpolate links and do custom redirecting.
+	 * Then to match routers.
+	 * Work with `routes`, but not work with `popupRoutes`.
+	 */
+	redirects: RouteRedirects | null = null
 
 	/** Current history state. */
 	protected state!: RouterHistoryState
@@ -177,55 +190,44 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	protected normalizeAnyRoutes(routes: Routes): {matcher: PathMatcher, handler: RouteHandler}[] {
-		if (!this.routes) {
+		if (!routes) {
 			return []
 		}
 
-		if (Array.isArray(routes)) {
-			return routes.map(r => {
-				return {
-					matcher: getPathMatcher(r.path),
-					handler: r.handler,
-				}
-			})
+		return Object.entries(routes).map(([path, handler]) => {
+			return {
+				matcher: getPathMatcher(path),
+				handler: handler,
+			}
+		})
+	}
+
+	@computed
+	protected get normalizedRedirects(): {matcher: PathMatcher, redirect: RouteRedirect}[] {
+		if (!this.redirects) {
+			return []
 		}
-		else {
-			return Object.entries(routes).map(([path, handler]) => {
-				return {
-					matcher: getPathMatcher(path),
-					handler: handler,
-				}
-			})
-		}
+
+		return Object.entries(this.redirects).map(([path, redirect]) => {
+			return {
+				matcher: getPathMatcher(path),
+				redirect,
+			}
+		})
 	}
 
 	protected override onConnected() {
 		super.onConnected()
 
-		if (!this.path) {
-			let parsed: HrefParsed
-
-			if (this.hashMode) {
-				parsed = this.hrefParser.parse(decodeURIComponent(location.hash.replace(/^#/, '')) || '/') ?? this.hrefParser.empty()
-			}
-			else {
-				parsed = this.hrefParser.parse(decodeURIComponent(location.pathname + location.hash)) ?? this.hrefParser.empty()
-			}
-
-			this.path = parsed.path
-			this.prefix = parsed.prefix
-			this.popupPath = parsed.hash
+		let href: string
+		if (this.path) {
+			href = this.hrefParser.build({path: this.path, prefix: this.prefix, hash: this.popupPath})
+		}
+		else {
+			href = location.pathname + location.hash
 		}
 
-		// Replace current state, also normalize current path.
-		this.state = {
-			index: 0,
-			prefix: this.prefix,
-			path: this.path,
-			hash: this.popupPath,
-		}
-
-		this.acceptState(this.state, true)
+		this.redirectTo(href)
 
 		DOMEvents.on(window, 'popstate', this.onWindowPopState, this)
 		DOMEvents.on(window, 'hashchange', this.onWindowHashChange, this)
@@ -234,7 +236,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			DOMEvents.on(document.body, 'click', this.handleLinkClick, this)
 		}
 
-		Router.currentRouter = this
+		Router.current = this
 	}
 
 	protected override onWillDisconnect() {
@@ -247,8 +249,8 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			DOMEvents.off(this.el, 'click', this.handleLinkClick, this)
 		}
 
-		if (Router.currentRouter === this) {
-			Router.currentRouter = null
+		if (Router.current === this) {
+			Router.current = null
 		}
 	}
 
@@ -343,6 +345,11 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			) {
 				return false
 			}
+
+			let redirectedTo = this.handleRedirect(parsed.path)
+			if (redirectedTo) {
+				parsed.path = redirectedTo
+			}
 			
 			state = {
 				index: this.state.index + (isRedirection ? 0 : 1),
@@ -352,6 +359,21 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 		this.acceptState(state, isRedirection)
 		return true
+	}
+
+	protected handleRedirect(path: string): string | null {
+		for (let {matcher, redirect} of this.normalizedRedirects) {
+			if (matcher.test(path)) {
+				if (typeof redirect === 'string') {
+					return redirect
+				}
+				else {
+					return redirect(matcher.match(path)!)
+				}
+			}
+		}
+
+		return null
 	}
 
 	protected acceptState(this: Router, state: RouterHistoryState, isRedirecting: boolean) {
@@ -398,13 +420,13 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	/** Test whether current path match specified route path. */
-	test(routePath: string | RegExp): boolean {
+	test(routePath: string): boolean {
 		let matcher = getPathMatcher(routePath)
 		return matcher.test(this.path)
 	}
 
 	/** Test whether current path match specified popup route path. */
-	testPopup(popupRoutePath: string | RegExp): boolean {
+	testPopup(popupRoutePath: string): boolean {
 		let matcher = getPathMatcher(popupRoutePath)
 		return matcher.test(this.popupPath)
 	}
@@ -417,7 +439,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 *  - `{0: '12345'}` for router regexps like `/\/user\/(\d+)/`,
 	 *  - `{id: '12345'}` for router regexps like `/\/user\/(?<id>\d+)/`.
 	 */
-	route(routePath: string | RegExp, renderFn: RouteHandler): RenderResult {
+	route(routePath: string, renderFn: RouteHandler): RenderResult {
 		let matcher = getPathMatcher(routePath)
 		let params = matcher.match(this.path)!
 
@@ -432,7 +454,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 *  - `{0: '12345'}` for router regexps like `/user=(\d+)/`,
 	 *  - `{id: '12345'}` for router regexps like `/user=(?<id>\d+)/`.
 	 */
-	routePopup(popupRoutePath: string | RegExp, renderFn: RouteHandler): RenderResult {
+	routePopup(popupRoutePath: string, renderFn: RouteHandler): RenderResult {
 		let matcher = getPathMatcher(popupRoutePath)
 		let params = matcher.match(this.popupPath)!
 

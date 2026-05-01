@@ -26,7 +26,7 @@ export class goto implements Binding {
 	}
 
 	protected onClick() {
-		Router.currentRouter?.goto(this.path)
+		Router.current?.goto(this.path)
 	}
 	
 }
@@ -42,7 +42,7 @@ export class goto implements Binding {
 export class redirectTo extends goto{
 
 	protected override onClick() {
-		Router.currentRouter?.redirectTo(this.path)
+		Router.current?.redirectTo(this.path)
 	}
 }
 

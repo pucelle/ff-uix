@@ -5,7 +5,7 @@ const PathMatcherCache: Map<string, PathMatcher> = /*#__PURE__*/new Map()
 
 
 /** Build a cacheable path matcher by a route path or regexp. */
-export function getPathMatcher(routePath: string | RegExp): PathMatcher {
+export function getPathMatcher(routePath: string): PathMatcher {
 	if (typeof routePath !== 'string') {
 		return new PathMatcher(routePath)
 	}

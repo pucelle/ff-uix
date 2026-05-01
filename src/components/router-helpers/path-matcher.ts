@@ -6,12 +6,12 @@ export class PathMatcher {
 	private re!: RegExp
 	private keys: (string | number)[] | null = null
 
-	constructor(routePath: string | RegExp) {
+	constructor(routePath: string) {
 		this.identifier = String(routePath)
 		this.init(routePath)
 	}
 
-	private init(routePath: string | RegExp) {
+	private init(routePath: string) {
 		if (typeof routePath !== 'string') {
 			this.re = routePath
 			return
