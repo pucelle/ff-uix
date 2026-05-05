@@ -32,9 +32,9 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 	stickToEdges: boolean | undefined = undefined
 	flipDirection: HVDirection | 'auto' | 'none' | undefined = undefined
 	fixedTriangle: boolean | undefined = undefined
+	anchorSelector?: string | string[] | undefined
 
 	key: string | undefined = undefined
-	alignTo: string | ((trigger: Element) => Element) | undefined = undefined
 	trigger: TriggerType | undefined = undefined
 	showDelay: number | undefined = undefined
 	hideDelay: number | undefined = undefined
@@ -109,9 +109,9 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 			stickToEdges: this.stickToEdges,
 			flipDirection: this.flipDirection,
 			fixedTriangle: this.fixedTriangle,
+			anchorSelector: this.anchorSelector,
 
 			key: this.key,
-			alignTo: this.alignTo,
 			trigger: this.trigger,
 			showDelay: this.showDelay,
 			hideDelay: this.hideDelay,

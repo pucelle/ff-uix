@@ -147,7 +147,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	redirects: RouteRedirects | null = null
 
 	/** Current history state. */
-	protected state!: RouterHistoryState
+	state!: RouterHistoryState
 
 	/** To indicate latest state index. */
 	protected latestStateIndex: number = 0

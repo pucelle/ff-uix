@@ -37,15 +37,6 @@ export interface PopupOptions extends AnchorAlignerOptions {
 	trigger: TriggerType
 
 	/** 
-	 * Specifies which element to align to.
-	 * It can be a selector for trigger element to select a descendant element,
-	 * or a function to receive trigger element and return a descendant element.
-	 * 
-	 * If omit, use current element to align to.
-	 */
-	alignTo?: string | ((trigger: Element) => Element)
-
-	/** 
 	 * Delay showing in milliseconds, such that mouse hover unexpected will not cause layer popup.
 	 * Only for `hover` and `focus` trigger types.
 	 * Default value is `100`.
@@ -555,10 +546,8 @@ export class popup implements Binding, Part {
 
 		this.options.onWillAlign?.(this.popup!)
 
-		let anchor = this.getAlignAnchorElement()
-	
 		// Update aligner if required.
-		if (!this.aligner || this.aligner.anchor !== anchor || this.aligner.target !== this.popup!.el) {
+		if (!this.aligner || this.aligner.target !== this.popup!.el) {
 			if (this.aligner) {
 				this.aligner.stop()
 			}
@@ -573,20 +562,7 @@ export class popup implements Binding, Part {
 			}
 		}
 		else {
-			this.aligner.alignTo(anchor)
-		}
-	}
-
-	/** Get element popup will align to. */
-	protected getAlignAnchorElement(): Element {
-		if (!this.options.alignTo) {
-			return this.el
-		}
-		else if (typeof this.options.alignTo === 'function') {
-			return this.options.alignTo(this.el) ?? this.el
-		}
-		else {
-			return this.el.querySelector(this.options.alignTo) ?? this.el
+			this.aligner.alignTo(this.el)
 		}
 	}
 
