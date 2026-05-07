@@ -8,7 +8,13 @@ export interface StoreOptions<T> {
 	filter: ((item: T) => boolean) | null
 
 	/** Order rule, can include several column keys and direction. */
-	orderRule: ListUtils.OrderRule<T> | null
+	orderRule: ListUtils.OrderKey<T> | ListUtils.OrderFunction<T> | ListUtils.OrderRule<T> | ListUtils.Order<T> | null
+
+	/** 
+	 * Ordering direction, -1 / desc to sort items from larger to smaller,
+	 * while 1 / asc to sort items from smaller to larger.
+	 */
+	orderDirection: ListUtils.OrderDirection | null
 
 	/** Full data before filtering or ordering. */
 	data: T[]
@@ -19,7 +25,8 @@ export interface StoreOptions<T> {
 export class Store<T = any> implements StoreOptions<T>, Observed {
 	
 	filter: ((item: T) => boolean) | null = null
-	orderRule: ListUtils.OrderRule<T> | null = null
+	orderRule: ListUtils.OrderKey<T> | ListUtils.OrderFunction<T> | ListUtils.OrderRule<T> | ListUtils.Order<T> | null = null
+	orderDirection: ListUtils.OrderDirection | null = null
 	sorter: ((a: T, b: T) => number) | null = null
 	data: T[] = []
 
@@ -29,30 +36,26 @@ export class Store<T = any> implements StoreOptions<T>, Observed {
 
 	/** Set new order rule. */
 	setOrder(
-		by: ListUtils.OrderKey<T> | ListUtils.OrderFunction<T> | null,
+		rule: ListUtils.OrderKey<T> | ListUtils.OrderFunction<T> | ListUtils.OrderRule<T> | ListUtils.Order<T> | null,
 		direction: ListUtils.OrderDirection | null = null,
 		numeric: boolean = false,
 		ignoreCase: boolean = false
 	) {
-		if (!by || direction === null) {
+		if (typeof rule === 'object') {
+			this.orderRule = rule
+		}
+		else if (!rule) {
 			this.orderRule = null
 		}
 		else {
 			this.orderRule = {
-				by,
-				direction: direction!,
+				by: rule,
 				numeric,
 				ignoreCase,
 			}
 		}
-	}
 
-	/** 
-	 * Set common sorter to compare two items.
-	 * Use it when `setOrder` can't satisfy your requirement.
-	 */
-	setSorter(sorter: ((a: T, b: T) => number) | null) {
-		this.sorter = sorter
+		this.orderDirection = direction
 	}
 
 	/** To do data items ordering. */
@@ -66,6 +69,14 @@ export class Store<T = any> implements StoreOptions<T>, Observed {
 		}
 	}
 
+	/** 
+	 * Set common sorter to compare two items.
+	 * Use it when `setOrder` can't satisfy your requirement.
+	 */
+	setSorter(sorter: ((a: T, b: T) => number) | null) {
+		this.sorter = sorter
+	}
+
 	/** Get current data, after filtered and ordered. */
 	@computed
 	get currentData(): T[] {
@@ -77,10 +88,10 @@ export class Store<T = any> implements StoreOptions<T>, Observed {
 		
 		if (this.order) {
 			if (this.filter) {
-				this.order.sort(data)
+				this.order.sort(data, this.orderDirection ?? undefined)
 			}
 			else {
-				data = this.order.toSorted(data)
+				data = this.order.toSorted(data, this.orderDirection ?? undefined)
 			}
 		}
 		else if (this.sorter) {

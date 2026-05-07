@@ -1,7 +1,7 @@
 import {Component, css, html, RenderResult, TemplateResult, PerFrameTransitionEasingName, TransitionResult} from 'lupos.html'
 import {Store} from '../data'
 import {DOMEvents, effect, Observed} from 'lupos'
-import {ResizeWatcher, Selections, sleep} from 'ff-kit'
+import {ResizeWatcher, Selections, sleep, ListUtils} from 'ff-kit'
 import {ColumnWidthResizer} from './table-helpers/column-width-resizer'
 import {RemoteStore} from '../data/remote-store'
 import {LiveRepeat} from './live-repeat'
@@ -57,18 +57,25 @@ export interface TableColumn<T = any> extends Observed {
 	 * It must be specified as a string key when work with `RemoteStore`.
 	 * Implies column is not orderable if this option is omitted.
 	 */
-	orderBy?: ((item: T) => string | number | null | undefined) | string
+	orderBy?: ListUtils.OrderKey<T> | ListUtils.OrderFunction<T> | ListUtils.OrderRule<T> | ListUtils.Order<T>
 
 	/**
      * Whether enables numeric sorting.
      * Can only apply on string type data value.
-     * Default value is false.
+     * Default value is `false`.
+	 * 
+	 * If `orderBy` specified as an rule or order which can contain `numeric`,
+	 * this option get ignored.
      */
 	orderNumeric?: boolean
 
 	/**
 	  * Whether disables case sensitivity.
 	  * Can only apply on string type data value.
+	  * Default value is `false`.
+	  * 
+	  * If `orderBy` specified as an rule or order which can contain `numeric`,
+	 * this option get ignored.
 	  */
 	orderIgnoreCase?: boolean
 
