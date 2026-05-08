@@ -217,6 +217,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	protected override onConnected() {
+		Router.current = this
 		super.onConnected()
 
 		let href: string
@@ -235,8 +236,6 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		if (this.routes) {
 			DOMEvents.on(document.body, 'click', this.handleLinkClick, this)
 		}
-
-		Router.current = this
 	}
 
 	protected override onWillDisconnect() {
@@ -325,6 +324,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		}
 
 		let state: RouterHistoryState
+		let newIndex = (this.state?.index ?? 0) + (isRedirection ? 0 : 1)
 
 		if (parsed.path === '') {
 			if (parsed.hash === this.popupPath) {
@@ -332,7 +332,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			}
 
 			state = {
-				index: this.state.index + (isRedirection ? 0 : 1),
+				index: newIndex,
 				prefix: this.prefix,
 				path: this.path,
 				hash: parsed.hash,
@@ -352,7 +352,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			}
 			
 			state = {
-				index: this.state.index + (isRedirection ? 0 : 1),
+				index: newIndex,
 				...parsed,
 			}
 		}
