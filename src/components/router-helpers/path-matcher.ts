@@ -24,7 +24,7 @@ export class PathMatcher {
 			.replace(/\./g, '\\.')
 			.replace(/\*/g, () => {
 				keys.push(keys.length)
-				return '\b(.*?)\b'
+				return '\\b(.*?)\\b'
 			})
 			.replace(/(\/):(\w+)/g, (_m0, slash, property) => {
 				if (property) {
