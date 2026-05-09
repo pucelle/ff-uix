@@ -2,7 +2,7 @@ import {css, Component, html, RenderResult, RenderResultRenderer, fold, PerFrame
 import {DOMEvents, EventKeys, Observed, UpdateQueue, effect} from 'lupos'
 import {ListDataNavigator} from './list-helpers/list-data-navigator'
 import {Icon} from './icon'
-import {tooltip} from '../bindings/tooltip'
+import {tooltip, TooltipOptions} from '../bindings/tooltip'
 import {contextmenu} from '../bindings/contextmenu'
 import {PopupOptions} from '../bindings/popup'
 import {IconChecked, IconTriangleRight} from '../icons'
@@ -138,7 +138,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		.list-toggle-placeholder{
 			display: flex;
 			width: 2em;
-			margin-right: -0.2em;
+			margin-right: -0.5em;
 			opacity: 0.7;
 			justify-content: center;
 			align-items: center;
@@ -196,8 +196,11 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	 */
 	dirSelectable: boolean = true
 
-	/** Each indent padding, in the rate of CSS 'em' unit. */
-	indentSizeInEM: number = 1
+	/** 
+	 * Each indent padding, in the rate of CSS 'em' unit.
+	 * Equals the placeholder em size.
+	 */
+	indentSizeInEM: number = 1.5
 
 	/** Input data list. */
 	data: ListItem<T>[] = []
@@ -219,6 +222,9 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	 * you can use keyboard arrow keys to navigate across current list.
 	 */
 	keyComeFrom: HTMLInputElement | HTMLTextAreaElement | null | (() => HTMLInputElement | HTMLTextAreaElement | null) = null
+
+	/** Tooltip options for list item tooltip. */
+	tooltipOptions: Partial<TooltipOptions> = {}
 
 	/** 
 	 * Selected and all parental indices by keyboard navigation.
@@ -290,7 +296,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 					class="list-item"
 					:class.selected=${this.hasSelected(item.value!)}
 					:class.arrow-selected=${item === this.keyNavigator.current}
-					?:tooltip=${itemTooltip, itemTooltip!}
+					?:tooltip=${itemTooltip, itemTooltip!, this.tooltipOptions}
 					?:contextmenu=${itemContextmenu, itemContextmenu!, {matchSelector: '.list-item', activeClassName: 'list-menu-active'} as PopupOptions}
 					@click.prevent=${() => this.onClickItem(item)}
 				>

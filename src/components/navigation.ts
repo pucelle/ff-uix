@@ -14,6 +14,10 @@ export class Navigation<T> extends List<T> {
 			border-bottom: none;
 			overflow-y: auto;
 			overflow-anchor: none;
+
+			.list-item.selected{
+				color: var(--primary-color);
+			}
 		}
 
 		.navigation-title{

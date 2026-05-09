@@ -28,10 +28,10 @@ export class HrefParser {
 	}
 
 	/** 
-	 * Parse a href.
-	 * If path is '', will persist it.
+	 * Parse a href with prefixed.
+	 * If href is '', will persist it.
 	 */
-	parse(href: string): HrefParsed | null {
+	parsePrefixed(href: string): HrefParsed | null {
 		let [path, hash] = href.split('#')
 		if (!path) {
 			return {
@@ -52,10 +52,30 @@ export class HrefParser {
 		}
 	}
 
-	/** Build a href. */
-	build(parsed: HrefParsed): string {
+	/** 
+	 * Parse a href without prefixed.
+	 * If href is '', will persist it.
+	 */
+	parseUnprefixed(href: string): HrefParsed | null {
+		let [path, hash] = href.split('#')
+
+		return {
+			prefix: '',
+			path,
+			hash: hash ?? '',
+		}
+	}
+
+	/** Build full href with prefix. */
+	buildPrefixed(parsed: HrefParsed): string {
 		return parsed.prefix
 			+ (parsed.path === '/' && parsed.prefix ? '' : parsed.path)
+			+ (parsed.hash ? '#' + parsed.hash : '')
+	}
+
+	/** Build a path ignores prefix. */
+	buildUnprefixed(parsed: HrefParsed): string {
+		return parsed.path
 			+ (parsed.hash ? '#' + parsed.hash : '')
 	}
 }

@@ -1,5 +1,5 @@
 import {Component, html, RenderResult} from 'lupos.html'
-import {computed, DOMEvents} from 'lupos'
+import {computed, DOMEvents, UnObserved} from 'lupos'
 import {getPathMatcher} from './router-helpers/path-match'
 import {Popup} from './popup'
 import {PathMatcher} from './router-helpers/path-matcher'
@@ -222,13 +222,19 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 		let href: string
 		if (this.path) {
-			href = this.hrefParser.build({path: this.path, prefix: this.prefix, hash: this.popupPath})
+			href = this.hrefParser.buildPrefixed({path: this.path, prefix: this.prefix, hash: this.popupPath})
 		}
 		else {
 			href = location.pathname + location.hash
 		}
 
-		this.redirectTo(href)
+		let parsed = this.hrefParser.parsePrefixed(href)
+		if (!parsed) {
+			throw new Error(`Unable to parse href '${href}'`)
+		}
+
+		this.prefix = parsed.prefix
+		this.redirectTo(this.hrefParser.buildUnprefixed(parsed))
 
 		DOMEvents.on(window, 'popstate', this.onWindowPopState, this)
 		DOMEvents.on(window, 'hashchange', this.onWindowHashChange, this)
@@ -268,7 +274,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			return
 		}
 		
-		let parsed = this.hrefParser.parse(href)
+		let parsed = this.hrefParser.parsePrefixed(href)
 		if (!parsed) {
 			return
 		}
@@ -278,7 +284,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 		if (routeMatch) {
 			e.preventDefault()
-			this.goto(href)
+			this.goto(this.hrefParser.buildUnprefixed(parsed))
 		}
 	}
 
@@ -313,12 +319,12 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	/** `isRedirection` determines redirect or go to a href. */
-	navigateTo(href: string, isRedirection: boolean): boolean {
+	navigateTo(this: UnObserved<Router>, href: string, isRedirection: boolean): boolean {
 		if (!href) {
 			return false
 		}
 
-		let parsed = this.hrefParser.parse(href)
+		let parsed = this.hrefParser.parseUnprefixed(href)
 		if (!parsed) {
 			return false
 		}
@@ -332,15 +338,14 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			}
 
 			state = {
-				index: newIndex,
-				prefix: this.prefix,
 				path: this.path,
 				hash: parsed.hash,
+				prefix: this.prefix,
+				index: newIndex,
 			}
 		}
 		else {
 			if (parsed.path === this.path
-				&& parsed.prefix === this.popupPath
 				&& parsed.hash === this.popupPath
 			) {
 				return false
@@ -352,8 +357,9 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			}
 			
 			state = {
-				index: newIndex,
 				...parsed,
+				prefix: this.prefix,
+				index: newIndex,
 			}
 		}
 
@@ -396,7 +402,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	protected buildHistoryURI(state: RouterHistoryState) {
-		let uri = this.hrefParser.build(state)
+		let uri = this.hrefParser.buildPrefixed(state)
 
 		if (this.hashMode) {
 			uri = '#' + uri
