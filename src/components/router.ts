@@ -265,7 +265,8 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			return
 		}
 
-		if (anchor.target && anchor.target !== '_self') {
+		let target = anchor.getAttribute('target')
+		if (target && target !== '_self') {
 			return
 		}
 
