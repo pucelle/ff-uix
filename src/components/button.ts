@@ -52,16 +52,6 @@ export class Button<E = {}> extends Component<E> {
 				background: var(--primary-color);
 				border-color: var(--primary-color);
 				color: #fff;
-
-				&:hover, &:focus{
-					background: color-mix(in srgb, var(--primary-color) 80%, var(--text-color));
-					border-color: color-mix(in srgb, var(--primary-color) 80%, var(--text-color));
-				}
-			
-				&:active{
-					background: color-mix(in srgb, var(--primary-color) 60%, var(--text-color));
-					border-color: color-mix(in srgb, var(--primary-color) 60%, var(--text-color));
-				}
 			}
 
 			&.flat{
