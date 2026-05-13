@@ -1,5 +1,5 @@
 import {Binding, render, RenderResultRenderer, RenderedComponentLike, Part, inSSR} from 'lupos.html'
-import {AnchorAligner, AnchorPosition, AnchorAlignerOptions, PopupStacker, ObjectUtils} from 'ff-kit'
+import {AnchorAligner, AnchorPosition, AnchorAlignerOptions, PopupStacker, ObjectUtils, DOMUtils} from 'ff-kit'
 import {Popup} from '../components/popup'
 import * as SharedPopups from './popup-helpers/shared-popups'
 import {PopupState} from './popup-helpers/popup-state'
@@ -99,11 +99,18 @@ export interface PopupOptions extends AnchorAlignerOptions {
 	 */
 	keepVisible: boolean
 
-	/** If specified, only when element match this selector then trigger contextmenu action. */
+	/** If specified, only when event target element match this selector then trigger popup action. */
 	matchSelector?: string
 
 	/** When popup is active, will apply this class name to trigger element. */
 	activeClassName?: string
+
+	/** 
+	 * The selector to Select element to put `activeClassName`.
+	 * By default will select descendant element,
+	 * you may specify `{parental: ...}` to select ancestral element.
+	 */
+	activeSelector?: string | string[] | {parental: string | string[]}
 
 	/** Fire after `opened` state of popup binding changed. */
 	onOpenedChange?: (opened: boolean) => void
@@ -320,7 +327,7 @@ export class popup implements Binding, Part {
 		}
 
 		if (this.options.activeClassName) {
-			this.el.classList.add(this.options.activeClassName)
+			this.getActiveTarget().classList.add(this.options.activeClassName)
 		}
 
 		this.options.onOpenedChange?.(true)
@@ -336,6 +343,20 @@ export class popup implements Binding, Part {
 			this.binder.bindLeave(this.options.hideDelay, this.popup!.el)
 
 			this.alignPopup()
+		}
+	}
+
+	/** Get the element to set active class name. */
+	protected getActiveTarget() {
+		if (!this.options.activeSelector) {
+			return this.el
+		}
+
+		if (typeof this.options.activeSelector === 'object' && (this.options.activeSelector as {parental: any}).parental) {
+			return DOMUtils.quickClosest(this.el, (this.options.activeSelector as {parental: string | string[]}).parental)
+		}
+		else {
+			return DOMUtils.quickSelect(this.el, this.options.activeSelector as string | string[])
 		}
 	}
 	
