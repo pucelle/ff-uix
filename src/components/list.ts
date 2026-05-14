@@ -8,6 +8,7 @@ import {PopupOptions} from '../bindings/popup'
 import {IconChecked, IconTriangleRight} from '../icons'
 import {DOMScroll} from '../tools'
 import {PartialRepeat} from './partial-repeat'
+import {CSSUtils} from 'ff-kit'
 
 
 /** List item and index. */
@@ -115,7 +116,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 			cursor: pointer;
 
 			&:hover{
-				background: color-mix(in srgb, var(--text-color) 4%, var(--background));
+				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
 			}
 
 			&.selected{
@@ -123,11 +124,11 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 			}
 
 			&.list-menu-active{
-				background: color-mix(in srgb, var(--text-color) 4%, var(--background));
+				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
 			}
 
 			&.arrow-selected{
-				background: color-mix(in srgb, var(--text-color) 4%, var(--background));
+				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
 			}
 		}
 
@@ -196,11 +197,11 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	 */
 	dirSelectable: boolean = true
 
-	/** 
-	 * Each indent padding, in the rate of CSS 'em' unit.
-	 * Equals the placeholder em size.
-	 */
-	indentSizeInEM: number = 1.5
+	/** Each indent padding, can be pixel number, or string em value.*/
+	indentSize: number | string = '1.5em'
+
+	/** Start indent size, can be pixel number, or string em value. */
+	startIndentSize: number | string = 0
 
 	/** Input data list. */
 	data: ListItem<T>[] = []
@@ -313,13 +314,11 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	}
 
 	protected renderIndents(depth: number) {
-		if (depth === 0) {
-			return null
-		}
+		let indentWidth = CSSUtils.add(CSSUtils.multiply(this.indentSize, depth)!, this.startIndentSize)
 
 		return html`
 			<div class="list-indents"
-				:style.width=${this.indentSizeInEM * depth + 'em'}
+				:style.width=${indentWidth}
 			></div>
 		`
 	}
