@@ -67,8 +67,8 @@ export class droppable<T = any> implements Binding, Part {
 
 	options: DroppableOptions<T> = DefaultDroppableOptions
 
-	private dropCallback!: (data: T, toIndex: number, fromIndex: number) => void
-	private connected: boolean = false
+	protected dropCallback!: (data: T, toIndex: number, fromIndex: number) => void
+	protected connected: boolean = false
 
 	constructor(el: Element, context: any) {
 		this.el = el as HTMLElement
@@ -112,12 +112,12 @@ export class droppable<T = any> implements Binding, Part {
 		this.options = {...DefaultDroppableOptions, ...options}
 	}
 
-	private onMouseEnter() {
+	protected onMouseEnter() {
 		GlobalDragDropRelationship.enterDrop(this)
 		DOMEvents.once(this.el, 'mouseleave', this.onMouseLeave, this)
 	}
 
-	private onDragEnter(e: DragEvent) {
+	protected onDragEnter(e: DragEvent) {
 		e.stopPropagation()
 
 		if (!this.canDropByDragEvent(e)) {
@@ -139,7 +139,7 @@ export class droppable<T = any> implements Binding, Part {
 		DOMEvents.on(this.el, 'dragleave', this.onDragLeave, this)
 	}
 
-	private canDropByDragEvent(e: DragEvent): boolean {
+	protected canDropByDragEvent(e: DragEvent): boolean {
 		if (!this.isFileItemExisting(e)) {
 			return false
 		}
@@ -151,7 +151,7 @@ export class droppable<T = any> implements Binding, Part {
 		return true
 	}
 
-	private isFileItemExisting(e: DragEvent): boolean {
+	protected isFileItemExisting(e: DragEvent): boolean {
 		if (!e.dataTransfer?.items) {
 			return false
 		}
@@ -165,21 +165,21 @@ export class droppable<T = any> implements Binding, Part {
 		return false
 	}
 
-	private mayAddEnterClassName() {
+	protected mayAddEnterClassName() {
 		if (this.options.enterClassName) {
 			let el = this.getElementToApplyEnterStyle()
 			el?.classList.add(this.options.enterClassName)
 		}
 	}
 
-	private mayRemoveEnterClassName() {
+	protected mayRemoveEnterClassName() {
 		if (this.options.enterClassName) {
 			let el = this.getElementToApplyEnterStyle()
 			el?.classList.remove(this.options.enterClassName)
 		}
 	}
 
-	private getElementToApplyEnterStyle(): HTMLElement | null {
+	protected getElementToApplyEnterStyle(): HTMLElement | null {
 		let el: HTMLElement | null = this.el
 
 		if (this.options.enterClassNameApplyTo) {
@@ -189,7 +189,7 @@ export class droppable<T = any> implements Binding, Part {
 		return el
 	}
 
-	private onDragOver(e: DragEvent) {
+	protected onDragOver(e: DragEvent) {
 		e.stopPropagation()
 
 		if (!this.canDropByDragEvent(e)) {
@@ -204,7 +204,7 @@ export class droppable<T = any> implements Binding, Part {
 		}
 	}
 
-	private onDragLeave(e: DragEvent) {
+	protected onDragLeave(e: DragEvent) {
 		e.stopPropagation()
 
 		// `relatedTarget` is the element that leaves.
@@ -221,7 +221,7 @@ export class droppable<T = any> implements Binding, Part {
 		}
 	}
 
-	private onDrop(e: DragEvent) {
+	protected onDrop(e: DragEvent) {
 
 		// Prevent file from being opened.
 		e.preventDefault()
@@ -240,7 +240,7 @@ export class droppable<T = any> implements Binding, Part {
 		}
 	}
 
-	private onMouseLeave() {
+	protected onMouseLeave() {
 		GlobalDragDropRelationship.leaveDrop(this)
 	}
 

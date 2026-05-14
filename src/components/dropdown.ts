@@ -2,7 +2,7 @@ import {css, html, Component, RenderResultRenderer, RenderResult} from 'lupos.ht
 import {popup, PopupOptions, TriggerType} from '../bindings/popup'
 import {Icon} from './icon'
 import {Popup} from './popup'
-import {AnchorPosition, HVDirection, ObjectUtils} from 'ff-kit'
+import {AnchorPosition, HVDirection, ObjectUtils, ReAnchorTarget} from 'ff-kit'
 import {computed} from 'lupos'
 import {IconDown} from '../icons'
 
@@ -32,7 +32,8 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 	stickToEdges: boolean | undefined = undefined
 	flipDirection: HVDirection | 'auto' | 'none' | undefined = undefined
 	fixedTriangle: boolean | undefined = undefined
-	anchorSelector?: string | string[] | undefined
+	reAnchor?: ReAnchorTarget | undefined
+	reTarget?: ReAnchorTarget | undefined
 
 	key: string | undefined = undefined
 	trigger: TriggerType | undefined = undefined
@@ -109,7 +110,8 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 			stickToEdges: this.stickToEdges,
 			flipDirection: this.flipDirection,
 			fixedTriangle: this.fixedTriangle,
-			anchorSelector: this.anchorSelector,
+			reAnchor: this.reAnchor,
+			reTarget: this.reTarget,
 
 			key: this.key,
 			trigger: this.trigger,

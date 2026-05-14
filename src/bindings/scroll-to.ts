@@ -17,8 +17,8 @@ export interface ScrollToOptions {
  */
 export class scrollToView implements Binding, Part {
 
-	private readonly el: HTMLMediaElement
-	private options: ScrollToOptions | null = null
+	protected readonly el: HTMLMediaElement
+	protected options: ScrollToOptions | null = null
 
 	constructor(el: Element) {
 		this.el = el as HTMLMediaElement
@@ -48,8 +48,8 @@ export class scrollToView implements Binding, Part {
  */
 export class scrollToStart implements Binding, Part {
 
-	private readonly el: HTMLMediaElement
-	private options: ScrollToOptions | null = null
+	protected readonly el: HTMLMediaElement
+	protected options: ScrollToOptions | null = null
 
 	constructor(el: Element) {
 		this.el = el as HTMLMediaElement

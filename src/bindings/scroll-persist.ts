@@ -11,9 +11,9 @@ import {Binding, Part} from 'lupos.html'
  */
 export class scrollPersist implements Binding, Part {
 
-	private readonly el: HTMLMediaElement
-	private position: number | null = null
-	private direction: 'horizontal' | 'vertical' | 'none' | null = null
+	protected readonly el: HTMLMediaElement
+	protected position: number | null = null
+	protected direction: 'horizontal' | 'vertical' | 'none' | null = null
 
 	constructor(el: Element) {
 		this.el = el as HTMLMediaElement
@@ -33,7 +33,7 @@ export class scrollPersist implements Binding, Part {
 		}
 	}
 
-	private readScrollDirection() {
+	protected readScrollDirection() {
 		this.direction = ScrollUtils.getCSSOverflowDirection(this.el) ?? 'none'
 	}
 

@@ -77,10 +77,10 @@ export abstract class DraggableBase<T = any> implements Part {
 	/** Draggable index between siblings. */
 	index: number = -1
 
-	private connected: boolean = false
-	private inHanding: boolean = false
-	private inDragging: boolean = false
-	private startPosition: DOMPoint | null = null
+	protected connected: boolean = false
+	protected inHanding: boolean = false
+	protected inDragging: boolean = false
+	protected startPosition: DOMPoint | null = null
 
 	constructor(el: Element, context: any) {
 		this.el = el as HTMLElement
@@ -115,7 +115,7 @@ export abstract class DraggableBase<T = any> implements Part {
 		this.connected = false
 	}
 
-	private onMouseDown(e: MouseEvent) {
+	protected onMouseDown(e: MouseEvent) {
 
 		// If have `matchSelector` and not match, ignore.
 		if (this.options.matchSelector) {
@@ -135,7 +135,7 @@ export abstract class DraggableBase<T = any> implements Part {
 		DOMEvents.on(document, 'mouseup', this.onMouseUp, this)
 	}
 
-	private onMouseMove(e: MouseEvent) {
+	protected onMouseMove(e: MouseEvent) {
 		let currentPosition = EventUtils.getClientPosition(e)
 
 		let moves: Coord = {
@@ -167,11 +167,11 @@ export abstract class DraggableBase<T = any> implements Part {
 		}
 	}
 
-	private onMouseUp() {
+	protected onMouseUp() {
 		this.endDragging()
 	}
 
-	private endDragging() {
+	protected endDragging() {
 		if (this.inHanding) {
 			DOMEvents.off(document, 'mousemove', this.onMouseMove, this)
 			DOMEvents.off(document, 'mouseup', this.onMouseUp, this)
@@ -190,7 +190,7 @@ export abstract class DraggableBase<T = any> implements Part {
 		}
 	}
 
-	private onMouseEnter() {
+	protected onMouseEnter() {
 		GlobalDragDropRelationship.enterDrag(this)
 	}
 }

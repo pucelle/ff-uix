@@ -49,7 +49,7 @@ export class Progress<E = {}> extends Component<E> {
 	protected override render() {
 		let tooltipOptions: Partial<TooltipOptions> = {
 			position: 'bc-tr',
-			anchorSelector: '.progress-progress',
+			reAnchor: '.progress-progress',
 			gaps: 8,
 		}
 
