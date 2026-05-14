@@ -118,7 +118,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 * If can render popup content, it's the popup path to match popup routes.
 	 * Note `#` get excluded, and not limit to must start with `/`.
 	 */
-	popupPath: string = ''
+	hash: string = ''
 
 	/** 
 	 * If in hash mode, will apply hash instead of applying pathname.
@@ -222,7 +222,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 		let href: string
 		if (this.path) {
-			href = this.hrefParser.buildPrefixed({path: this.path, prefix: this.prefix, hash: this.popupPath})
+			href = this.hrefParser.buildPrefixed({path: this.path, prefix: this.prefix, hash: this.hash})
 		}
 		else {
 			href = location.pathname + location.hash
@@ -321,20 +321,12 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 	/** `isRedirection` determines redirect or go to a href. */
 	navigateTo(this: UnObserved<Router>, href: string, isRedirection: boolean): boolean {
-		if (!href) {
-			return false
-		}
-
 		let parsed = this.hrefParser.parseUnprefixed(href)
-		if (!parsed) {
-			return false
-		}
-
 		let state: RouterHistoryState
 		let newIndex = (this.state?.index ?? 0) + (isRedirection ? 0 : 1)
 
 		if (parsed.path === '') {
-			if (parsed.hash === this.popupPath) {
+			if (parsed.hash === this.hash) {
 				return false
 			}
 
@@ -347,7 +339,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		}
 		else {
 			if (parsed.path === this.path
-				&& parsed.hash === this.popupPath
+				&& parsed.hash === this.hash
 			) {
 				return false
 			}
@@ -389,7 +381,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		
 		this.prefix = state.prefix
 		this.path = state.path
-		this.popupPath = state.hash
+		this.hash = state.hash
 		this.state = state
 
 		if (isRedirecting) {
@@ -435,7 +427,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	/** Test whether current path match specified popup route path. */
 	testPopup(popupRoutePath: string): boolean {
 		let matcher = getPathMatcher(popupRoutePath)
-		return matcher.test(this.popupPath)
+		return matcher.test(this.hash)
 	}
 
 	/** 
@@ -463,7 +455,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 */
 	routePopup(popupRoutePath: string, renderFn: RouteHandler): RenderResult {
 		let matcher = getPathMatcher(popupRoutePath)
-		let params = matcher.match(this.popupPath)!
+		let params = matcher.match(this.hash)!
 
 		return renderFn(params)
 	}
@@ -504,16 +496,16 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			return null
 		}
 
-		if (!this.popupPath) {
+		if (!this.hash) {
 			return null
 		}
 
-		let route = this.normalizedPopupRoutes.find(r => r.matcher.test(this.popupPath))
+		let route = this.normalizedPopupRoutes.find(r => r.matcher.test(this.hash))
 		if (!route) {
 			return null
 		}
 
-		let params = route.matcher.match(this.popupPath)!
+		let params = route.matcher.match(this.hash)!
 
 		if (this.cache) {
 			return html`

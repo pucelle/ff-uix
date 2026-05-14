@@ -56,7 +56,7 @@ export class HrefParser {
 	 * Parse a href without prefixed.
 	 * If href is '', will persist it.
 	 */
-	parseUnprefixed(href: string): HrefParsed | null {
+	parseUnprefixed(href: string): HrefParsed {
 		let [path, hash] = href.split('#')
 
 		return {
