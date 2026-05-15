@@ -179,6 +179,7 @@ export class PopupTriggerBinder {
 
 	/** Like will show soon, but mouse leave to cancel it. */
 	private cancelShowPopup() {
+		this.bound &= ~BoundMask.LeaveBeforeShow
 		this.callbacks.onCancelShow()
 	}
 

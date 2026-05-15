@@ -17,7 +17,7 @@ export class Popup<E = {}> extends Component<E> {
 
 			left: 0;
 			top: 0;
-			background: var(--popup-background);
+			background: var(--background);
 			border-radius: var(--popup-border-radius);
 			border: var(--popup-border-width) solid var(--popup-border-color);
 

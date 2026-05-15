@@ -44,11 +44,12 @@ export class Modal<E = {}> extends Component<E> {
 			z-index: 1000;	/* Same with popup. */
 			border-radius: var(--popup-border-radius);
 			box-shadow: 0 0 var(--popup-shadow-blur-radius) var(--popup-shadow-color);
-			background: var(--popup-background);
+			background: var(--background);
 			border: var(--popup-border-width) solid var(--popup-border-color);
 			max-width: calc(100vw - 20px);
 			max-height: calc(100vh - 20px);
 			overflow: hidden;
+			--background: var(--popup-background);
 		}
 
 		.modal-mask{

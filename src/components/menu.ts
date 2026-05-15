@@ -24,7 +24,7 @@ export class Menu<E = {}> extends Popup<E> {
 
 			.list-item-container{
 				&:not(:last-child){
-					border-bottom: 1px solid color-mix(in srgb, var(--border-color) 20%, transparent);
+					border-bottom: 1px solid color-mix(in srgb, var(--popup-border-color) 20%, var(--background));
 				}
 			}
 		}

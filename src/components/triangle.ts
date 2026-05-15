@@ -16,7 +16,7 @@ export class Triangle<E = {}> extends Component<E> {
 
 		.triangle-fill{
 			stroke: none;
-			fill: var(--popup-background);
+			fill: var(--background);
 		}
 
 		.triangle-stroke{

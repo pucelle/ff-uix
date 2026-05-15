@@ -25,7 +25,10 @@ export interface ItemPath<T> {
  */
 export interface ListItem<T = any> extends Observed {
 
-	/** Unique value to identify current item. */
+	/** 
+	 * Unique value to identify current item.
+	 * If is `undefined`, will render it as splitter.
+	 */
 	value?: T
 
 	/** 
@@ -116,19 +119,31 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 			cursor: pointer;
 
 			&:hover{
-				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
+				background: light-dark(
+					color-mix(in srgb, var(--text-color) 4%, var(--background)),
+					color-mix(in srgb, var(--text-color) 7%, var(--background))
+				);
 			}
 
 			&.selected{
-				background: color-mix(in srgb, var(--primary-color) 8%, var(--background));
+				background: light-dark(
+					color-mix(in srgb, var(--primary-color) 7%, var(--background)),
+					color-mix(in srgb, var(--primary-color) 12%, var(--background))
+				);
 			}
 
 			&.list-menu-active{
-				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
+				background: light-dark(
+					color-mix(in srgb, var(--text-color) 4%, var(--background)),
+					color-mix(in srgb, var(--text-color) 7%, var(--background))
+				);
 			}
 
 			&.arrow-selected{
-				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
+				background: light-dark(
+					color-mix(in srgb, var(--text-color) 4%, var(--background)),
+					color-mix(in srgb, var(--text-color) 7%, var(--background))
+				);
 			}
 		}
 
@@ -278,7 +293,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	}
 
 	protected renderItemOrSplitter(item: ListItem<T>, depth: number): RenderResult {
-		if (!item.hasOwnProperty('value')) {
+		if (item.value === undefined) {
 			return html`<div class="list-splitter"></div>`
 		}
 		else {

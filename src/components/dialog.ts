@@ -97,10 +97,11 @@ export class Dialog<E = {}> extends Component<E> {
 			position: fixed;
 			border-radius: var(--popup-border-radius);
 			box-shadow: 0 0 var(--popup-shadow-blur-radius) var(--popup-shadow-color);
-			background: var(--popup-background);
+			background: var(--background);
 			max-width: 95%;
 			max-height: 95%;
 			padding: 0.6em 1.2em 1.2em;
+			--background: var(--popup-background);
 		}
 
 		.dialog-mask{

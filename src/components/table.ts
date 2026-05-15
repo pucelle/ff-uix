@@ -225,7 +225,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		.table-row{
 			&:hover{
 				background: light-dark(
-					color-mix(in srgb, var(--primary-color) 2.5%, var(--background)),
+					color-mix(in srgb, var(--primary-color) 3%, var(--background)),
 					color-mix(in srgb, var(--primary-color) 5%, var(--background))
 				);
 			}

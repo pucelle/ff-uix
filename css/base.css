@@ -125,7 +125,7 @@ table{
 	--text-size: 14px;
 	--border-radius: 4px;
 	--focus-shadow-blur-radius: 4px;
-
+	
 	--primary-color: ActiveText;
 	--background: light-dark(white, #333);
 	--text-color: CanvasText;
@@ -155,5 +155,4 @@ table{
 	--success-color: #29bc04;
 	--error-color: #e10000;
 	--warning-color: #f3b907;
-
 }
