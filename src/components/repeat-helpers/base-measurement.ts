@@ -111,11 +111,6 @@ export abstract class MeasurementBase {
 		this.doa = doa
 	}
 
-	/** Directly set but not read scroller size. */
-	setScrollerSize(size: number) {
-		this.scrollerSize = size
-	}
-
 	/** Read new scroller size. */
 	async readScrollerSize() {
 		await barrierDOMReading()

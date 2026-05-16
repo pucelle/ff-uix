@@ -323,12 +323,6 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	rowRectSelectionIgnoreSelector: string | null = null
 
 	/** 
-	 * If provided and not 0, will use it and partial renderer has no need to read scroller size.
-	 * Note this is the size of body, or whole table size excludes head.
-	 */
-	scrollSize: number = 0
-	
-	/** 
 	 * Guess an item size for first-time paint,
 	 * and avoid it checking for item-size and render twice.
 	 * If `guessedItemSize` changed more than 33%, will cause restart item size stat.
@@ -619,7 +613,6 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 					.reservedPixels=${this.reservedPixels}
 					.renderFn=${this.renderRow.bind(this)}
 					.scrollerSelector=".table-body"
-					.scrollSize=${this.scrollSize}
 					.guessedItemSize=${this.guessedItemSize}
 					.dataLoader=${(this.store as RemoteStore).dataLoader}
 					@freshly-updated=${this.onLiveUpdated}
@@ -633,7 +626,6 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 					.reservedPixels=${this.reservedPixels}
 					.renderFn=${this.renderRow.bind(this)}
 					.scrollerSelector=".table-body"
-					.scrollSize=${this.scrollSize}
 					.guessedItemSize=${this.guessedItemSize}
 					.data=${this.store.currentData}
 					@updated=${this.onLiveUpdated}

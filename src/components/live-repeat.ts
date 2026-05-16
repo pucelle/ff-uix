@@ -44,17 +44,6 @@ export class LiveRepeat<T = any, E = {}> extends PartialRepeat<T, E> {
 	 */
 	preEndPositions: number[] | null = null
 
-	/** If provided, will use it and partial renderer has no need to read scroller size. */
-	scrollSize: number | null = null
-
-	/** Apply `scrollSize` property to renderer. */
-	@effect
-	protected applyScrollSize() {
-		if (this.scrollSize) {
-			this.renderer?.setDirectScrollSize(this.scrollSize)
-		}
-	}
-
 	/** Apply `preEndPositions` to renderer. */
 	@effect
 	protected applyPreEndPositions() {

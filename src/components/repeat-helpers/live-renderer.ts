@@ -1,4 +1,3 @@
-import {ResizeWatcher} from 'ff-kit'
 import {DirectionalOverflowAccessor} from './directional-overflow-accessor'
 import {LiveMeasurement} from './live-measurement'
 import {barrierDOMReading, barrierDOMWriting} from 'lupos'
@@ -80,13 +79,6 @@ export class LiveRenderer extends RendererBase {
 	/** Set `preEndPositions` before updating. */
 	setPreEndPositions(positions: number[] | null) {
 		this.measurement.setPreEndPositions(positions)
-	}
-
-	/** If provided and not 0, will use it and not read scroller size. */
-	setDirectScrollSize(size: number) {
-		this.directScrollerSize = size
-		this.measurement.setScrollerSize(size)
-		ResizeWatcher.unwatch(this.scroller, this.readScrollerSize, this)
 	}
 
 	protected override async resetPositions(
