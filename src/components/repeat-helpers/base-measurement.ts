@@ -127,7 +127,7 @@ export abstract class MeasurementBase {
 	 * and avoid it checking for item-size and render twice when initialization.
 	 */
 	setGuessedItemSize(size: number) {
-		let medianSize = this.stat.getMedianSize()
+		let medianSize = this.stat.getAverageSize()
 		if (getChangeRate(size, medianSize) > 0.33) {
 			this.stat.reset()
 		}
@@ -149,7 +149,7 @@ export abstract class MeasurementBase {
 	 * Prefer median size because sometimes there are few like expanded item existing.
 	 */
 	getMedianItemSize(): number {
-		return this.stat.getMedianSize() || this.guessedItemSize
+		return this.stat.getAverageSize() || this.guessedItemSize
 	}
 
 	/** 
@@ -224,9 +224,8 @@ export abstract class MeasurementBase {
 		let sliderInnerSize = this.doa.getInnerSize(this.slider)
 		let sliderClientSize = this.doa.getClientSize(this.slider)
 		let paddingSize = sliderClientSize - sliderInnerSize
-		let oldStartIndex = this.indices.startIndex
-		let oldEndIndex = this.indices.endIndex
-		
+		let rangeChanged = false
+
 		this.indices.startIndex = startIndex
 		this.indices.endIndex = endIndex
 
@@ -236,11 +235,13 @@ export abstract class MeasurementBase {
 			if (startIndex <= this.continuousRenderRange.startIndex) {
 				this.continuousRenderRange.startIndex = startIndex
 				this.continuousRenderRange.startPosition = this.sliderPositions.startPosition
+				rangeChanged = true
 			}
 
 			if (endIndex >= this.continuousRenderRange.endIndex) {
 				this.continuousRenderRange.endIndex = endIndex
 				this.continuousRenderRange.endPosition = this.sliderPositions.endPosition
+				rangeChanged = true
 			}
 		}
 		else {
@@ -250,41 +251,18 @@ export abstract class MeasurementBase {
 				startPosition: this.sliderPositions.startPosition,
 				endPosition: this.sliderPositions.endPosition
 			}
+			rangeChanged = true
 		}
 
-		let renderCount = this.continuousRenderRange.endIndex - this.continuousRenderRange.startIndex
-		let renderSize = this.continuousRenderRange.endPosition - this.continuousRenderRange.startPosition - paddingSize
+		if (rangeChanged) {
+			let renderCount = this.continuousRenderRange.endIndex - this.continuousRenderRange.startIndex
+			let renderSize = this.continuousRenderRange.endPosition - this.continuousRenderRange.startPosition - paddingSize
 
-		// Avoid update when hidden.
-		if (renderCount > 0 && renderSize > 0) {
-			this.stat.updateRange(renderCount, renderSize)
-		}
-
-		let newRenderedStartIndex = startIndex
-		let newRenderedEndIndex = endIndex
-
-		if (startIndex < oldStartIndex) {
-			newRenderedStartIndex = startIndex
-			newRenderedEndIndex = Math.min(oldStartIndex, endIndex)
-		}
-		else if (endIndex > oldEndIndex) {
-			newRenderedStartIndex = Math.max(oldEndIndex, startIndex)
-			newRenderedEndIndex = endIndex
-		}
-
-		let newRendered: HTMLElement[] = []
-		for (let i = newRenderedStartIndex - startIndex; i < newRenderedEndIndex - startIndex; i++) {
-			newRendered.push(this.repeat.children[i] as HTMLElement)
-		}
-
-		if (newRendered.length > 0 && newRendered[0].tagName === 'slot') {
-			for (let i = 0; i < newRendered.length; i++) {
-				newRendered[i] = newRendered[i].firstElementChild as HTMLElement
+			// Avoid update when hidden.
+			if (renderCount > 0 && renderSize > 0) {
+				this.stat.updateRange(renderCount, renderSize)
 			}
 		}
-
-		let newRenderedSizes = newRendered.map(el => this.doa.getClientSize(el))
-		this.stat.updateEach(newRenderedSizes)
 	}
 
 	/** Update current slider positions. */

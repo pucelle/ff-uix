@@ -644,7 +644,9 @@ export abstract class RendererBase {
 		newStartIndex: number,
 		newEndIndex: number | undefined
 	) {
-		// If edge index has not changed, no need to reset position, then its `null`.
+		// The position indicate the position of top or bottom edge of slider
+		// decided by align direction, relative to scroller top.
+		// If edge index has not changed, no need to reset position, then it is `null`.
 		let position: number | null = null
 
 		// Failed to do continuous updating, must re-render totally by current indices.

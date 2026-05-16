@@ -1,18 +1,11 @@
-import {MedianHeap} from 'ff-kit'
-
-
 export class PartialSizeStat {
 
 	/** Latest rendered item size. */
 	private averageSize: number = 0
 
-	/** Cache item sizes, sort from lower to upper. */
-	private heap: MedianHeap<number> = new MedianHeap((a, b) => a - b)
-
 	/** Clear all stat data. */
 	reset() {
 		this.averageSize = 0
-		this.heap.clear()
 	}
 
 	/** After every time rendered, update indices and sizes. */
@@ -31,32 +24,9 @@ export class PartialSizeStat {
 		this.averageSize = size
 	}
 
-	/** Update for each newly rendered item sizes. */
-	updateEach(itemSizes: number[]) {
-		let heapSize = this.heap.size
-
-		for (let size of itemSizes) {
-			this.heap.add(size)
-			heapSize++
-			
-			if (heapSize > 100) {
-
-				// Remove larger index, then smaller.
-				this.heap.popTails()
-	
-				heapSize -= 2
-			}
-		}
-	}
-
 	/** Get latest item size. */
 	getAverageSize(): number {
 		return this.averageSize
-	}
-
-	/** Get median item size. */
-	getMedianSize(): number {
-		return this.heap.median ?? 0
 	}
 }
 
