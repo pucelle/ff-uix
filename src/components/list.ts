@@ -293,7 +293,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	}
 
 	protected renderItemOrSplitter(item: ListItem<T>, depth: number): RenderResult {
-		if (item.value === undefined) {
+		if (item.value === undefined && !item.text && !item.content) {
 			return html`<div class="list-splitter"></div>`
 		}
 		else {
