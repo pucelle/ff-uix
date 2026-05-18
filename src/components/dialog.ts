@@ -275,16 +275,18 @@ export class Dialog<E = {}> extends Component<E> {
 			return null
 		}
 
-		return html`<div class="dialog-actions">${actions.map(action => html`
-			<Button class="dialog-action"
-				.primary=${!!action.primary}
-				:class.dialog-third=${action.third}
-				:tooltip=${action.tooltip ?? null, {position: 'b'}}
-				@click=${() => this.onClickActionButton(action)}
-			>
-				${action.text}
-			</Button>
-		`)}</div>`
+		return html`
+			<div class="dialog-actions">${actions.map(action => html`
+				<Button class="dialog-action"
+					.primary=${!!action.primary}
+					:class.dialog-third=${action.third}
+					:tooltip=${action.tooltip ?? null, {position: 'b'}}
+					@click=${() => this.onClickActionButton(action)}
+				>
+					${action.text}
+				</Button>
+			`)}</div>
+		`
 	}
 
 	protected async onClickActionButton(action: DialogAction) {

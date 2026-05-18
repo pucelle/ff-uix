@@ -24,7 +24,7 @@ export interface ModelAction {
 	/** 
 	 * Calls after clicked the action button.
 	 * You may return `true` to interrupt model from closing,
-	 * and return `null` or void to continue closing.
+	 * and return `null` or `void` to continue closing.
 	 */
 	handler?: () => Promise<boolean | null | void> | boolean | null | void
 }
@@ -64,6 +64,8 @@ export class Modal<E = {}> extends Component<E> {
 
 		.modal-header{
 			display: flex;
+			flex-direction: row;
+			align-items: center;
 			flex: none;
 			font-size: calc(1em - 1px);
 			height: 2.8em;
@@ -97,6 +99,9 @@ export class Modal<E = {}> extends Component<E> {
 
 		.modal-actions{
 			margin-left: 1.2em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
 		}
 
 		.modal-action{
@@ -187,7 +192,7 @@ export class Modal<E = {}> extends Component<E> {
 
 		// Prevent from closing.
 		if (action.handler) {
-			let returned = action.handler()
+			let returned = action.handler.call(this)
 
 			if (returned instanceof Promise) {
 				returned = await returned
