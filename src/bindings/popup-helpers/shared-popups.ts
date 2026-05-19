@@ -30,28 +30,10 @@ export function getCache(key: string): RenderedComponentLike | null {
 	let binding = CacheUsedBy.get(cache)
 	if (binding) {
 		clearCacheUser(cache)
-		binding.clearPopup()
+		binding.hidePopup(true)
 	}
 
 	return cache
-}
-
-
-/** Clear a shared popup cache by `key`, if it use by a different popup binding. */
-export function clearCache(key: string, fromBinding: popup) {
-	let cache = findCache(key)
-	if (!cache) {
-		return
-	}
-
-	let binding = CacheUsedBy.get(cache)
-	if (binding && binding !== fromBinding) {
-		clearCacheUser(cache)
-		binding.clearPopup()
-		return true
-	}
-
-	return false
 }
 
 

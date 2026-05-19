@@ -1,5 +1,5 @@
 import {Binding, render, RenderResultRenderer, RenderedComponentLike, Part, inSSR} from 'lupos.html'
-import {AnchorAligner, AnchorPosition, AnchorAlignerOptions, PopupStacker, ObjectUtils, DOMUtils} from 'ff-kit'
+import {AnchorAligner, AnchorPosition, AnchorAlignerOptions, PopupStacker, ObjectUtils, DOMUtils, AsyncTaskQueue} from 'ff-kit'
 import {Popup} from '../components/popup'
 import * as SharedPopups from './popup-helpers/shared-popups'
 import {PopupState} from './popup-helpers/popup-state'
@@ -160,7 +160,7 @@ export class popup implements Binding, Part {
 
 	protected options: PopupOptions = DefaultPopupOptions as PopupOptions
 	protected renderer: RenderResultRenderer | null = null
-	protected updateComplete: Promise<void> | null = null
+	protected updatePopupQueue: AsyncTaskQueue = new AsyncTaskQueue()
 	protected persistVisible: boolean = false
 
 	/** Help to update popup content by newly rendered result. */
@@ -238,6 +238,30 @@ export class popup implements Binding, Part {
 		}
 
 		return this.options.keepVisible
+	}
+
+	update(renderer: RenderResultRenderer | null, options: Partial<PopupOptions> = {}) {
+		this.renderer = renderer
+		this.options = {...DefaultPopupOptions, ...options} as PopupOptions
+
+		// If should show immediately and haven't shown.
+		if (!this.opened && this.shouldKeepVisible()) {
+			this.persistVisible = true
+
+			// Not `showPopup` here, to prevent it affect first frame rendering.
+			this.showPopupLater()
+		}
+
+		// Options changes and no need to persist visible, or renderer becomes null.
+		else if (this.opened && this.persistVisible && !this.shouldKeepVisible()) {
+			this.persistVisible = false
+			this.hidePopup()
+		}
+		
+		// If popup has popped-up, should update it.
+		else if (this.opened && renderer) {
+			this.updatePopupQueue.enqueue(this.updatePopup.bind(this))
+		}
 	}
 
 	/** Like mouse enter, and need to show soon. */
@@ -320,9 +344,24 @@ export class popup implements Binding, Part {
 		this.state.show()
 	}
 
+	/** Send a request to hide popup content after a short time out. */
+	hidePopupLater() {
+		let hideDelay = this.options.hideDelay
+		this.state.willHide(hideDelay)
+	}
+
+	/** 
+	 * Send a request to hide popup content, can be called repeatedly.
+	 * If `immediately`, will not play leave transition.
+	 */
+	hidePopup(immediately: boolean = false) {
+		this.state.hide(immediately)
+	}
+
 	/** Do show popup action. */
 	protected async doShow() {
 		if (!this.renderer) {
+			this.hidePopup()
 			return
 		}
 
@@ -334,7 +373,7 @@ export class popup implements Binding, Part {
 		this.createRendered()
 		
 		// Wait until queue connected and updated.
-		await this.updatePopupQueued()
+		await this.updatePopupQueue.enqueue(this.updatePopup.bind(this))
 		
 		if (this.opened) {
 			PopupStacker.onEnter(this.el, this.popup!.el)
@@ -359,149 +398,37 @@ export class popup implements Binding, Part {
 			return DOMUtils.quickSelect(this.el, this.options.activeSelector as string | string[])
 		}
 	}
-	
-	/** Send a request to hide popup content after a short time out. */
-	hidePopupLater() {
-		let hideDelay = this.options.hideDelay
-		this.state.willHide(hideDelay)
-	}
-
-	/** Send a request to hide popup content, can be called repeatedly. */
-	hidePopup() {
-		this.state.hide()
-	}
-
-	/** 
-	 * Do hide popup action.
-	 * If `forReuse`, will leave element in document.
-	 */
-	protected async doHide() {
-		if (this.options.activeClassName) {
-			this.el.classList.remove(this.options.activeClassName)
-		}
-
-		this.options.onOpenedChange?.(false)
-		this.binder.unbindLeaveBeforeShow()
-		this.binder.unbindLeave()
-
-		// Release popup group by trigger element.
-		PopupStacker.destroy(this.el)
-
-		// Only remove popup is not enough.
-		// Rendered content to be referenced as a slot content by popup,
-		// it's as part of `rendered`, not `popup`.
-		let popup = this.popup
-		let promise1 = popup?.remove(true)
-		let promise2 = this.rendered?.remove()
-
-		this.clearPopup()
-
-		// After transition end, stop alignment.
-		await Promise.all([promise1, promise2])
-
-		if (!this.opened) {
-			this.aligner?.stop()
-			this.aligner = null
-		}
-	}
-
-	/** Clears popup content, reset to initial state. */
-	clearPopup() {
-
-		// Normally clear from hide, but if not hide yet, hide here.
-		if (this.opened) {
-			this.hidePopup()
-		}
-
-		if (this.rendered) {
-			SharedPopups.clearCacheUser(this.rendered)
-		}
-
-		if (this.popup) {
-			SharedPopups.clearPopupUser(this.popup)
-		}
-
-		this.rendered = null
-		this.popup = null
-	}
-
-	update(renderer: RenderResultRenderer | null, options: Partial<PopupOptions> = {}) {
-		this.renderer = renderer
-		this.options = {...DefaultPopupOptions, ...options} as PopupOptions
-
-		// If should show immediately and haven't shown.
-		if (!this.opened && this.shouldKeepVisible()) {
-			this.persistVisible = true
-
-			// Not `showPopup` here, to prevent it affect first frame rendering.
-			this.showPopupLater()
-		}
-
-		// Options changes and no need to persist visible, or renderer becomes null.
-		else if (this.opened && this.persistVisible && !this.shouldKeepVisible()) {
-			this.persistVisible = false
-			this.hidePopup()
-		}
-		
-		// If popup has popped-up, should update it.
-		else if (this.opened && renderer) {
-			this.updatePopupQueued()
-		}
-	}
 
 	/** 
 	 * Create rendered and popup property, and wait for it update complete.
 	 * Returned promise to be resolved by whether reusing popup is in document before.
 	 */
 	protected createRendered() {
-		let rendered = this.rendered
+		let rendered: RenderedComponentLike<any>
 
 		// Find cache, even if current rendered and popup existing, still needs to clear existing cache.
-		if (!rendered) {
-			let cache = this.options.key ? SharedPopups.getCache(this.options.key) : null
-			if (cache) {
-				rendered = cache
+		let cache = this.options.key ? SharedPopups.getCache(this.options.key) : null
+		if (cache) {
+			rendered = cache
+		}
+		else {
+			rendered = render(this.renderer, this.context)
+
+			if (this.options.key) {
+				SharedPopups.addCache(this.options.key, rendered)
 			}
-			else {
-				rendered = render(this.renderer, this.context)
-
-				if (this.options.key) {
-					SharedPopups.addCache(this.options.key, rendered)
-				}
-			}
-
-			this.rendered = rendered
-			SharedPopups.setCacheUser(rendered, this)
 		}
 
-		// Same key cache exists, clear it.
-		else if (this.options.key) {
-			SharedPopups.clearCache(this.options.key, this)
-		}
-	}
-
-	/** Merge several update request, e.g., from enter event and renderer update. */
-	protected async updatePopupQueued() {
-
-		// Update process can't go parallel.
-		while (this.updateComplete) {
-			await this.updateComplete
-		}
-
-		if (!this.opened) {
-			return
-		}
-
-		let {promise, resolve} = Promise.withResolvers<void>()
-		this.updateComplete = promise
-
-		await this.updatePopup()
-		this.updateComplete = null
-		resolve()
+		this.rendered = rendered
+		SharedPopups.setCacheUser(rendered, this)
 	}
 
 	/** Update popup content, if haven't rendered, render it firstly. */
 	protected async updatePopup() {
+		if (!this.opened) {
+			return
+		}
+
 		let rendered = this.rendered!
 
 		// Reset renderer.
@@ -509,14 +436,16 @@ export class popup implements Binding, Part {
 		rendered.context = this.context
 
 		// Connect rendered if not have been appended it to document.
-		let connected = await rendered.connectManually()
-		if (!connected) {
-			return
-		}
+		if (!rendered.connected) {
+			let connected = await rendered.connectManually()
+			if (!connected) {
+				return
+			}
 
-		// Immediately hide.
-		if (!this.opened) {
-			return
+			// Immediately hide if not opened any more.
+			if (!this.opened) {
+				return
+			}
 		}
 
 		let popup = rendered.getAs(Popup)
@@ -535,6 +464,7 @@ export class popup implements Binding, Part {
 		if (popup !== this.popup) {
 			this.popup = popup
 			SharedPopups.setPopupUser(popup, this)
+			popup.on('will-disconnect', this.hidePopup, this)
 		}
 	}
 
@@ -616,6 +546,60 @@ export class popup implements Binding, Part {
 			&& popupEl.tabIndex >= 0
 		) {
 			popupEl.focus()
+		}
+	}
+	
+
+	/** Do hide popup action. */
+	protected async doHide(immediately: boolean) {
+		if (this.options.activeClassName) {
+			this.el.classList.remove(this.options.activeClassName)
+		}
+
+		this.options.onOpenedChange?.(false)
+		this.binder.unbindLeaveBeforeShow()
+		this.binder.unbindLeave()
+
+		// Release popup group by trigger element.
+		PopupStacker.destroy(this.el)
+
+		// Only remove popup is not enough.
+		// Rendered content to be referenced as a slot content by popup,
+		// it's as part of `rendered`.
+		let promise = this.rendered?.remove(!immediately)
+		let popup = this.popup
+
+		// Clear rendered and popup.
+		this.clearPopup()
+
+		// After transition end, stop alignment.
+		if (promise) {
+			await promise
+		}
+
+		// Rendered disconnected, now can safely remove popup element from body.
+		if (popup && !popup.connected) {
+			popup.remove()
+		}
+
+		// Clear aligner after transition end.
+		if (!this.opened) {
+			this.aligner?.stop()
+			this.aligner = null
+		}
+	}
+
+	/** Clears popup content, reset to initial state. */
+	protected clearPopup() {
+		if (this.rendered) {
+			SharedPopups.clearCacheUser(this.rendered)
+			this.rendered = null
+		}
+
+		if (this.popup) {
+			this.popup.off('will-disconnect', this.hidePopup, this)
+			SharedPopups.clearPopupUser(this.popup)
+			this.popup = null
 		}
 	}
 

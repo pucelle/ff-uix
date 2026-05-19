@@ -3,7 +3,7 @@ import {Timeout} from 'ff-kit'
 
 interface PopupStateCallbacks {
 	onDoShow: () => void
-	onDoHide: () => void
+	onDoHide: (immediately: boolean) => void
 }
 
 
@@ -110,13 +110,13 @@ export class PopupState {
 	}
 
 	/** Send a request to hide immediately. */
-	hide() {
+	hide(immediately: boolean = false) {
 		this.willNotShow()
 		this.willNotHide()
 
 		if (this.opened) {
 			this.opened = false
-			this.callbacks.onDoHide()
+			this.callbacks.onDoHide(immediately)
 		}
 	}
 }

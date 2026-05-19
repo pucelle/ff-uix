@@ -46,7 +46,7 @@ export class PopupTriggerBinder {
 	private callbacks: PopupTriggerCallbacks
 	private matchSelector: string | undefined = undefined
 	private el: Element
-	private content: Element | null = null
+	private contentWillLeave: Element | null = null
 	private unwatchLeave: null | (() => void) = null
 	private bound: BoundMask | 0 = 0
 	private latestTriggerEvent: MouseEvent | null = null
@@ -186,7 +186,7 @@ export class PopupTriggerBinder {
 	/** Bind events to hide popup content if haven't bound. */
 	bindLeave(hideDelay: number, content: Element) {
 		this.unbindLeaveBeforeShow()
-		this.content = content
+		this.contentWillLeave = content
 
 		if (this.bound & BoundMask.Leave) {
 			return
@@ -237,9 +237,9 @@ export class PopupTriggerBinder {
 			return
 		}
 		
-		if (!this.content
+		if (!this.contentWillLeave
 			|| this.clickToHide
-			|| !PopupStacker.hasContainedOrPopped(this.content, target)
+			|| !PopupStacker.hasContainedOrPopped(this.contentWillLeave, target)
 		) {
 			this.callbacks.onWillHide()
 		}
@@ -256,8 +256,8 @@ export class PopupTriggerBinder {
 			return
 		}
 
-		if (!this.content
-			|| !PopupStacker.hasContainedOrPopped(this.content, target)
+		if (!this.contentWillLeave
+			|| !PopupStacker.hasContainedOrPopped(this.contentWillLeave, target)
 		) {
 			this.callbacks.onWillHide()
 		}
@@ -293,6 +293,7 @@ export class PopupTriggerBinder {
 		}
 
 		this.bound &= ~BoundMask.Leave
+		this.contentWillLeave = null
 	}
 
 	/** Clear all bound. */
@@ -300,6 +301,6 @@ export class PopupTriggerBinder {
 		this.unbindEnter()
 		this.unbindLeave()
 		this.unbindLeaveBeforeShow()
-		this.content = null
+		this.contentWillLeave = null
 	}
 }
