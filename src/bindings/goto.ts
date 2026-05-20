@@ -1,4 +1,4 @@
-import {Binding} from 'lupos.html'
+import {Binding, Part, PartCallbackParameterMask} from 'lupos.html'
 import {DOMEvents} from 'lupos'
 import {Router} from '../components/router'
 
@@ -10,15 +10,32 @@ import {Router} from '../components/router'
  * `:goto="routerPath"`
  * `:goto=${routerPath}`
  */
-export class goto implements Binding {
+export class goto implements Binding, Part {
 	
 	protected readonly el: HTMLElement
+	protected connected: boolean = false
 	protected path: string = ''
 	protected asPopupPath: boolean = false
 
 	constructor(el: Element) {
 		this.el = el as HTMLElement
+	}
+
+	afterConnectCallback(): void {
+		if (this.connected) {
+			return
+		}
+
 		DOMEvents.on(this.el, 'click', this.onClick, this)
+	}
+
+    beforeDisconnectCallback(param: PartCallbackParameterMask | 0): Promise<void> | void {
+		if ((param & PartCallbackParameterMask.FromOwnStateChange) === 0) {
+			return
+		}
+
+		DOMEvents.off(this.el, 'click', this.onClick, this)
+		this.connected = false
 	}
 
 	update(path: string) {
