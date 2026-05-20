@@ -264,7 +264,8 @@ export class LiveRenderer extends RendererBase {
 
 			// If el located at start, it will move by slider padding top,
 			// to keep it's position, should remove slider padding.
-			position = this.measurement.sliderPositions.startPosition
+			// Note here use `getOffset(...)` but not cached `startPosition`.
+			position = this.doa.getOffset(this.slider, this.scroller)
 				+ this.doa.getOuterOffset(el, this.slider)
 				- this.doa.getStartPadding(this.slider)
 		}
@@ -278,7 +279,8 @@ export class LiveRenderer extends RendererBase {
 
 			// If el located at end, it will move up by slider padding bottom,
 			// to keep it's position, should add slider bottom padding.
-			position = this.measurement.sliderPositions.startPosition
+			// Note here use `getOffset(...)` but not cached `startPosition`.
+			position = this.doa.getOffset(this.slider, this.scroller)
 				+ this.doa.getEndOuterOffset(el, this.slider)
 				+ this.doa.getEndPadding(this.slider)
 		}

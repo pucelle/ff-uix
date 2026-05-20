@@ -102,7 +102,10 @@ export class LiveMeasurement extends MeasurementBase {
 		let scrollerSize = this.doa.getClientSize(this.scroller)
 		let sliderSize = this.doa.getClientSize(this.slider)
 		let scrolled = this.doa.getScrolled(this.scroller)
-		let sliderStart = this.sliderPositions.startPosition - scrolled
+
+		// Note here use `getOffset(...)` but not cached `startPosition`.
+		let sliderStart = this.doa.getOffset(this.slider, this.scroller) - scrolled
+
 		let sliderEnd = sliderStart + sliderSize
 	
 		// No intersection, reset indices by current scroll position.

@@ -27,6 +27,10 @@ interface LatestSliderProperties {
 	/** 
 	 * Latest start position of visible part relative to slider start position.
 	 * update it after every time rendered.
+	 * 
+	 * Note when doing align to end positioning, this value may can't represent
+	 * the final start position because layout may change after measured.
+	 * 
 	 * Readonly outside.
 	 */
 	startPosition: number
@@ -34,6 +38,10 @@ interface LatestSliderProperties {
 	/** 
 	 * Latest end position of visible part relative to slider start position,
 	 * update it after every time rendered.
+	 * 
+	 * Note when doing align to start positioning, this value may can't represent
+	 * the final end position because layout may change after measured.
+	 * 
 	 * Readonly outside.
 	 */
 	endPosition: number
