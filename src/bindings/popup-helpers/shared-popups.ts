@@ -20,25 +20,8 @@ const CacheUsedBy: WeakMap<RenderedComponentLike, popup> = /*#__PURE__*/new Weak
 const PopupUsedBy: WeakMap<Popup, popup> = /*#__PURE__*/new WeakMap()
 
 
-/** Get a shared popup cache by `key`, initialize it for reuse. */
-export function getCache(key: string): RenderedComponentLike | null {
-	let cache = findCache(key)
-	if (!cache) {
-		return null
-	}
-
-	let binding = CacheUsedBy.get(cache)
-	if (binding) {
-		clearCacheUser(cache)
-		binding.hidePopup(true)
-	}
-
-	return cache
-}
-
-
 /** Find a shared popup cache by `key`. */
-function findCache(key: string): RenderedComponentLike | null {
+export function findCache(key: string): RenderedComponentLike | null {
 	let caches = CacheByKey.get(key)
 	if (!caches) {
 		return null
@@ -74,6 +57,16 @@ function findCache(key: string): RenderedComponentLike | null {
 	}
 
 	return opened ?? others
+}
+
+
+/** Clear a cache for reusing. */
+export function reuseCache(cache: RenderedComponentLike) {
+	let binding = CacheUsedBy.get(cache)
+	if (binding) {
+		clearCacheUser(cache)
+		binding.hidePopup(true)
+	}
 }
 
 

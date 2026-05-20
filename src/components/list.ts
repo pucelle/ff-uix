@@ -66,10 +66,10 @@ export interface ListEvents<T> {
 	 * Fires after selected items changed.
 	 * Only user interaction can cause `select` event get triggered.
 	 */
-	select: (selected: ReadonlyArray<T>) => void
+	'select': (selected: ReadonlyArray<T>) => void
 
 	/** Fires after clicked a list item. */
-	click: (clicked: T) => void
+	'click-item': (clicked: T) => void
 }
 
 
@@ -476,7 +476,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 			this.fire('select', this.selected)
 		}
 
-		this.fire('click', item.value)
+		this.fire('click-item', item.value)
 	}
 
 	/** 

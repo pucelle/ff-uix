@@ -26,6 +26,8 @@ export class Tooltip<E = {}> extends Popup<E> {
 			color: var(--popup-text-color);
 		}
 
+		.tooltip-triangle{}
+
 		.tooltip-text{
 			flex: 1;
 			min-width: 0;

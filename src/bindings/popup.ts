@@ -260,7 +260,7 @@ export class popup implements Binding, Part {
 		
 		// If popup has popped-up, should update it.
 		else if (this.opened && renderer) {
-			this.updatePopupQueue.enqueue(this.updatePopup.bind(this))
+			this.updatePopupQueue.enqueue(this.updatePopup.bind(this, false))
 		}
 	}
 
@@ -370,10 +370,10 @@ export class popup implements Binding, Part {
 		}
 
 		this.options.onOpenedChange?.(true)
-		this.createRendered()
+		let cacheInDOM = this.createRendered()
 		
 		// Wait until queue connected and updated.
-		await this.updatePopupQueue.enqueue(this.updatePopup.bind(this))
+		await this.updatePopupQueue.enqueue(this.updatePopup.bind(this, cacheInDOM))
 		
 		if (this.opened) {
 			PopupStacker.onEnter(this.el, this.popup!.el)
@@ -401,14 +401,17 @@ export class popup implements Binding, Part {
 
 	/** 
 	 * Create rendered and popup property, and wait for it update complete.
-	 * Returned promise to be resolved by whether reusing popup is in document before.
+	 * Returned whether are reusing a cache within document.
 	 */
-	protected createRendered() {
+	protected createRendered(): boolean {
 		let rendered: RenderedComponentLike<any>
+		let insideDOM: boolean = false
 
 		// Find cache, even if current rendered and popup existing, still needs to clear existing cache.
-		let cache = this.options.key ? SharedPopups.getCache(this.options.key) : null
+		let cache = this.options.key ? SharedPopups.findCache(this.options.key) : null
 		if (cache) {
+			insideDOM = cache.connected || cache.disconnecting
+			SharedPopups.reuseCache(cache)
 			rendered = cache
 		}
 		else {
@@ -421,10 +424,15 @@ export class popup implements Binding, Part {
 
 		this.rendered = rendered
 		SharedPopups.setCacheUser(rendered, this)
+
+		return insideDOM
 	}
 
-	/** Update popup content, if haven't rendered, render it firstly. */
-	protected async updatePopup() {
+	/** 
+	 * Update popup content, if haven't rendered, render it firstly.
+	 * If `showImmediately` is true, will not play popup enter transition.
+	 */
+	protected async updatePopup(showImmediately: boolean) {
 		if (!this.opened) {
 			return
 		}
@@ -437,7 +445,7 @@ export class popup implements Binding, Part {
 
 		// Connect rendered if not have been appended it to document.
 		if (!rendered.connected) {
-			let connected = await rendered.connectManually()
+			let connected = await rendered.connectManually(!showImmediately)
 			if (!connected) {
 				return
 			}
