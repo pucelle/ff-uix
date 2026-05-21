@@ -160,7 +160,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 		
 		// `autofocus` property work for only for the first time.
 		if (this.autoFocus) {
-			await UpdateQueue.untilAllComplete()
+			await UpdateQueue.untilComplete()
 
 			// If within a popup, it may be postpone for several microtask ticks.
 			await sleep(0)

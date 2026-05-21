@@ -5,6 +5,7 @@ import {PartialRenderer} from './repeat-helpers/partial-renderer'
 import {LowerIndexWithin} from '../tools'
 import {locateVisibleIndexAtOffset} from './repeat-helpers/index-locator'
 import {RendererBase} from './repeat-helpers/base-renderer'
+import {sleep} from 'ff-kit'
 
 
 export interface PartialRepeatEvents {
@@ -279,6 +280,10 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 
 	override async scrollIndexToStart(index: number, gap?: number, duration?: number, easing?: PerFrameTransitionEasingName): Promise<boolean> {
 		await this.toRenderItemAtIndex(index, 'start')
+
+		// Ensure nothing will update any more.
+		await sleep(0)
+
 		return super.scrollIndexToStart(index - this.startIndex, gap, duration, easing)
 	}
 
@@ -301,8 +306,8 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 		this.renderer?.setRenderIndices(alignDirection, startIndex, endIndex, true)
 		this.willUpdate()
 
-		// Wait child to render complete.
-		await this.untilChildComplete()
+		// Wait update complete.
+		await UpdateQueue.untilComplete()
 
 		// Must also wait for barrier complete, then the partial rendering process is complete.
 		await untilBarriersComplete()
@@ -311,6 +316,9 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	override async scrollIndexToView(index: number, gap?: number, duration?: number, easing?: PerFrameTransitionEasingName): Promise<boolean> {
 		let alignDirection: 'start' | 'end' = index >= this.startIndex ? 'start' : 'end'
 		await this.toRenderItemAtIndex(index, alignDirection)
+
+		// Ensure nothing will update any more.
+		await sleep(0)
 
 		return super.scrollIndexToView(index - this.startIndex, gap, duration, easing)
 	}

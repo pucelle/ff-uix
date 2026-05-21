@@ -425,10 +425,10 @@ export abstract class RendererBase {
 					canPersistContinuous = true
 				}
 
-				// Try keep most intersection.
+				// Try keep most intersection, add additional one as buffer.
 				else if (startIndex! > endVisibleIndex) {
-					endIndex = Math.max(endVisibleIndex, startIndex! + 1)
-					startIndex = endIndex - renderCount
+					endIndex = Math.max(endVisibleIndex, startIndex! + 2)
+					startIndex = Math.min(endIndex - renderCount, startIndex!)
 				}
 			}
 			else {
@@ -441,10 +441,10 @@ export abstract class RendererBase {
 					canPersistContinuous = true
 				}
 
-				// Try keep most intersection.
+				// Try keep most intersection, add additional one as buffer.
 				else if (endIndex! < startVisibleIndex) {
-					startIndex = endIndex! - 1
-					endIndex = startIndex + renderCount
+					startIndex = endIndex! - 2
+					endIndex = Math.max(startIndex + renderCount, endIndex!)
 				}
 			}
 		}

@@ -21,7 +21,7 @@ export class scrollPersist implements Binding, Part {
 
 	afterConnectCallback() {
 		if (this.direction === null) {
-			UpdateQueue.untilAllComplete().then(this.readScrollDirection.bind(this))
+			UpdateQueue.untilComplete().then(this.readScrollDirection.bind(this))
 		}
 		else if (this.position !== null) {
 			if (this.direction === 'horizontal') {

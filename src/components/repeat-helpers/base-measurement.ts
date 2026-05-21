@@ -219,9 +219,13 @@ export abstract class MeasurementBase {
 	/** Every time after update complete, do measurement. */
 	async measureAfterRendered(startIndex: number, endIndex: number) {
 
-		// Very important, ensure all children complete, but not all complete.
-		await this.context.untilChildComplete()
-
+		// Note here:
+		// Normally we should ensure all children have render complete,
+		// but later we found it would brings complex logics to `UpdateQueue`,
+		// and otherwise, some updates may happen in deeper micro tasks.
+		// So here we roughly measure for a base size, and adjust other
+		// logics like `updateContinuously` to read precise size dynamically.
+	
 		await barrierDOMReading()
 
 		let sliderInnerSize = this.doa.getInnerSize(this.slider)

@@ -566,7 +566,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 
 		// Expand all but not last, and wait for rendered.
 		if (this.expandByItemPaths(itemPaths)) {
-			await UpdateQueue.untilAllComplete()
+			await UpdateQueue.untilComplete()
 		}
 
 		return this.ensureEachItemPathRendered(this.el, 0, itemPaths)
