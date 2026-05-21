@@ -16,6 +16,9 @@ interface InputEvents {
 
 	/** 
 	 * Triggers after input value changed.
+	 * When `lazy` is `true` by default, only fires after lose focus or key enter.
+	 * When `lazy` becomes `false`, will fire each time after inputting.
+	 * 
 	 * `valid` indicates whether inputted value is valid, only `false` means not valid.
 	 * Calls `refocus` can cause input field get focus.
 	 */
@@ -306,7 +309,10 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 
 		this.value = value
 		this.validate()
-		this.fire('change', value, this.valid, () => this.fieldRef.focus())
+
+		if (this.lazy) {
+			this.fire('change', value, this.valid, () => this.fieldRef.focus())
+		}
 	}
 
 	@watch('touched')
