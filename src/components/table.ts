@@ -146,7 +146,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			align-items: stretch;
 			font-size: calc(1em - 1px);
 			padding: 0.2em 0.6em;
-			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 20%, var(--background));;
+			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 20%, var(--background));
 
 			&:last-child{
 				flex: 1;
@@ -204,7 +204,13 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 				top: 6px;
 				bottom: 6px;
 				width: 1px;
-				background: color-mix(in srgb, var(--text-color) 20%, var(--background));
+				background: var(--border-color);
+			}
+
+			&:hover, &.active{
+				&::before{
+					background: color-mix(in srgb, var(--border-color) 80%, var(--text-color));
+				}
 			}
 		}
 
@@ -347,6 +353,9 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	 * Must get it after update completed.
 	 */
 	protected columnResizer: ColumnWidthResizer | null = null
+
+	/** Index of which column is resizing. */
+	protected resizingColumnIndex: number = -1
 
 	/** Repeat component used. */
 	protected repeatRef!: Repeat<T> | LiveRepeat<T> | AsyncLiveRepeat<T>
@@ -500,7 +509,10 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			head,
 			columnContainer,
 			colgroup,
-			'table-resizing-mask'
+			'table-resizing-mask',
+			() => {
+				this.resizingColumnIndex = -1
+			}
 		)
 	}
 
@@ -555,7 +567,8 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 				<lu:if ${this.resizable && index < this.columns.length - 1}>
 					<div class="table-resizer"
-						@mousedown=${(e: MouseEvent) => this.columnResizer!.onStartResize(e, index)}
+						:class.active=${index === this.resizingColumnIndex}
+						@mousedown=${(e: MouseEvent) => this.onResizerMouseDown(e, index)}
 					/>
 				</lu:if>
 			</div>
@@ -574,6 +587,12 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		}
 
 		return IconOrderDefault
+	}
+
+	/** Handle column resizer mouse down event. */
+	protected onResizerMouseDown(e: MouseEvent, index: number) {
+		this.columnResizer!.onStartResize(e, index)
+		this.resizingColumnIndex = index
 	}
 
 	protected renderBody() {

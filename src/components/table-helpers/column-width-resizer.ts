@@ -15,6 +15,9 @@ export class ColumnWidthResizer {
 
 	/** Colgroup inside table. */
 	readonly colgroup: HTMLTableColElement
+
+	/** Call it on resizing end. */
+	readonly onResizeEnd: () => void
 	
 	/** Table column configuration. */
 	columns!: TableColumn[]
@@ -39,12 +42,14 @@ export class ColumnWidthResizer {
 		head: HTMLTableSectionElement,
 		columnContainer: HTMLElement,
 		colgroup: HTMLTableColElement,
-		resizingMaskClassName: string
+		resizingMaskClassName: string,
+		onEnd: () => void
 	) {
 		this.head = head
 		this.columnContainer = columnContainer
 		this.colgroup = colgroup
 		this.resizingMaskClassName = resizingMaskClassName
+		this.onResizeEnd = onEnd
 	}
 
 	/** Update properties from <Table>. */
@@ -230,6 +235,7 @@ export class ColumnWidthResizer {
 			DOMEvents.off(document, 'mousemove', onMouseMove)
 			cursorMask.remove()
 			this.columnResized = true
+			this.onResizeEnd()
 		}
 
 		let cursorMask = render(html`<div class="${this.resizingMaskClassName}" />`)
