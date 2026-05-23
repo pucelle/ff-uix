@@ -19,8 +19,9 @@ interface SyncSizeCacheItem {
 
 
 /**
- * `:syncSize` helps to sync same keyed width or height or both.
- * Not like grid layout, it can persist the size even element disconnected.
+ * `:syncSize` helps to sync size like width or height or both
+ * to the maximum part of size of all the elements with same key.
+ * Not like grid layout, it can persist the size even element disappear.
  */
 export class syncSize implements Binding, Part {
 
