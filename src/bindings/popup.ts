@@ -124,7 +124,7 @@ export interface PopupOptions extends AnchorAlignerOptions {
 export const DefaultPopupOptions: Partial<PopupOptions> = {
 
 	position: 'b',
-	edgeGaps: 10,
+	edgeGaps: 10,	// To match the default gaps of `.popup`.
 
 	followEvents: false, 
 	trigger: 'hover',
