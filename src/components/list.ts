@@ -174,6 +174,8 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		.list-content{
 			flex: 1;
 			min-width: 0;
+			display: flex;
+			align-items: center;
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
