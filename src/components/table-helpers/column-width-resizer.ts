@@ -59,20 +59,6 @@ export class ColumnWidthResizer {
 		await this.updateColumnWidths()
 	}
 
-	/** Update column widths to equivalent size. */
-	updateColumnWidthsInSSR() {
-		let count = this.columns.length
-
-		for (let i = 0; i < count; i++) {
-			let col = this.colgroup.children[i] as HTMLElement
-			let headCol = this.columnContainer.children[i] as HTMLElement
-			let percent = 1 / count
-			let cssWidth = i === count - 1 ? '' : percent * 100 + '%'
-
-			headCol.style.width = col.style.width = cssWidth
-		}
-	}
-
 	/** 
 	 * Update column widths from column configuration.
 	 * Will check available column width and will cause page re-layout.
