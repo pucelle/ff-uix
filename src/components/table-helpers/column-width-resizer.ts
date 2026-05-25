@@ -63,12 +63,13 @@ export class ColumnWidthResizer {
 	updateColumnWidthsInSSR() {
 		let count = this.columns.length
 
-		for (let i = 0; i < count - 1; i++) {
+		for (let i = 0; i < count; i++) {
 			let col = this.colgroup.children[i] as HTMLElement
 			let headCol = this.columnContainer.children[i] as HTMLElement
 			let percent = 1 / count
+			let cssWidth = i === count - 1 ? '' : percent * 100 + '%'
 
-			headCol.style.width = col.style.width = percent * 100 + '%'
+			headCol.style.width = col.style.width = cssWidth
 		}
 	}
 
@@ -202,18 +203,19 @@ export class ColumnWidthResizer {
 		let totalWidth = ValueListUtils.sum(widths)
 		
 		// Leave last column not set width.
-		for (let i = 0; i < widths.length - 1; i++) {
+		for (let i = 0; i < widths.length; i++) {
 			let width = widths[i]
 			let percent = width / totalWidth
 			let col = this.colgroup.children[i] as HTMLElement
 			let headCol = this.columnContainer.children[i] as HTMLElement
 
-			if (this.columns[i].flex) {
-				headCol.style.width = col.style.width = percent * 100 + '%'
-			}
-			else {
-				headCol.style.width = col.style.width = width + 'px'
-			}
+			let cssWidth = i === widths.length - 1
+				? ''
+				: this.columns[i].flex
+				? percent * 100 + '%'
+				: width + 'px'
+
+			headCol.style.width = col.style.width = cssWidth
 		}
 	}
 

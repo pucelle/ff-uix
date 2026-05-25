@@ -625,7 +625,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		return html`
 			<colgroup>
 				${this.columns.map(column => html`
-					<col :style.text-align=${column.align || ''} />
+					<col :style.text-align=${column.align || 'left'} />
 				`)}
 			</colgroup>
 		`
