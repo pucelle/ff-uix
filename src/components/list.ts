@@ -120,7 +120,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 
 			&:hover{
 				background: light-dark(
-					color-mix(in srgb, var(--text-color) 4%, var(--background)),
+					color-mix(in srgb, var(--text-color) 5%, var(--background)),
 					color-mix(in srgb, var(--text-color) 7%, var(--background))
 				);
 			}
@@ -134,14 +134,14 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 
 			&.list-menu-active{
 				background: light-dark(
-					color-mix(in srgb, var(--text-color) 4%, var(--background)),
+					color-mix(in srgb, var(--text-color) 5%, var(--background)),
 					color-mix(in srgb, var(--text-color) 7%, var(--background))
 				);
 			}
 
 			&.arrow-selected{
 				background: light-dark(
-					color-mix(in srgb, var(--text-color) 4%, var(--background)),
+					color-mix(in srgb, var(--text-color) 5%, var(--background)),
 					color-mix(in srgb, var(--text-color) 7%, var(--background))
 				);
 			}
