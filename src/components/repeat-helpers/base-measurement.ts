@@ -159,14 +159,14 @@ export abstract class MeasurementBase {
 	 * Get safe render count of items to render.
 	 * If `proposed` specified, and finally render count close to it, will use it.
 	 */
-	getSafeRenderCount(reservedPixels: number, proposed: number): number {
+	getSafeRenderCount(reservedPixels: number, reservedCount: number, proposed: number): number {
 		if (this.scrollerSize === 0) {
-			return 1
+			return reservedCount
 		}
 
 		let itemSize = this.getMedianItemSize()
 		if (itemSize === 0) {
-			return 1
+			return reservedCount
 		}
 
 		// Because normally can scroll twice per frame.
@@ -175,10 +175,10 @@ export abstract class MeasurementBase {
 		let count = totalSize / itemSize
 
 		if (Math.abs(count - proposed) <= 0.5 && proposed > minimumCount) {
-			return proposed
+			return Math.max(reservedCount, proposed)
 		}
 
-		return Math.ceil(count)
+		return Math.max(reservedCount, Math.ceil(count))
 	}
 
 	/** If re-render from a new index, call this. */

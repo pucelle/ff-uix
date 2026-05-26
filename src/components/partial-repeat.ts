@@ -41,9 +41,17 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	* How many pixels to reserve to reduce update frequency when scrolling.
 	* On Windows, scroll for 100px each time.
 	* So `200px` is a reasonable value.
-	* For larger area of contents, you may reset this value to `400~800`.
+	* For larger area of contents, you may reset this value to `400~500`.
 	*/
 	reservedPixels: number = 200
+
+	/** 
+	 * How many items to reserve to render each time.
+	 * Setting it can avoid rendering one for measurement at start,
+	 * and can render enough items when doing SSR.
+	 * It must be at least `1`.
+	 */
+	reservedCount: number = 1
 
 	/** 
 	 * Guess an item size for first-time paint,
@@ -91,6 +99,14 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 		}
 	}
 
+	/** Apply `reservedCount` property to renderer. */
+	@effect
+	protected applyReservedCount() {
+		if (this.renderer) {
+			this.renderer.reservedCount = this.reservedCount
+		}
+	}
+
 	/** Apply `data` count to renderer. */
 	@effect
 	protected applyDataCount() {
@@ -110,6 +126,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 		}
 
 		if (inSSR) {
+			this.endIndex = Math.min(this.reservedCount, this.data.length)
 			super.update()
 			return
 		}

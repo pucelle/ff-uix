@@ -280,9 +280,16 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	* How many pixels to reserve to reduce update frequency when scrolling.
 	* On Windows, scroll for 100px each time.
 	* So `200px` is a reasonable value.
-	* For larger area scrolling, you may set this value to `500~600`.
+	* For larger area scrolling, you may set this value to `400~500`.
 	*/
-	reservedPixels: number = 200
+	reservedPixels: number = 400
+
+	/** 
+	 * How many items to render each time.
+	 * Setting it can avoid rendering only one for measurement,
+	 * and can render enough items when doing SSR.
+	 */
+	reservedCount: number = 1
 
 	/** 
 	 * Whether each column width can be resized.
@@ -639,6 +646,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			return html`
 				<AsyncLiveRepeat tagName="tbody" :ref=${this.repeatRef}
 					.reservedPixels=${this.reservedPixels}
+					.reservedCount=${this.reservedCount}
 					.renderFn=${this.renderRow.bind(this)}
 					.scrollerSelector=".table-body"
 					.guessedItemSize=${this.guessedItemSize}
@@ -652,6 +660,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			return html`
 				<LiveRepeat tagName="tbody" :ref=${this.repeatRef}
 					.reservedPixels=${this.reservedPixels}
+					.reservedCount=${this.reservedCount}
 					.renderFn=${this.renderRow.bind(this)}
 					.scrollerSelector=".table-body"
 					.guessedItemSize=${this.guessedItemSize}

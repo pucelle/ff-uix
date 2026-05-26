@@ -87,6 +87,12 @@ export abstract class RendererBase {
 	 */
 	reservedPixels: number = 200
 
+	/** 
+	 * How many items to reserve to render each time.
+	 * It should be at least `1`.
+	 */
+	reservedCount: number = 1
+
 	/** Total data count. */
 	dataCount: number = 0
 
@@ -368,7 +374,7 @@ export abstract class RendererBase {
 		}
 	}
 
-	/** Render only one item for measurement when not measured yet. */
+	/** Render few items for measurement when not measured yet. */
 	protected async doInitialUpdateForMeasurement() {
 		if (this.dataCount === 0) {
 			return
@@ -376,7 +382,7 @@ export abstract class RendererBase {
 
 		this.alignDirection = 'start'
 		this.startIndex = 0
-		this.endIndex = 1
+		this.endIndex = Math.min(this.dataCount, this.reservedCount)
 
 		await this.updateRendering(true)
 
@@ -508,7 +514,7 @@ export abstract class RendererBase {
 	/** Update start and end indices before rendering. */
 	protected setIndices(newStartIndex: number | undefined, newEndIndex: number | undefined = undefined) {
 		let currentRenderCount = this.endIndex - this.startIndex
-		let renderCount = this.measurement.getSafeRenderCount(this.reservedPixels, currentRenderCount)
+		let renderCount = this.measurement.getSafeRenderCount(this.reservedPixels, this.reservedCount, currentRenderCount)
 
 		if (newStartIndex === undefined) {
 			newStartIndex = newEndIndex! - renderCount
@@ -597,7 +603,7 @@ export abstract class RendererBase {
 			let newStartIndex: number
 			let newEndIndex: number | undefined = undefined
 			let currentRenderCount = this.endIndex - this.startIndex
-			let renderCount = this.measurement.getSafeRenderCount(this.reservedPixels, currentRenderCount)
+			let renderCount = this.measurement.getSafeRenderCount(this.reservedPixels, this.reservedCount, currentRenderCount)
 
 			// Scrolling down, render more at end.
 			if (alignDirection === 'start') {
