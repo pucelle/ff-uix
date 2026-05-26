@@ -83,6 +83,7 @@ export class Modal<E = {}> extends Component<E> {
 
 		.modal-close{
 			display: flex;
+			align-self: stretch;
 			margin-top: 0;
 			margin-right: -1.2em;
 			width: 2.8em;
@@ -166,7 +167,8 @@ export class Modal<E = {}> extends Component<E> {
 					${this.renderActions()}
 				</lu:if>
 				<lu:else>
-					<Icon class="modal-close" .code=${IconClose}
+					<Icon class="modal-close"
+						.code=${IconClose}
 						@click=${this.hide}
 					/>
 				</lu:else>
@@ -233,6 +235,11 @@ export class Modal<E = {}> extends Component<E> {
 
 	protected override onConnected() {
 		super.onConnected()
+
+		// Make it becomes open it if rendered.
+		if (!this.opened) {
+			this.opened = true
+		}
 		
 		this.whenUpdated(() => {
 			if (this.maskEl && this.el.previousElementSibling !== this.maskEl) {
