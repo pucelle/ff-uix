@@ -208,8 +208,7 @@ export class Notification<E = {}> extends Component<E> {
 		return html`
 		<template class="notification">
 			<lu:for ${this.items}>${(item: NotificationItem) => html`
-				<div class="notification-item"
-					:class="notification-type-${item.type}"
+				<div class="notification-item notification-type-${item.type}"
 					@mouseenter=${() => this.onMouseEnter(item)}
 					@mouseleave=${() => this.onMouseLeave(item)}
 					@transition-leave-ended=${this.onLeaveTransitionEnded}

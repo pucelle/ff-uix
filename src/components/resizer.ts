@@ -101,10 +101,15 @@ export class Resizer<E = {}> extends Component<E & ResizerEvents> {
 			this.fire('resize-end', e)
 		}
 
-		let hvClass = this.position === 'left' || this.position === 'right' ? 'horizontal' : 'vertical'
+		let beHorizontal = this.position === 'left' || this.position === 'right'
 
 		let cursorMask = render(html`
-			<div class="resizing-mask ${hvClass}" />
+			<div class="resizing-mask"
+				:class=${{
+					'horizontal': beHorizontal,
+					'vertical': !beHorizontal,
+				}}
+			/>
 		`)
 
 		cursorMask.appendTo(document.body)

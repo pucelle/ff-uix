@@ -64,6 +64,7 @@ export class Triangle<E = {}> extends Component<E> {
 					  `L${NumberUtils.toDecimal(sp2.x, 3)} ${NumberUtils.toDecimal(sp2.y, 3)} ` +
 					  `L${NumberUtils.toDecimal(sp3.x, 3)} ${NumberUtils.toDecimal(sp3.y, 3)}`
 
+		// Normally triangle will never do hydration, so let the dynamic style exist.
 		return html`
 			<template class="triangle" style="${this.direction}: ${-this.height}px">
 				<svg viewBox=${viewBox} width=${outputWidth} height=${outputHeight}>
