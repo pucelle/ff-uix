@@ -30,11 +30,18 @@ export interface ModelAction {
 }
 
 
+export interface ModelEvents {
+
+	/** On user manually close the modal. */
+	close: () => void
+}
+
+
 /** 
  * `<Modal>` displays blocking-level content and help to
  * complete a child task on a popup modal.
  */
-export class Modal<E = {}> extends Component<E> {
+export class Modal<E = {}> extends Component<E & ModelEvents> {
 
 	static override style = css`
 		.modal{
@@ -239,6 +246,7 @@ export class Modal<E = {}> extends Component<E> {
 		// Make it becomes open it if rendered.
 		if (!this.opened) {
 			this.opened = true
+			this.doShow()
 		}
 		
 		this.whenUpdated(() => {
@@ -256,6 +264,11 @@ export class Modal<E = {}> extends Component<E> {
 
 	protected override onWillDisconnect() {
 		DOMEvents.off(window, 'resize', this.onWindowResize, this)
+
+		if (this.opened) {
+			this.opened = false
+			this.doHide()
+		}
 	}
 
 	protected onWindowResize() {
@@ -284,12 +297,18 @@ export class Modal<E = {}> extends Component<E> {
 		this.appendTo(document.body)
 	}
 
-	hide() {
+	hide(this: Modal) {
 		if (!this.opened) {
 			return
 		}
 
 		this.opened = false
+		this.doHide()
+		this.fire('close')
+	}
+
+	/** Do hide action. */
+	protected doHide() {
 		this.remove(true)
 	}
 }
