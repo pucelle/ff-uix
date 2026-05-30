@@ -22,9 +22,6 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 
 	static override style = css`
 		.slider{
-			--groove-size: 1px;
-			--ball-size: 15px;
-
 			display: inline-flex;
 			vertical-align: top;
 			flex-direction: column;
@@ -63,11 +60,11 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 			position: absolute;
 			will-change: top, left;
 			border-radius: 50%;
-			border: var(--groove-size) solid var(--border-color);
+			border: var(--slider-groove-size) solid var(--border-color);
 			background: var(--background);
 			float: right;
-			width: var(--ball-size);
-			height: var(--ball-size);
+			width: var(--slider-ball-size);
+			height: var(--slider-ball-size);
 
 			&:hover{
 				border-color: var(--primary-color);
@@ -83,7 +80,7 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 
 		.slider-horizontal{
 			.slider-groove{
-				height: var(--groove-size);
+				height: var(--slider-groove-size);
 			}
 
 			.slider-progress{
@@ -91,8 +88,8 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 			}
 
 			.slider-ball{
-				top: calc((var(--ball-size) - var(--groove-size)) / -2);
-				margin-left: calc(var(--ball-size) / -2);
+				top: calc((var(--slider-ball-size) - var(--slider-groove-size)) / -2);
+				margin-left: calc(var(--slider-ball-size) / -2);
 			}
 		}
 
@@ -102,7 +99,7 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 			flex-direction: row;
 
 			.slider-groove{
-				width: var(--groove-size);
+				width: var(--slider-groove-size);
 			}
 
 			.slider-progress{
@@ -110,8 +107,8 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 			}
 
 			.slider-ball{
-				left: calc((var(--ball-size) - var(--groove-size)) / -2);
-				margin-top: calc(var(--ball-size) / -2);
+				left: calc((var(--slider-ball-size) - var(--slider-groove-size)) / -2);
+				margin-top: calc(var(--slider-ball-size) / -2);
 			}
 		}
 
@@ -120,12 +117,6 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 		}
 	`
 
-
-	/** Groove size, default value is `1`. */
-	grooveSize: number = 1
-
-	/** Ball size, default value is `15`. */
-	ballSize: number = 15
 
 	/** Whether in vertical mode. Default value is `false` */
 	vertical: boolean = false
@@ -167,8 +158,6 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 				class="slider"
 				:class=${this.vertical ? 'slider-vertical' : 'slider-horizontal'}
 				:class.dragging=${this.dragging}
-				:style.--ball-size.px=${this.ballSize}
-				:style.--groove-size.px=${this.grooveSize}
 				:tooltip=${this.renderTooltipContent, tooltipOptions}
 				@mousedown=${this.onMouseDown}
 				@focus=${this.onFocus}
@@ -211,7 +200,6 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 
 		return html`
 			<div class="slider-groove"
-				:style.width.px=${this.grooveSize}
 				:ref=${this.grooveEl}
 			>
 				<div class="slider-groove-bg" />
@@ -301,6 +289,8 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 		if (!this.step || document.activeElement !== this.el) {
 			return
 		}
+
+		e.preventDefault()
 
 		let newValue
 

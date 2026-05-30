@@ -143,6 +143,9 @@ table{
 	--switch-height: 1.25em;
 	--switch-border-width: 0;
 
+	--slider-groove-size: 1px;
+	--slider-ball-size: 15px;
+
 	--popup-background: light-dark(white, #333);
 	--popup-text-color: var(--text-color);
 	--popup-border-radius: 4px;
