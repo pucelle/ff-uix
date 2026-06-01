@@ -1,6 +1,6 @@
-import {Component, css, html, RenderResult, TemplateResult, PerFrameTransitionEasingName, TransitionResult} from 'lupos.html'
+import {Component, css, html, RenderResult, TemplateResult, PerFrameTransitionEasingName, TransitionResult, inSSR} from 'lupos.html'
 import {Store} from '../data'
-import {DOMEvents, effect, Observed} from 'lupos'
+import {computed, DOMEvents, effect, Observed, watch} from 'lupos'
 import {ResizeWatcher, Selections, sleep, ListUtils} from 'ff-kit'
 import {ColumnWidthResizer} from './table-helpers/column-width-resizer'
 import {RemoteStore} from '../data/remote-store'
@@ -109,6 +109,12 @@ export interface TableColumn<T = any> extends Observed {
 
 	/** Class name that will apply to table cell. */
 	className?: string
+}
+
+/** Key and options for state saving and restoring. */
+export interface TableStateControl {
+	key: string
+	options: TableStateOptions
 }
 
 
@@ -379,6 +385,9 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	/** To cache and restore table state. */
 	protected stateCacher: TableStateCacher | null = null
 
+	/** If provided, will save and restore the state by this option. */
+	stateControl: ((this: this) => TableStateControl | TableStateControl[] | null) | TableStateControl[] | TableStateControl | null = null
+
 	/** Initialize selections if needed. */
 	@effect
 	protected initSelections() {
@@ -448,6 +457,50 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		}
 	}
 
+	@computed
+	protected get currentStateKeyOptionsList(): TableStateControl[] | null {
+		if (typeof this.stateControl === 'function') {
+			let keyOptions = this.stateControl()
+			if (Array.isArray(keyOptions)) {
+				return keyOptions
+			}
+			else {
+				return keyOptions ? [keyOptions] : null
+			}
+		}
+		else {
+			let keyOptions = this.stateControl
+			if (Array.isArray(keyOptions)) {
+				return keyOptions
+			}
+			else {
+				return keyOptions ? [keyOptions] : null
+			}
+		}
+	}
+
+	/** Save and restore state after state key options changed. */
+	@watch(function() {return this.currentStateKeyOptionsList})
+	protected onStateKeyOptionsChanged(newKeyOptionsList: TableStateControl[] | null, oldKeyOptionsList: TableStateControl[] | null | undefined) {
+	
+		// Save old state.
+		if (oldKeyOptionsList) {
+			for (let oldKeyOptions of oldKeyOptionsList) {
+				this.saveState(oldKeyOptions.key, oldKeyOptions.options)
+			}
+		}
+
+		// Restore new state.
+		if (newKeyOptionsList) {
+			for (let newKeyOptions of newKeyOptionsList) {
+				let restored = this.restoreState(newKeyOptions.key)
+				if (!restored) {
+					this.setStartVisibleIndex(0)
+				}
+			}
+		}
+	}
+
 	/** The start index of the first item. */
 	get startIndex(): number {
 		if (!this.live) {
@@ -490,11 +543,28 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	protected override onConnected() {
 		super.onConnected()
 		ResizeWatcher.watch(this.el, this.onSizeChange, this)
+
+		let stateKeyOptionsList = this.currentStateKeyOptionsList
+		if (stateKeyOptionsList && !inSSR) {
+			for (let keyOptions of stateKeyOptionsList) {
+				let restored = this.restoreState(keyOptions.key)
+				if (!restored) {
+					this.setStartVisibleIndex(0)
+				}
+			}
+		}
 	}
 
 	protected override onWillDisconnect() {
 		super.onWillDisconnect()
 		ResizeWatcher.unwatch(this.el, this.onSizeChange, this)
+
+		let stateKeyOptionsList = this.currentStateKeyOptionsList
+		if (stateKeyOptionsList && !inSSR) {
+			for (let keyOptions of stateKeyOptionsList) {
+				this.saveState(keyOptions.key, keyOptions.options)
+			}
+		}
 	}
 
 	protected override onReady() {
@@ -928,8 +998,8 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	 * Caches table state includes order, filter, startIndex...
 	 * Remember the `name` must be unique.
 	 */
-	cacheState(name: string, options: TableStateOptions = {}) {
-		this.ensureStateCacher().cache(name, options)
+	saveState(name: string, options: TableStateOptions = {}) {
+		this.ensureStateCacher().save(name, options)
 	}
 
 	/** 

@@ -40,12 +40,15 @@ interface TableState {
 }
 
 
-const DefaultTableStateOptions: TableStateOptions = {
+const DefaultTableStateOptions: TableStateOptions = /*#__PURE__*/ {
 	filter: false,
 	order: false,
 	visibleIndex: false,
 	customized: {},
 }
+
+/** Cache globally to avoid can't restore after re-connected. */
+const GlobalStateCache: Map<string, TableState> = /*#__PURE__*/new Map()
 
 
 /** 
@@ -56,7 +59,6 @@ export class TableStateCacher {
 
 	private readonly storagePrefix: string = 'table_state_'
 	private readonly table: Table
-	private readonly cacheMap: Map<string, TableState> = new Map()
 
 	constructor(table: Table) {
 		this.table = table
@@ -64,24 +66,24 @@ export class TableStateCacher {
 
 	/** Checks whether caches table state exists. */
 	has(name: string = 'default'): boolean {
-		return this.cacheMap.has(name)
+		return GlobalStateCache.has(name)
 			|| webStorage.has(this.storagePrefix + name)
 	}
 
 	/** 
-	 * Cache current table state.
+	 * Save current table state.
 	 * Can specify multiple `name` for 
 	 */
-	cache(name: string, options: TableStateOptions) {
+	save(name: string, options: TableStateOptions) {
 		let state = this.getState(options)
-		this.cacheMap.set(name, state)
+		GlobalStateCache.set(name, state)
 
 		if (options.toStorage) {
-			this.save(name, state)
+			this.saveToStorage(name, state)
 		}
 	}
 
-	protected save(name: string, state: TableState) {
+	protected saveToStorage(name: string, state: TableState) {
 		try {
 			webStorage.set(this.storagePrefix + name, state)
 		}
@@ -125,7 +127,7 @@ export class TableStateCacher {
 		let table = this.table
 		let store = this.table.store as Store | RemoteStore
 
-		let state = this.cacheMap.get(name)
+		let state = GlobalStateCache.get(name)
 		if (!state) {
 			state = webStorage.get(this.storagePrefix + name)
 
@@ -154,7 +156,7 @@ export class TableStateCacher {
 
 	/** Clear specified named of caches, include caches in storage. */
 	clear(name: string) {
-		this.cacheMap.delete(name)
+		GlobalStateCache.delete(name)
 		webStorage.delete(this.storagePrefix + name)
 	}
 }
