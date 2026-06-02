@@ -1,4 +1,4 @@
-import {Component, css, html, RenderResult, TemplateResult, PerFrameTransitionEasingName, TransitionResult, inSSR} from 'lupos.html'
+import {Component, css, html, RenderResult, TemplateResult, PerFrameTransitionEasingName, TransitionResult, inSSR, RenderResultRenderer} from 'lupos.html'
 import {Store} from '../data'
 import {computed, DOMEvents, effect, Observed, watch} from 'lupos'
 import {ResizeWatcher, Selections, sleep, ListUtils} from 'ff-kit'
@@ -37,7 +37,7 @@ export interface TableColumn<T = any> extends Observed {
 	name?: string
 
 	/** Column title, must provided. */
-	title: TemplateResult | string
+	title: RenderResultRenderer
 
 	/** 
 	 * Column basis width.
@@ -630,7 +630,9 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 					:style.justify-content=${flexAlign}
 				>
 					<div class="table-column-title">
-						${column.title}
+						${typeof column.title === 'function'
+							? column.title.call(this)
+							: column.title}
 					</div>
 
 					<lu:if ${column.orderBy}>
