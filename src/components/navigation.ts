@@ -4,6 +4,23 @@ import {tooltip} from '../bindings/tooltip'
 import {contextmenu} from '../bindings/contextmenu'
 import {PopupOptions} from '../bindings/popup'
 import {CSSUtils} from 'ff-kit'
+import {UpdateQueue} from 'lupos'
+
+
+export interface NavigationSticky {
+
+	/** Start top value, can be numeric pixel or css value. */
+	start: number | string
+
+	/** Top value for each depth, can be numeric pixel or css value. */
+	each: number | string
+
+	/** 
+	 * The maximum depth,
+	 * Normally specify it for `autoScrolled`.
+	 */
+	maxDepth?: number
+}
 
 
 /** 
@@ -33,15 +50,74 @@ export class Navigation<T> extends List<T> {
 
 	override partialRenderingScrollerSelector: string | null = '.navigation'
 
-	/** 
-	 * Whether allow parental list item sticky to top.
-	 * - start: Start top value, can be numeric pixel or css value.
-	 * - each: Top value for each depth, can be numeric pixel or css value.
-	 */
-	sticky: {start: number | string, each: number | string} | null = null
+	/** Whether allow parental list item sticky to top. */
+	sticky: NavigationSticky | null = null
 
 	/** Navigation title. */
 	title: string = ''
+
+	/** 
+	 * Specifies whether should scroll to first selected item after selected changed.
+	 * Can only work in single selection mode.
+	 * Note it also expand deeply no matter how `autoExpanded` set.
+	 * 
+	 * - once: Only once after first time selected.
+	 * - always: Always after first selection changed.
+	 * - none: not expand.
+	 */
+	autoScrolled: 'once' | 'always' | 'none' = 'none'
+
+	protected override async onSingleSelectedChanged(firstSelected: T | undefined) {
+		if (firstSelected === undefined) {
+			return
+		}
+
+		if (this.autoScrolled === 'always') {
+			this.expandDeeply(firstSelected)
+			await UpdateQueue.untilComplete()
+
+			let gaps = this.computeTopScrollGaps()
+			this.scrollSelectedToView(gaps, 200)
+		}
+		else if (this.autoScrolled === 'once') {
+			this.expandDeeply(firstSelected)
+			await UpdateQueue.untilComplete()
+
+			let gaps = this.computeTopScrollGaps()
+			this.scrollSelectedToView(gaps, 200)
+			this.autoScrolled = 'none'
+		}
+		else {
+			super.onSingleSelectedChanged(firstSelected)
+		}
+	}
+
+	protected computeTopScrollGaps(): number | number[] {
+		if (this.sticky) {
+
+			// Just assume there are at most 2 depths.
+			let maxDepth = this.sticky.maxDepth ?? 2
+
+			let value = CSSUtils.parse(this.sticky.each)!
+			let base: number
+
+			if (value.unit === 'px') {
+				base = value.value
+			}
+			else {
+				base = value.value * 15 * maxDepth
+			}
+
+			return [
+				base * (maxDepth + 1),
+				base,
+			]
+		}
+		else {
+			let itemHeight = (this.el.querySelector('.list-item') as HTMLElement)?.offsetHeight
+			return itemHeight
+		}
+	}
 
 	protected override render() {
 		return html`

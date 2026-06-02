@@ -21,7 +21,7 @@ const RunningScrollTransitions: WeakMap<Element, PerFrameTransition> = /*#__PURE
 export async function scrollToView(
 	el: HTMLElement,
 	scrollDirection: HVDirection | null = null,
-	gap: number = 0,
+	gap: number | number[] = 0,
 	duration: number = 0,
 	easing: PerFrameTransitionEasingName = 'ease-out'
 ): Promise<boolean> {
@@ -39,16 +39,19 @@ export async function scrollToView(
 
 	RunningScrollTransitions.get(wrapper)?.cancel()
 
+	let gapStart = Array.isArray(gap) ? gap[0] : gap
+	let gapEnd = Array.isArray(gap) ? gap[1] ?? gap[0] : gap
+
 	if (scrollDirection === 'vertical') {
 		let oldScrollY = wrapper.scrollTop
 		let newScrollY: number | null = null
 		let offsetY = getUnScrolledOffset(el, wrapper, scrollDirection)
 
 		// Needs to scroll for pxs to top edges align.
-		let startOffset = offsetY - gap - oldScrollY
+		let startOffset = offsetY - gapStart - oldScrollY
 
 		// Needs to scroll for pxs to bottom edges align.
-		let endOffset = offsetY + el.offsetHeight + gap - wrapper.clientHeight - oldScrollY
+		let endOffset = offsetY + el.offsetHeight + gapEnd - wrapper.clientHeight - oldScrollY
 
 		// Needs to scroll up.
 		if (startOffset < 0 && endOffset < 0) {
@@ -91,14 +94,14 @@ export async function scrollToView(
 		let oldScrollX = wrapper.scrollLeft
 		let newScrollX: number | null = null
 		let offsetX = getUnScrolledOffset(el, wrapper, scrollDirection)
-		let startOffset = offsetX - gap - oldScrollX
-		let endOffset = offsetX + el.offsetWidth + gap - wrapper.clientWidth - oldScrollX
+		let startOffset = offsetX - gapStart - oldScrollX
+		let endOffset = offsetX + el.offsetWidth + gapEnd - wrapper.clientWidth - oldScrollX
 
 		if (startOffset < 0 && endOffset < 0 || el.offsetWidth > wrapper.clientWidth) {
-			newScrollX = Math.max(0, offsetX - gap)
+			newScrollX = Math.max(0, offsetX - gapStart)
 		}
 		else if (endOffset > 0 && startOffset > 0) {
-			newScrollX = Math.min(wrapper.scrollWidth, offsetX + el.offsetWidth + gap) - wrapper.clientWidth
+			newScrollX = Math.min(wrapper.scrollWidth, offsetX + el.offsetWidth + gapEnd) - wrapper.clientWidth
 		}
 
 		if (newScrollX !== null && newScrollX !== oldScrollX) {
@@ -162,7 +165,7 @@ export async function scrollToStart(
 	if (RunningScrollTransitions.has(el)) {
 		RunningScrollTransitions.get(el)!.cancel()
 	}
-	
+
 	let offset = getUnScrolledOffset(el, wrapper, scrollDirection)
 	let property: 'scrollLeft' | 'scrollTop' = scrollDirection === 'horizontal' ? 'scrollLeft' : 'scrollTop'
 	let oldScroll = wrapper[property]

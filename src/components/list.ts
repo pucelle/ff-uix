@@ -1,5 +1,5 @@
 import {css, Component, html, RenderResult, RenderResultRenderer, fold, PerFrameTransitionEasingName, TransitionResult, FoldTransitionOptions} from 'lupos.html'
-import {DOMEvents, EventKeys, Observed, UpdateQueue, effect} from 'lupos'
+import {DOMEvents, EventKeys, Observed, UpdateQueue, effect, watch} from 'lupos'
 import {ListDataNavigator} from './list-helpers/list-data-navigator'
 import {Icon} from './icon'
 import {tooltip, TooltipOptions} from '../bindings/tooltip'
@@ -246,6 +246,16 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	tooltipOptions: Partial<TooltipOptions> = {}
 
 	/** 
+	 * Specifies whether should expand first selected item after selected changed.
+	 * Can only work in single selection mode.
+	 * 
+	 * - once: Only once after first time selected.
+	 * - always: Always after first selection changed.
+	 * - none: not expand.
+	 */
+	autoExpanded: 'once' | 'always' | 'none' = 'none'
+
+	/** 
 	 * Selected and all parental indices by keyboard navigation.
 	 * Only the last index is the truly selected.
 	 */
@@ -260,6 +270,21 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	@effect
 	protected applyKeyNavigatorProperties() {
 		this.keyNavigator.update(this.data, this.expanded)
+	}
+
+	@watch(function(){return this.multipleSelect ? undefined : this.selected[0]})
+	protected onSingleSelectedChanged(firstSelected: T | undefined) {
+		if (firstSelected === undefined) {
+			return
+		}
+
+		if (this.autoExpanded === 'always') {
+			this.expandDeeply(firstSelected)
+		}
+		else if (this.autoExpanded === 'once') {
+			this.expandDeeply(firstSelected)
+			this.autoExpanded = 'none'
+		}
 	}
 
 	protected override render() {
@@ -488,6 +513,11 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	 * and resolve by whether scrolled.
 	 */
 	async scrollSelectedToStart(gap?: number, duration?: number, easing?: PerFrameTransitionEasingName): Promise<boolean> {
+		if (this.multipleSelect) {
+			console.warn(`'scrollSelectedToStart' can only work in single selection mode`)
+			return false
+		}
+
 		if (this.selected.length !== 1) {
 			return false
 		}
@@ -520,7 +550,16 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 	 * Returns a promise which will be resolved after scrolling end,
 	 * and resolve by whether scrolled.
 	 */
-	async scrollSelectedToView(gap?: number, duration?: number, easing?: PerFrameTransitionEasingName): Promise<boolean> {
+	async scrollSelectedToView(gap?: number | number[], duration?: number, easing?: PerFrameTransitionEasingName): Promise<boolean> {
+		if (this.multipleSelect) {
+			console.warn(`'scrollSelectedToView' can only work in single selection mode`)
+			return false
+		}
+
+		if (this.selected.length !== 1) {
+			return false
+		}
+
 		let el = this.el.querySelector('.list-item.selected') as HTMLElement | null
 		if (!el) {
 			let selected = this.selected[0]
