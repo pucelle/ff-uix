@@ -40,6 +40,13 @@ export class Navigation<T> extends List<T> {
 			}
 		}
 
+		.list-item-sticky{
+			position: sticky;
+			background-color: var(--background);
+			border-bottom: 1px solid color-mix(in srgb, var(--border-color) 50%, var(--background));
+			z-index: 10;
+		}
+
 		.navigation-title{
 			font-size: 1.285em;
 			font-weight: 300;
@@ -149,6 +156,7 @@ export class Navigation<T> extends List<T> {
 					class="list-item"
 					:class.selected=${this.hasSelected(item.value!)}
 					:class.arrow-selected=${item === this.keyNavigator.current}
+					:class.list-item-sticky=${stickyStyle}
 					:style=${stickyStyle ?? {}}
 					?:tooltip=${itemTooltip, itemTooltip!, this.tooltipOptions}
 					?:contextmenu=${itemContextmenu, itemContextmenu!, {matchSelector: '.list-item', activeClassName: 'list-menu-active'} as PopupOptions}
@@ -175,9 +183,6 @@ export class Navigation<T> extends List<T> {
 
 		return {
 			top,
-			'background-color': 'var(--background)',
-			'position': 'sticky',
-			'z-index': '10',
 		}
 	}
 }
