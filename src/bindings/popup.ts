@@ -115,6 +115,12 @@ export interface PopupOptions extends AnchorAlignerOptions {
 	/** Fire after `opened` state of popup binding changed. */
 	onOpenedChange?: (opened: boolean) => void
 
+	/** Fire after `opened` state of popup binding becomes `true`. */
+	onOpened?: () => void
+
+	/** Fire after `opened` state of popup binding becomes `false`. */
+	onClosed?: () => void
+
 	/** Fire before align popup content with trigger element. */
 	onWillAlign?: (content: Popup) => void
 }
@@ -370,6 +376,7 @@ export class popup implements Binding, Part {
 			this.getActiveTarget().classList.add(this.options.activeClassName)
 		}
 
+		this.options.onOpened?.()
 		this.options.onOpenedChange?.(true)
 		let cacheInDOM = this.createRendered()
 		
@@ -565,6 +572,7 @@ export class popup implements Binding, Part {
 			this.el.classList.remove(this.options.activeClassName)
 		}
 
+		this.options.onClosed?.()
 		this.options.onOpenedChange?.(false)
 		this.binder.unbindLeaveBeforeShow()
 		this.binder.unbindLeave()
