@@ -189,10 +189,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		}
 
 		.list-partial-repeat{}
-
-		.list-subsection{
-			overflow: hidden;
-		}
+		.list-subsection{}
 	`
 
 

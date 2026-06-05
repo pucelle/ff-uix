@@ -179,7 +179,8 @@ export class Navigation<T> extends List<T> {
 			return null
 		}
 
-		let top = CSSUtils.add(this.sticky.start, CSSUtils.multiply(this.sticky.each, depth)!)
+		// 1px per depth for bordering.
+		let top = CSSUtils.add(this.sticky.start, CSSUtils.multiply(this.sticky.each, depth)!, depth)
 
 		return {
 			top,
