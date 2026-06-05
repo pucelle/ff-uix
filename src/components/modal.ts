@@ -1,6 +1,6 @@
 import {css, html, Component, RenderResult, fade, RenderResultRenderer} from 'lupos.html'
 import {AnchorAligner} from 'ff-kit'
-import {DOMEvents} from 'lupos'
+import {DOMEvents, DOMModifiableEvents} from 'lupos'
 import {Icon} from './icon'
 import {IconClose} from '../icons'
 import {Button} from './button'
@@ -144,6 +144,12 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 	 */
 	opened: boolean = false
 
+	/** 
+	 * If `true`, will quickly hide current modal after clicking
+	 * modal mask or pressing `Escape` key.
+	 */
+	quickHidden: boolean = false
+
 	/** Model actions. */
 	actions: ModelAction[] | null = null
 
@@ -157,6 +163,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 				<div class="modal-mask"
 					:ref=${this.maskEl}
 					:transition.immediate.global=${fade()}
+					@click=${this.onClickMask}
 				/>
 				
 				${this.renderHeader()}
@@ -185,16 +192,28 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 
 	/** Render action buttons, can be overwritten. */
 	protected renderActions(): RenderResult {
-		return html`<div class="modal-actions">${this.actions!.map(action => html`
-			<Button class="modal-action"
-				.primary=${!!action.primary}
-				:class.modal-third=${action.third}
-				:tooltip=${action.tooltip ?? null, {position: 'b'}}
-				@click=${() => this.onClickActionButton(action)}
-			>
-				${action.text}
-			</Button>
-		`)}</div>`
+		return html`
+			<div class="modal-actions">
+			${
+				this.actions!.map(action => html`
+					<Button class="modal-action"
+						.primary=${!!action.primary}
+						:class.modal-third=${action.third}
+						:tooltip=${action.tooltip ?? null, {position: 'b'}}
+						@click=${() => this.onClickActionButton(action)}
+					>
+						${action.text}
+					</Button>
+				`)
+			}
+			</div>
+		`
+	}
+
+	protected onClickMask() {
+		if (this.quickHidden) {
+			this.hide()
+		}
 	}
 
 	protected async onClickActionButton(action: ModelAction) {
@@ -256,6 +275,10 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 		})
 		
 		DOMEvents.on(window, 'resize', this.onWindowResize, this)
+
+		if (this.quickHidden) {
+			DOMModifiableEvents.on(document, 'keydown', ['Escape'], this.hide, this)
+		}
 	}
 
 	protected override onUpdated() {
@@ -268,6 +291,10 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 		if (this.opened) {
 			this.opened = false
 			this.doHide()
+		}
+
+		if (this.quickHidden) {
+			DOMModifiableEvents.off(document, 'keydown', this.hide, this)
 		}
 	}
 
