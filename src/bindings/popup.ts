@@ -451,7 +451,7 @@ export class popup implements Binding, Part {
 		rendered.renderer = this.renderer
 		rendered.context = this.context
 
-		// Connect rendered if not have been appended it to document.
+		// Connect rendered manually if not have been appended it to document.
 		if (!rendered.connected) {
 			let connected = await rendered.connectManually(!showImmediately)
 			if (!connected) {
@@ -478,6 +478,10 @@ export class popup implements Binding, Part {
 
 		// Update popup property and related transition.
 		if (popup !== this.popup) {
+
+			// Remove old popup immediately if it's playing leave transition.
+			this.popup?.remove()
+
 			this.popup = popup
 			SharedPopups.setPopupUser(popup, this)
 			popup.on('will-disconnect', this.hidePopup, this)
@@ -490,15 +494,21 @@ export class popup implements Binding, Part {
 			return
 		}
 
-		// Although in document, need append too.
-		// This can ensure it re-connect,
+		// Although in document, need append to make it in the front,
 		// but transition will stop playing.
-		let alreadyInDOM = document.body.contains(this.popup!.el)
+
+		// Note here must append rendered, but not popup.
+		// Because popup toggles frequently especially when context changes.
+		// So if append more content between popup toggles,
+		// when disconnect old, it begins to delete nodes from it's first
+		// to next marked position, here it's the start of the new popup.
+		// So the appended content get removed unexpectedly.
+		let alreadyInDOM = document.body.contains(this.rendered!.el)
 		let playTransition = !alreadyInDOM
 
-		// Append if not the last child.
-		if (this.popup!.el !== document.body.lastChild) {
-			this.popup!.appendTo(document.body, playTransition)
+		// Re-append if is not the last child.
+		if (this.rendered!.el !== document.body.lastChild) {
+			this.rendered!.appendTo(document.body, playTransition)
 		}
 
 		// Get focus if needed.
@@ -582,9 +592,7 @@ export class popup implements Binding, Part {
 
 		// Only remove popup is not enough.
 		// Rendered content to be referenced as a slot content by popup,
-		// it's as part of `rendered`.
 		let promise = this.rendered?.remove(!immediately)
-		let popup = this.popup
 
 		// Clear rendered and popup.
 		this.clearPopup()
@@ -592,11 +600,6 @@ export class popup implements Binding, Part {
 		// After transition end, stop alignment.
 		if (promise) {
 			await promise
-		}
-
-		// Rendered disconnected, now can safely remove popup element from body.
-		if (popup && !popup.connected) {
-			popup.remove()
 		}
 
 		// Clear aligner after transition end.
