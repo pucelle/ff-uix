@@ -75,7 +75,6 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			align-items: center;
 			flex: none;
 			font-size: calc(1em - 1px);
-			height: 2.8em;
 			padding: 0 1.2em;
 			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background));
 		}
@@ -83,6 +82,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 		.modal-title{
 			flex: 1;
 			min-width: 0;
+			line-height: 2.8;
 			overflow: hidden;
 			white-space: nowrap;
 			text-overflow: ellipsis;

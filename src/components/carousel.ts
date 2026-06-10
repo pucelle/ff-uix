@@ -30,18 +30,21 @@ export class Carousel extends Component {
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			z-index: 100;
 
 			.icon{
 				opacity: 0.5;
+
+				svg{
+					width: 63px;
+					height: 63px;
+				}
 			}
 
-			&:hover .icon{
-				opacity: 1;
-			}
-
-			svg{
-				width: 63px;
-				height: 63px;
+			&:hover{
+				.icon{
+					opacity: 1;
+				}
 			}
 		}
 

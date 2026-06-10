@@ -1,4 +1,4 @@
-import {PopupStacker, EventUtils, PopupControl} from 'ff-kit'
+import {PopupStacker, PopupControl} from 'ff-kit'
 import {DOMEvents} from 'lupos'
 
 
@@ -79,9 +79,9 @@ export class PopupTriggerBinder {
 	private mapTriggerType(trigger: TriggerType): TriggerType {
 
 		// If can't hover by mouse or pencil, uses mousedown event instead.
-		if (trigger === 'hover' && !EventUtils.canHover()) {
-			trigger = 'mousedown'
-		}
+		// if (trigger === 'hover') {
+		// 	trigger = 'mousedown'
+		// }
 
 		return trigger
 	}
@@ -193,12 +193,7 @@ export class PopupTriggerBinder {
 		}
 
 		if (this.trigger === 'hover') {
-			if (EventUtils.canHover()) {
-				this.bindMouseLeave(hideDelay, content)
-			}
-			else {
-				DOMEvents.on(document, 'touchstart', this.onDocMouseDownOrTouch, this)
-			}
+			this.bindMouseLeave(hideDelay, content)
 		}
 		else if (this.trigger === 'click' || this.trigger === 'contextmenu') {
 			DOMEvents.on(document, 'mousedown', this.onDocMouseDownOrTouch, this)
@@ -274,14 +269,9 @@ export class PopupTriggerBinder {
 		}
 
 		if (this.trigger === 'hover') {
-			if (EventUtils.canHover()) {
-				if (this.unwatchLeave) {
-					this.unwatchLeave()
-					this.unwatchLeave = null
-				}
-			}
-			else {
-				DOMEvents.off(document, 'touchstart', this.onDocMouseDownOrTouch, this)
+			if (this.unwatchLeave) {
+				this.unwatchLeave()
+				this.unwatchLeave = null
 			}
 		}
 		else if (this.trigger === 'click' || this.trigger === 'contextmenu') {

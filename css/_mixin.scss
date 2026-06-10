@@ -1,0 +1,46 @@
+/* Under pad width (1024px). */
+@mixin pad {
+	@media (max-width: 1024px) {
+		@content;
+	}
+}
+
+
+/* Under phone width (768px). */
+@mixin phone {
+	@media (max-width: 768px) {
+		@content;
+	}
+}
+
+
+/* Under specified width. */
+@mixin mw($width) {
+	@media (max-width: $width) {
+		@content;
+	}
+}
+
+
+/* Under specified container width. */
+@mixin mcw($width) {
+	@container (min-width: $width) {
+		@content;
+	}
+}
+
+
+/* When in touch-only mode without mouse. */
+@mixin touch() {
+	@media (hover: none) {
+		@content;
+	}
+}
+
+
+/* When have mouse to hover. */
+@mixin mouse() {
+	@media (hover: hover) {
+		@content;
+	}
+}
