@@ -18,6 +18,8 @@ export * from './checkbox-group'
 
 export * from './switch'
 
+export * from './carousel'
+
 export * from './popup'
 export * from './tooltip'
 export * from './popover'

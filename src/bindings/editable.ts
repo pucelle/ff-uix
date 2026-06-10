@@ -66,6 +66,8 @@ export interface EditableOptions<T> {
 /** 
  * To render a `<Popup>`, which contains a `<Input>` or `<Select>`,
  * and align it with currently editing element.
+ * 
+ * `:editable=${renderer, ?options}`
  */
 export class editable<T> implements Binding, Part {
 

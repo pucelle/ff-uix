@@ -1,7 +1,7 @@
 import {Component, css, html, RenderResult, TemplateResult, PerFrameTransitionEasingName, TransitionResult, inSSR, RenderResultRenderer} from 'lupos.html'
 import {Store} from '../data'
 import {computed, DOMEvents, effect, Observed, watch} from 'lupos'
-import {ResizeWatcher, Selections, sleep, ListUtils} from 'ff-kit'
+import {Selections, sleep, ListUtils} from 'ff-kit'
 import {ColumnWidthResizer} from './table-helpers/column-width-resizer'
 import {RemoteStore} from '../data/remote-store'
 import {LiveRepeat} from './live-repeat'
@@ -13,6 +13,7 @@ import {IconOrderAsc, IconOrderDefault, IconOrderDesc} from '../icons'
 import {SelectionUtils, LowerIndexWithin} from '../tools'
 import {editable} from '../bindings/editable'
 import {TableStateCacher, TableStateOptions} from './table-helpers/table-state'
+import {readSize} from '../bindings/read-size'
 
 
 export interface TableEvents {
@@ -542,7 +543,6 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 	protected override onConnected() {
 		super.onConnected()
-		ResizeWatcher.watch(this.el, this.onSizeChange, this)
 
 		let stateKeyOptionsList = this.currentStateKeyOptionsList
 		if (stateKeyOptionsList && !inSSR) {
@@ -557,7 +557,6 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 	protected override onWillDisconnect() {
 		super.onWillDisconnect()
-		ResizeWatcher.unwatch(this.el, this.onSizeChange, this)
 
 		let stateKeyOptionsList = this.currentStateKeyOptionsList
 		if (stateKeyOptionsList && !inSSR) {
@@ -595,7 +594,10 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 	protected override render(): TemplateResult {
 		return html`
-			<template class="table" @mousedown=${this.onMouseDown}>
+			<template class="table"
+				:readSize=${this.onSizeChange}
+				@mousedown=${this.onMouseDown}
+			>
 				${this.renderHead()}
 				${this.renderBody()}
 			</template>
