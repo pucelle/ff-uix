@@ -75,7 +75,7 @@ export interface PopupOptions extends AnchorAlignerOptions {
 	/** 
 	 * Whether the popup element is pointable and can interact with mouse.
 	 * If specifies as `false`, popup element will be applied `pointer-events: none`.
-	 * Default value is `true`.
+	 * Default value is `true`, means leave it to be handled by CSS.
 	 */
 	pointable: boolean
 
@@ -355,6 +355,10 @@ export class popup implements Binding, Part {
 	hidePopupLater() {
 		let hideDelay = this.options.hideDelay
 		this.state.willHide(hideDelay)
+
+		// Simulate the leave, so release the lock
+		// and can be reused even for `click` trigger.
+		PopupStacker.onLeave(this.el)
 	}
 
 	/** 
@@ -474,7 +478,11 @@ export class popup implements Binding, Part {
 
 		// Update popup properties.
 		popup.triangleDirection = AnchorAligner.getAnchorFaceDirection(this.options.position).opposite.toBoxOffsetKey()!
-		popup.el.style.pointerEvents = this.options.pointable ? '' : 'none'
+		
+		// Set to none only when `pointable` is `false`.
+		if (this.options.pointable === false) {
+			popup.el.style.pointerEvents = 'none'
+		}
 
 		// Update popup property and related transition.
 		if (popup !== this.popup) {
