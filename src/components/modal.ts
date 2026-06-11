@@ -93,7 +93,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			align-self: stretch;
 			margin-top: 0;
 			margin-right: -1.2em;
-			width: 2.8em;
+			width: 3em;
 			cursor: pointer;
 
 			&:hover{
@@ -168,11 +168,16 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 	}
 
 	protected renderMask() {
+
+		// Click to stop because we don't want some click-to-pop
+		// tips get closed after clicking the mask.
+
 		return html`
 			<div class="modal-mask"
 				:ref=${this.maskEl}
 				:transition.immediate.global=${fade()}
-				@click=${this.onClickMask}
+				@click.stop=${this.onClickMask}
+				@mousedown.stop=${() => {}}
 			/>
 		`
 	}
@@ -189,6 +194,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 					<Icon class="modal-close"
 						.code=${IconClose}
 						@click=${this.hide}
+						@mousedown.stop=${() => {}}
 					/>
 				</lu:else>
 			</div>
