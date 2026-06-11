@@ -53,8 +53,8 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			box-shadow: 0 0 var(--popup-shadow-blur-radius) var(--popup-shadow-color);
 			background: var(--background);
 			border: var(--popup-border-width) solid var(--popup-border-color);
-			max-width: calc(100vw - 20px);
-			max-height: calc(100vh - 20px);
+			max-width: calc(100dvw - 20px);
+			max-height: calc(100dvh - 20px);
 			overflow: hidden;
 			--background: var(--popup-background);
 		}
@@ -160,15 +160,20 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 				:transition.immediate=${fade()}
 				@transition-leave-ended=${this.onLeaveTransitionEnded}
 			>
-				<div class="modal-mask"
-					:ref=${this.maskEl}
-					:transition.immediate.global=${fade()}
-					@click=${this.onClickMask}
-				/>
-				
+				${this.renderMask()}
 				${this.renderHeader()}
 				${this.renderContent()}
 			</template>
+		`
+	}
+
+	protected renderMask() {
+		return html`
+			<div class="modal-mask"
+				:ref=${this.maskEl}
+				:transition.immediate.global=${fade()}
+				@click=${this.onClickMask}
+			/>
 		`
 	}
 

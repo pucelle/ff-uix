@@ -24,8 +24,8 @@ export class Popup<E = {}> extends Component<E> {
 			/** Avoid becoming narrower after alignment when touches page edges. */
 			width: max-content;
 
-			max-width: calc(100vw - 20px);
-			max-height: calc(100vh - 20px);
+			max-width: calc(100dvw - 20px);
+			max-height: calc(100dvh - 20px);
 
 			/* 
 			Same with window type components, so if inside of a window,

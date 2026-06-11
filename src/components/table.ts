@@ -13,7 +13,7 @@ import {IconOrderAsc, IconOrderDefault, IconOrderDesc} from '../icons'
 import {SelectionUtils, LowerIndexWithin} from '../tools'
 import {editable} from '../bindings/editable'
 import {TableStateCacher, TableStateOptions} from './table-helpers/table-state'
-import {readSize} from '../bindings/read-size'
+import {watchWidth} from '../bindings/watch-size'
 
 
 export interface TableEvents {
@@ -571,7 +571,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	}
 
 	/** After element size change, update column widths. */
-	protected onSizeChange() {
+	protected onWidthChange() {
 		this.columnResizer?.updateColumnWidths()
 	}
 
@@ -595,7 +595,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	protected override render(): TemplateResult {
 		return html`
 			<template class="table"
-				:readSize=${this.onSizeChange}
+				:watchWidth=${this.onWidthChange}
 				@mousedown=${this.onMouseDown}
 			>
 				${this.renderHead()}

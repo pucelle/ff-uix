@@ -1,8 +1,9 @@
 import {Component, css, html} from 'lupos.html'
 import {Icon} from './icon'
 import {IconLeft, IconRight} from '../icons'
-import {NumberUtils, SizeLike} from 'ff-kit'
-import {readSize} from '../bindings/read-size'
+import {BoxOffsetKey, Coord, NumberUtils} from 'ff-kit'
+import {watchWidth} from '../bindings/watch-size'
+import {simulated} from '../bindings/simulated'
 
 
 /** Normally for previewing wide contents on pad or phone. */
@@ -84,6 +85,9 @@ export class Carousel extends Component {
 	/** Current active item width. */
 	protected currentContentWidth: number | null = null
 
+	/** Translate from sliding. */
+	protected slidingTranslate: number = 0
+
 	protected override render() {
 		let arrowWidth: number = 0
 		let translateX: number = 0
@@ -96,15 +100,19 @@ export class Carousel extends Component {
 			translateX = arrowWidth - this.currentContentWidth * this.index
 		}
 
+		translateX += this.slidingTranslate
+
 		return html`
 			<template class="carousel"
-				:readSize=${(size: SizeLike) => this.containerWidth = size.width}
+				:watchWidth=${(width: number) => this.containerWidth = width}
+				?:simulated.slide:translate=${slidable, this.handleSlideTranslate}
+				?:simulated.slide=${slidable, this.handleSlide}
 			>
 				<div class="carousel-inner"
 					:style.transform="translateX(${translateX}px)"
-					:readSize=${(size: SizeLike, inner: HTMLElement) => {
+					:watchWidth=${(width: number, inner: HTMLElement) => {
 						this.count = inner.firstElementChild!.children.length
-						this.currentContentWidth = this.count > 0 ? size.width / this.count : 0
+						this.currentContentWidth = this.count > 0 ? width / this.count : 0
 					}}
 				>
 					<slot />
@@ -127,6 +135,21 @@ export class Carousel extends Component {
 				</lu:if>
 			</template>
 		`
+	}
+
+	protected handleSlideTranslate(moves: Coord) {
+		this.slidingTranslate = moves.x
+	}
+
+	protected handleSlide(direction: BoxOffsetKey) {
+		if (direction === 'left') {
+			this.navigateBy(-1)
+		}
+		else if (direction === 'right') {
+			this.navigateBy(1)
+		}
+
+		this.slidingTranslate = 0
 	}
 
 	protected navigateBy(by: number) {

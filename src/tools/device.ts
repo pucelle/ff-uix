@@ -1,5 +1,4 @@
 import {DOMEvents, Observed} from 'lupos'
-import {onPageInit} from 'lupos.html'
 
 
 export class Device implements Observed {
@@ -11,20 +10,22 @@ export class Device implements Observed {
 	phone = typeof window !== 'undefined' ? window.innerWidth <= 768 : false
 
 	/** Current device width. */
-	width = window.innerWidth
+	width = typeof window !== 'undefined' ? window.innerWidth : 1920
 
-	/** Whether in touch-only mode. */
+	/** Whether use finger mainly to touch. */
 	readonly touch: boolean
 
-	/** Whether have mouse. */
+	/** Whether use mouse mainly to operate. */
 	readonly mouse: boolean
 
 	constructor() {
-		DOMEvents.on(window, 'resize', () => {
-			this.pad = window.innerWidth <= 1024
-			this.phone = window.innerWidth <= 768
-			this.width = window.innerWidth
-		})
+		if (typeof window !== 'undefined') {
+			DOMEvents.on(window, 'resize', () => {
+				this.pad = window.innerWidth <= 1024
+				this.phone = window.innerWidth <= 768
+				this.width = window.innerWidth
+			})
+		}
 
 		this.mouse = matchMedia('(hover: hover)').matches
 		this.touch = !this.mouse
@@ -33,10 +34,4 @@ export class Device implements Observed {
 
 
 /** To dynamically compute device width, and query for mouse or touch. */
-export let device!: Device
-
-/** Avoid initialize it immediately on SSR env. */
-/*#__PURE__*/onPageInit(() => {
-	device = device ?? new Device()
-})
-
+export const device = new Device()
