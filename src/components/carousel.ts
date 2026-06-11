@@ -143,13 +143,11 @@ export class Carousel extends Component {
 
 	protected handleSlide(direction: BoxOffsetKey) {
 		if (direction === 'left') {
-			this.navigateBy(-1)
-		}
-		else if (direction === 'right') {
 			this.navigateBy(1)
 		}
-
-		this.slidingTranslate = 0
+		else if (direction === 'right') {
+			this.navigateBy(-1)
+		}
 	}
 
 	protected navigateBy(by: number) {
