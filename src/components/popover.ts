@@ -36,7 +36,7 @@ export class Popover<E = {}> extends Popup<E> {
 		.popover{
 			padding: 0.6em 1em;
 			min-width: 15em;
-			max-width: 30em;
+			max-width: min(30em, calc(100dvw - 20px));
 		}
 
 		.popover-triangle{

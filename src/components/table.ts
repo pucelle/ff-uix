@@ -136,7 +136,6 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		}
 
 		.table-head{
-			padding-right: 8px;
 			color: color-mix(in srgb, var(--text-color) 70%, var(--background));;
 			font-weight: bold;
 			user-select: none;
@@ -158,6 +157,15 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			&:last-child{
 				flex: 1;
 				min-width: 0;
+			}
+		}
+
+		@media not (pointer: coarse) {
+			.table-head{
+				padding-right: 8px;
+			}
+
+			.table-column:last-child{
 				padding-right: 8px;
 				margin-right: -8px;
 			}

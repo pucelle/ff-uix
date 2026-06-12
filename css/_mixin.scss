@@ -30,15 +30,15 @@
 }
 
 
-/* When in touch-only mode without mouse. */
+/* When touch-primary device. */
 @mixin touch() {
-	@media (hover: none) {
+	@media (pointer: coarse) {
 		@content;
 	}
 }
 
 
-/* When have mouse to hover. */
+/* When in mouse-primary device. */
 @mixin mouse() {
 	@media (hover: hover) {
 		@content;

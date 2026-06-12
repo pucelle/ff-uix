@@ -10,8 +10,9 @@ export class ButtonGroup<E = {}> extends Component<E> {
 			vertical-align: top;
 
 			.button{
+				margin-inline: -0.5px;
+
 				&:nth-child(n+2){
-					margin-left: -1px;
 					border-top-left-radius: 0;
 					border-bottom-left-radius: 0;
 				}
