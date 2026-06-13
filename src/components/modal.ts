@@ -1,6 +1,6 @@
 import {css, html, Component, RenderResult, fade, RenderResultRenderer} from 'lupos.html'
 import {AnchorAligner} from 'ff-kit'
-import {DOMEvents, DOMModifiableEvents} from 'lupos'
+import {DOMModifiableEvents, UpdateQueue} from 'lupos'
 import {Icon} from './icon'
 import {IconClose} from '../icons'
 import {Button} from './button'
@@ -131,10 +131,11 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			padding: 0.6em 1.2em;
 		}
 	`
-	
-	/** Mask element. */
-	protected maskEl!: HTMLElement
 
+	/** To contain both modal and mask. */
+	declare static tagName: 'slot'
+
+	
 	/** Modal title. */
 	title: string = ''
 
@@ -153,16 +154,13 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 	/** Model actions. */
 	actions: ModelAction[] | null = null
 
+	protected modalEl!: HTMLElement
+
 	protected override render() {
 		return html`
-			<template tabindex="0" autofocus
-				class="modal"
-				:transition.immediate=${fade()}
-				@transition-leave-ended=${this.onLeaveTransitionEnded}
-			>
+			<template>
 				${this.renderMask()}
-				${this.renderHeader()}
-				${this.renderContent()}
+				${this.renderModal()}
 			</template>
 		`
 	}
@@ -174,11 +172,23 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 
 		return html`
 			<div class="modal-mask"
-				:ref=${this.maskEl}
 				:transition.immediate.global=${fade()}
 				@click.stop=${this.onClickMask}
 				@mousedown.stop=${() => {}}
 			/>
+		`
+	}
+
+	protected renderModal() {
+		return html`
+			<div tabindex="0" autofocus
+				class="modal"
+				:ref=${this.modalEl}
+				:transition.immediate=${fade()}
+			>
+				${this.renderHeader()}
+				${this.renderContent()}
+			</div>
 		`
 	}
 
@@ -254,10 +264,6 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 		`
 	}
 
-	protected onLeaveTransitionEnded() {
-		this.maskEl.remove()
-	}
-
 	protected override onCreated() {
 		super.onCreated()
 	}
@@ -270,7 +276,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 		}
 	}
 
-	protected override onConnected() {
+	protected override async onConnected() {
 		super.onConnected()
 
 		// Make it becomes open it if rendered.
@@ -278,27 +284,16 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			this.opened = true
 			this.doShow()
 		}
-		
-		this.whenUpdated(() => {
-			if (this.maskEl && this.el.previousElementSibling !== this.maskEl) {
-				this.el.before(this.maskEl)
-			}
-		})
-		
-		DOMEvents.on(window, 'resize', this.onWindowResize, this)
 
 		if (this.quickHidden) {
 			DOMModifiableEvents.on(document, 'keydown', ['Escape'], this.hide, this)
 		}
-	}
 
-	protected override onUpdated() {
+		await UpdateQueue.untilComplete()
 		this.toCenter()
 	}
 
 	protected override onWillDisconnect() {
-		DOMEvents.off(window, 'resize', this.onWindowResize, this)
-
 		if (this.opened) {
 			this.opened = false
 			this.doHide()
@@ -309,12 +304,8 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 		}
 	}
 
-	protected onWindowResize() {
-		this.toCenter()
-	}
-
 	protected toCenter() {
-		new AnchorAligner(this.el, {position: 'c'}).alignTo(document.documentElement)
+		new AnchorAligner(this.modalEl, {position: 'c'}).alignTo(document.documentElement)
 	}
 
 	/**

@@ -156,9 +156,8 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 		UpdateQueue.onSyncUpdateStart(this)
 		this.updateRendering()
 		UpdateQueue.onSyncUpdateEnd()
-		
-		this.onUpdated()
-		this.fire('updated')
+
+		this.handleUpdated()
 	}
 
 	protected override render() {
