@@ -76,7 +76,9 @@ export class Button<E = {}> extends Component<E> {
 				box-shadow: 0 0 var(--focus-shadow-blur-radius) var(--primary-color);
 			}
 		}
-`
+	`
+
+	declare static tagName: 'button'
 
 
 	/** Whether be primary button. */
