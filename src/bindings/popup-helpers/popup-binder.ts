@@ -1,14 +1,15 @@
-import {PopupStacker, PopupControl} from 'ff-kit'
+import {PopupStacker, PopupControl, SimulatedEvents} from 'ff-kit'
 import {DOMEvents} from 'lupos'
+import {PopupOptions} from '../popup'
 
 
 /** 
  * Different trigger action types.
  * `none` means can only be triggered manually.
  */
-export type TriggerType = 'hover' | 'click' | 'mousedown' | 'focus' | 'contextmenu' | 'none'
+export type TriggerType = 'hover' | 'click' | 'mousedown' | 'focus' | 'contextmenu' | 'hold' | 'none'
 
-interface PopupTriggerCallbacks {
+interface PopupTriggerConfig {
 
 	/** Like mouse enter, and need to show soon. */
 	onWillShow: () => void
@@ -24,6 +25,9 @@ interface PopupTriggerCallbacks {
 
 	/** Toggle opened state and show or hide popup immediately. */
 	onToggleShowHide: () => void
+
+	/** After this time in ms to show. */
+	getOptions: () => PopupOptions
 }
 
 
@@ -43,7 +47,7 @@ export class PopupTriggerBinder {
 	/** Whether click content cause hiding. */
 	clickToHide: boolean = false
 
-	private callbacks: PopupTriggerCallbacks
+	private config: PopupTriggerConfig
 	private matchSelector: string | undefined = undefined
 	private el: Element
 	private contentWillLeave: Element | null = null
@@ -51,9 +55,9 @@ export class PopupTriggerBinder {
 	private bound: BoundMask | 0 = 0
 	private latestTriggerEvent: MouseEvent | null = null
 
-	constructor(el: Element, options: PopupTriggerCallbacks) {
+	constructor(el: Element, options: PopupTriggerConfig) {
 		this.el = el
-		this.callbacks = options
+		this.config = options
 	}
 
 	/** Get trigger event to align with it. */
@@ -102,8 +106,14 @@ export class PopupTriggerBinder {
 			DOMEvents.on(this.el, 'focus', this.triggerWithDelay, this)
 
 			if (this.el.contains(document.activeElement)) {
-				this.callbacks.onWillShow()
+				this.config.onWillShow()
 			}
+		}
+		else if (this.trigger === 'hold') {
+			SimulatedEvents.on(this.el, 'hold:start', this.triggerWithoutDelay, this, {
+				becomeHoldAfterDuration: this.config.getOptions().showDelay,
+				prevent: true,
+			})
 		}
 
 		this.bound |= BoundMask.Enter
@@ -124,6 +134,9 @@ export class PopupTriggerBinder {
 		else if (this.trigger === 'focus') {
 			DOMEvents.off(this.el, 'focus', this.triggerWithDelay, this)
 		}
+		else if (this.trigger === 'hold') {
+			SimulatedEvents.off(this.el, 'hold:start', this.triggerWithoutDelay, this)
+		}
 
 		this.bound &= ~BoundMask.Enter
 	}
@@ -137,7 +150,7 @@ export class PopupTriggerBinder {
 		e.preventDefault()
 		e.stopPropagation()
 		this.latestTriggerEvent = e as MouseEvent
-		this.callbacks.onToggleShowHide()
+		this.config.onToggleShowHide()
 	}
 
 	private triggerWithDelay(e: Event) {
@@ -148,7 +161,7 @@ export class PopupTriggerBinder {
 		
 		e.stopPropagation()
 		this.latestTriggerEvent = e as MouseEvent
-		this.callbacks.onWillShow()
+		this.config.onWillShow()
 	}
 
 	/** Bind events to handle canceling show before popup showed. */
@@ -180,7 +193,7 @@ export class PopupTriggerBinder {
 	/** Like will show soon, but mouse leave to cancel it. */
 	private cancelShowPopup() {
 		this.bound &= ~BoundMask.LeaveBeforeShow
-		this.callbacks.onCancelShow()
+		this.config.onCancelShow()
 	}
 
 	/** Bind events to hide popup content if haven't bound. */
@@ -196,8 +209,11 @@ export class PopupTriggerBinder {
 			this.bindMouseLeave(hideDelay, content)
 		}
 		else if (this.trigger === 'click' || this.trigger === 'contextmenu') {
-			DOMEvents.on(document, 'mousedown', this.onDocMouseDownOrTouch, this)
+			DOMEvents.on(document, 'mousedown', this.onDocMouseDownOrTouchStart, this)
 			DOMEvents.on(document, 'wheel', this.onDocMouseWheel, this, {passive: true})
+		}
+		else if (this.trigger === 'hold') {
+			DOMEvents.on(document, 'touchstart', this.onDocMouseDownOrTouchStart, this)
 		}
 		else if (this.trigger === 'focus') {
 			DOMEvents.on(this.el, 'blur', this.hidePopupLater, this)
@@ -210,7 +226,7 @@ export class PopupTriggerBinder {
 	protected bindMouseLeave(hideDelay: number, popupEl: Element) {
 		this.unwatchLeave = PopupControl.on(this.el, popupEl,
 			() => {
-				this.callbacks.onImmediateHide()
+				this.config.onImmediateHide()
 			},
 			{
 				delay: hideDelay,
@@ -220,7 +236,7 @@ export class PopupTriggerBinder {
 	}
 
 	/** Trigger when mouse down on document, and not inside `el` or popup. */
-	private onDocMouseDownOrTouch(e: Event) {
+	private onDocMouseDownOrTouchStart(e: Event) {
 		let target = e.target as Element
 
 		// Ignores contextmenu mousedown.
@@ -236,7 +252,7 @@ export class PopupTriggerBinder {
 			|| this.clickToHide
 			|| !PopupStacker.hasContainedOrPopped(this.contentWillLeave, target)
 		) {
-			this.callbacks.onWillHide()
+			this.config.onWillHide()
 		}
 	}
 
@@ -254,12 +270,12 @@ export class PopupTriggerBinder {
 		if (!this.contentWillLeave
 			|| !PopupStacker.hasContainedOrPopped(this.contentWillLeave, target)
 		) {
-			this.callbacks.onWillHide()
+			this.config.onWillHide()
 		}
 	}
 
 	private hidePopupLater() {
-		this.callbacks.onWillHide()
+		this.config.onWillHide()
 	}
 
 	/** Unbind events to hide popup if bound. */
@@ -275,8 +291,11 @@ export class PopupTriggerBinder {
 			}
 		}
 		else if (this.trigger === 'click' || this.trigger === 'contextmenu') {
-			DOMEvents.off(document, 'mousedown', this.onDocMouseDownOrTouch, this)
+			DOMEvents.off(document, 'mousedown', this.onDocMouseDownOrTouchStart, this)
 			DOMEvents.off(document, 'wheel', this.onDocMouseWheel, this)
+		}
+		else if (this.trigger === 'hold') {
+			DOMEvents.off(document, 'touchstart', this.onDocMouseDownOrTouchStart, this)
 		}
 		else if (this.trigger === 'focus') {
 			DOMEvents.off(this.el, 'blur', this.hidePopupLater, this)

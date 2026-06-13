@@ -39,6 +39,7 @@ export interface PopupOptions extends AnchorAlignerOptions {
 	/** 
 	 * Delay showing in milliseconds, such that mouse hover unexpected will not cause layer popup.
 	 * Only for `hover` and `focus` trigger types.
+	 * For `hold` trigger type, it controls the hold time before trigger.
 	 * Default value is `100`.
 	 */
 	showDelay: number
@@ -189,6 +190,7 @@ export class popup implements Binding, Part {
 			onImmediateHide: this.onImmediateHide.bind(this),
 			onCancelShow: this.onCancelShow.bind(this),
 			onToggleShowHide: this.onToggleShowHide.bind(this),
+			getOptions: () => this.options,
 		})
 
 		this.state = new PopupState({
