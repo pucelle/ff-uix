@@ -1,7 +1,9 @@
 import {Component, html, css} from 'lupos.html'
-import {NumberUtils} from 'ff-kit'
+import {EventUtils, NumberUtils} from 'ff-kit'
 import {DOMEvents} from 'lupos'
 import {tooltip, TooltipOptions} from '../bindings/tooltip'
+import {eventOn} from '../bindings/event-on'
+import {device} from '../tools/device'
 
 
 interface SliderEvents {
@@ -159,7 +161,7 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 				:class=${this.vertical ? 'slider-vertical' : 'slider-horizontal'}
 				:class.dragging=${this.dragging}
 				:tooltip=${this.renderTooltipContent, tooltipOptions}
-				@mousedown=${this.onMouseDown}
+				:eventOn=${device.touch ? 'touchstart' : 'mousedown', this.onMouseDownOrTouchStart}
 				@focus=${this.onFocus}
 				@blur=${this.onBlur}
 			>
@@ -233,7 +235,7 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 		return NumberUtils.clamp(percentage, 0, 100)
 	}
 
-	protected onMouseDown(this: Slider, e: MouseEvent) {
+	protected onMouseDownOrTouchStart(this: Slider, e: MouseEvent | TouchEvent) {
 		let rect = this.grooveEl.getBoundingClientRect()
 
 		this.dragging = true
@@ -243,16 +245,16 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 			this.changeValueByEvent(e, rect)
 		}
 
-		let onMouseMove = (e: MouseEvent) => {
+		let onMouseOrTouchMove = (e: MouseEvent | TouchEvent) => {
 			// Disable selecting text unexpectedly, and make sure ball not lose focus.
 			e.preventDefault()
 			this.changeValueByEvent(e, rect)
 		}
 
-		DOMEvents.on(document, 'mousemove', onMouseMove)
+		DOMEvents.on(document, device.touch ? 'touchmove' : 'mousemove', onMouseOrTouchMove)
 
-		DOMEvents.once(document, 'mouseup', () => {
-			DOMEvents.off(document, 'mousemove', onMouseMove)
+		DOMEvents.once(document, device.touch ? 'touchend' : 'mouseup', () => {
+			DOMEvents.off(document, device.touch ? 'touchmove' : 'mousemove', onMouseOrTouchMove)
 
 			this.dragging = false
 			this.fire('dragend')
@@ -261,14 +263,15 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 		this.fire('dragstart')
 	}
 
-	protected changeValueByEvent(this: Slider, e: MouseEvent, rect: DOMRect) {
+	protected changeValueByEvent(this: Slider, e: MouseEvent | TouchEvent, rect: DOMRect) {
+		let clientPosition = EventUtils.getClientPosition(e)
 		let rate
 
 		if (this.vertical) {
-			rate = NumberUtils.clamp(1 - (e.clientY - rect.top) / rect.height, 0, 1)
+			rate = NumberUtils.clamp(1 - (clientPosition.y - rect.top) / rect.height, 0, 1)
 		}
 		else {
-			rate = NumberUtils.clamp((e.clientX - rect.left) / rect.width, 0, 1)
+			rate = NumberUtils.clamp((clientPosition.x - rect.left) / rect.width, 0, 1)
 		}
 
 		let diff = (this.max - this.min) * rate

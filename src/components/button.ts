@@ -23,10 +23,6 @@ export class Button<E = {}> extends Component<E> {
 				background: color-mix(in srgb, var(--text-color) 6%, var(--background));
 			}
 
-			&:focus{
-				box-shadow: 0 0 var(--focus-shadow-blur-radius) var(--primary-color);
-			}
-
 			&:active{
 				background: color-mix(in srgb, var(--text-color) 12%, var(--background));
 			}
@@ -74,7 +70,13 @@ export class Button<E = {}> extends Component<E> {
 				}
 			}
 		}
-	`
+
+		@media not (pointer: coarse) {
+			.button:focus{
+				box-shadow: 0 0 var(--focus-shadow-blur-radius) var(--primary-color);
+			}
+		}
+`
 
 
 	/** Whether be primary button. */
