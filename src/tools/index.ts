@@ -1,4 +1,5 @@
 export * as DOMScroll from './dom-scroll'
 export * as SelectionUtils from './selection-utils'
 export * from './device'
+export * from './edge-move-timer'
 export * from './types'

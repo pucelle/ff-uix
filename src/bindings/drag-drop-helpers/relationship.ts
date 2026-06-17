@@ -1,33 +1,35 @@
 import {Box, Coord, DOMUtils, EventUtils} from 'ff-kit'
-import {DraggableBase} from '../draggable'
+import {DraggableBase, DraggableOptions} from '../draggable'
 import {droppable} from '../droppable'
-import {OrderMovement} from './movement-of-order'
-import {DragMovement} from './movement-of-drag'
+import {OrderPlacer} from './order-placer'
+import {DragPlacer} from './drag-placer'
 import {render, RenderedComponentLike} from 'lupos.html'
 import {orderable} from '../orderable'
+import {DraggingProperties} from './types'
+
 
 
 /** Global manager to relate current dragging and it's droppable.  */
 class DragDropRelationship {
 
-	/** Currently dragging draggable. */
-	private dragging: DraggableBase | null = null
+	/** Currently dragging properties. */
+	protected dragging: DraggingProperties | null = null
 
-	/** Help to manage movement. */
-	private movement: DragMovement | OrderMovement | null = null
+	/** Help to manage placement. */
+	protected placer: DragPlacer | OrderPlacer | null = null
 
 	/** 
 	 * May mouse enter in several drop areas, and start dragging,
 	 * then we need to check which drop area should trigger enter.
 	 */
-	private enteredDroppable: Set<droppable> = new Set()
+	protected enteredDroppable: Set<droppable> = new Set()
 
-	/** Rendered follow element. */
-	private followElementRendered: RenderedComponentLike<any> | null = null
-
-	/** Rendered or cloned follow element. */
-	private followElement: HTMLElement | null = null
+	/** Element to following dragging. */
+	protected draggingIndicator: HTMLElement | null = null
 	
+	/** Rendered follow element. */
+	protected followElementRendered: RenderedComponentLike<any> | null = null
+
 	/** 
 	 * Current drop area.
 	 * Readonly outside.
@@ -35,11 +37,45 @@ class DragDropRelationship {
 	activeDrop: droppable | null = null
 
 	/** When start dragging a draggable. */
-	async startDragging(dragging: DraggableBase, e: MouseEvent) {
-		this.dragging = dragging
+	async startDragging(dragging: DraggableBase, e: PointerEvent | TouchEvent) {
+		this.dragging = {
+			el: dragging.el,
+			container: dragging.el.parentElement!,
+			rect: dragging.el.getBoundingClientRect(),
+			mode: dragging.mode,
+			options: dragging.options,
+			data: dragging.data,
+			index: dragging.index,
+		}
 
+		let activeDrop = this.findActiveDrop(dragging)
+		activeDrop?.fireEnter(this.dragging)
+		this.activeDrop = activeDrop
+
+		let {indicator, mode} = await this.createDraggingIndicator()
+
+		// When cloned, we prefer align with raw element.
+		let position: Coord = mode === 'cloned'
+			? this.dragging.rect
+			: EventUtils.getPagePosition(e)
+
+		this.initDraggingIndicatorStyle(indicator, mode)
+		this.draggingIndicator = indicator
+
+		if (dragging.mode === 'order') {
+			this.placer = new OrderPlacer(this.dragging, indicator, mode, position, activeDrop)
+		}
+		else {
+			this.placer = new DragPlacer(this.dragging, indicator, mode, position)
+		}
+
+		dragging.el.style.visibility = 'hidden'
+		document.body.append(indicator)
+	}
+
+	protected findActiveDrop(dragging: DraggableBase): droppable | null {
 		let activeDrop: droppable | null = null
-		let draggingArea = Box.fromLike(dragging.el.getBoundingClientRect())
+		let draggingArea = Box.fromLike(this.dragging!.rect)
 
 		for (let drop of [...this.enteredDroppable]) {
 
@@ -64,80 +100,136 @@ class DragDropRelationship {
 			}
 		}
 
-		activeDrop?.fireEnter(this.dragging)
+		return activeDrop
+	}
 
-		this.activeDrop = activeDrop
+	protected async createDraggingIndicator() {
+		let el = this.dragging!.el!
+		let elRenderer = this.dragging!.options.followElementRenderer
+		let indicator: HTMLElement | null = null
+		let mode: 'cloned' | 'created'
 
-		if (this.dragging.mode === 'order') {
-			this.movement = new OrderMovement(this.dragging as orderable, activeDrop)
+		if (elRenderer) {
+			let rendered = this.followElementRendered = render(elRenderer)
+			await rendered.connectManually()
+
+			indicator = rendered.el.firstElementChild as HTMLElement | null
+				?? el.cloneNode(true) as HTMLElement
+
+			mode = 'created'
 		}
-		else {
-			let followElCloned = !this.dragging.options.followElementRenderer
-			let followEl: HTMLElement | null = null
-			let position = EventUtils.getPagePosition(e)
 
-			if (this.dragging.options.followElementRenderer) {
-				let rendered = this.followElementRendered = render(this.dragging.options.followElementRenderer)
-				await rendered.connectManually()
+		// tr isn't easy to clone, must clone table, colgroup also.
+		else if (el.localName === 'tr') {
+			let table = el.closest('table')
+			if (table) {
+				indicator = table.cloneNode() as HTMLElement
+	
+				let colGroup = table.querySelector('colgroup')
+				if (colGroup) {
+					indicator.append(colGroup.cloneNode(true))
+				}
 
-				followEl = rendered.el.firstElementChild as HTMLElement | null
-					?? this.dragging!.el.cloneNode(true) as HTMLElement
+				let tr = el.cloneNode(true)
+				indicator.append(tr)
 			}
 			else {
-				followEl = this.dragging!.el.cloneNode(true) as HTMLElement
+				indicator = el.cloneNode(true) as HTMLElement
 			}
 
-			if (dragging.options.draggingClassName) {
-				followEl.classList.add(dragging.options.draggingClassName)
-			}
+			mode = 'cloned'
+		}
 
-			if (dragging.options.persistStyleProperties) {
-				for (let styleName of dragging.options.persistStyleProperties) {
-					followEl.style.setProperty(styleName, DOMUtils.getStyleValue(this.dragging!.el, styleName))
-				}
-			}
+		else {
+			indicator = el.cloneNode(true) as HTMLElement
+			mode = 'cloned'
+		}
 
-			document.body.append(followEl)
-			this.followElement = followEl
-			this.movement = new DragMovement(this.dragging!, followEl, followElCloned, position)
+		return {
+			indicator,
+			mode,
+		}
+	}
+
+	protected initDraggingIndicatorStyle(indicator: HTMLElement, mode: 'cloned' | 'created') {
+		let dragging = this.dragging!
+
+		if (mode === 'cloned') {
+			indicator.style.width = this.dragging!.rect.width + 'px'
+			indicator.style.height = this.dragging!.rect.height + 'px'
+		}
+		else if ((dragging.options as DraggableOptions).persistStyleProperties) {
+			for (let styleName of (dragging.options as DraggableOptions).persistStyleProperties!) {
+				indicator.style.setProperty(styleName, DOMUtils.getStyleValue(dragging.el!, styleName))
+			}
+		}
+
+		if (dragging.options.draggingClassName) {
+			indicator.classList.add(...dragging.options.draggingClassName.split(' '))
 		}
 	}
 
 	/** Translate dragging element to keep follows with mouse. */
-	translateDraggingElement(moves: Coord, e: MouseEvent) {
-		this.movement?.translateDraggingElement(moves, e)
+	translateDraggingIndicator(moves: Coord, e: MouseEvent) {
+		this.placer?.translateDraggingElement(moves, e)
+	}
+
+	/** After raw dragging element get reused and leaves it's data. */
+	tryUpdateDraggingEl(el: HTMLElement, data: any, index: number) {
+		let dragging = this.dragging
+		if (!dragging || dragging.container !== el.parentElement) {
+			return
+		}
+
+		if (dragging.data === data && dragging.index === index) {
+			dragging.el = el
+			el.style.visibility = 'hidden'
+		}
+		else if (el === dragging.el
+			&& !(dragging.data === data && dragging.index === index)
+		) {
+			dragging.el = null
+			el.style.visibility = ''
+		}
 	}
 
 	/** When dragging and enter a draggable. */
 	enterDrag(drag: DraggableBase) {
 		if (this.canEnterToSwapWith(drag)) {
-			this.movement?.onEnterDrag(drag)
+			this.placer?.onEnterDrag(drag)
 		}
 	}
 
 	/** Whether dragging can swap with draggable. */
-	private canEnterToSwapWith(drag: DraggableBase): drag is orderable {
+	protected canEnterToSwapWith(drag: DraggableBase): drag is orderable {
 		return !!(
 			this.dragging
 				&& this.dragging.mode === 'order'
 				&& this.dragging.options.name === drag.options.name
-				&& this.dragging !== drag
+				&& !(this.dragging.data === drag.data && this.dragging.index === drag.index)
 		)
 	}
 
-	/** When dragging and enter a droppable. */
-	enterDrop(dropping: droppable) {
+	/** 
+	 * When dragging and enter a droppable.
+	 * Returns whether entered.
+	 */
+	enterDrop(dropping: droppable): boolean {
 		this.enteredDroppable.add(dropping)
 
 		if (this.canDropTo(dropping)) {
 			dropping.fireEnter(this.dragging!)
 			this.activeDrop = dropping
-			this.movement?.onEnterDrop(dropping)
+			this.placer?.onEnterDrop(dropping)
+
+			return true
 		}
+
+		return false
 	}
 
 	/** Whether dragging can drop to a droppable. */
-	private canDropTo(drop: droppable): boolean {
+	protected canDropTo(drop: droppable): boolean {
 		let dragging = this.dragging
 
 		if (!dragging) {
@@ -172,9 +264,10 @@ class DragDropRelationship {
 	leaveDrop(dropping: droppable) {
 		this.enteredDroppable.delete(dropping)
 
+		// When can auto scroll, not fires leave.
 		if (this.activeDrop === dropping) {
 			dropping.fireLeave(this.dragging!)
-			this.movement?.onLeaveDrop(dropping)
+			this.placer?.onLeaveDrop(dropping)
 			this.activeDrop = null
 		}
 	}
@@ -186,24 +279,15 @@ class DragDropRelationship {
 		}
 
 		let dragging = this.dragging
-		let movement = this.movement
+		let movement = this.placer
 		let activeDrop = this.activeDrop
 
 		this.dragging = null
-		this.movement = null
+		this.placer = null
 		this.activeDrop = null
 
-		if (this.followElementRendered) {
-			this.followElementRendered.remove()
-			this.followElementRendered = null
-		}
-
-		if (this.followElement) {
-			this.followElement.remove()
-			this.followElement = null
-		}
-
 		// No need to call `leaveDrop` here.
+		// Play leave transition firstly.
 		if (movement) {
 			let canDrop = movement.canDrop() && activeDrop
 			let insertIndex = movement.getInsertIndex()
@@ -213,6 +297,22 @@ class DragDropRelationship {
 			if (canDrop) {
 				activeDrop!.fireDrop(dragging, insertIndex)
 			}
+		}
+
+		// Then recycle elements.
+		if (dragging.el) {
+			dragging.el.style.visibility = ''
+		}
+
+		if (this.followElementRendered) {
+			this.followElementRendered.remove()
+			this.followElementRendered = null
+		}
+
+		// Not remove it here
+		if (this.draggingIndicator) {
+			this.draggingIndicator.remove()
+			this.draggingIndicator = null
 		}
 	}
 }

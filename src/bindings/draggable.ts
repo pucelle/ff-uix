@@ -1,9 +1,11 @@
 import {Binding, Part, PartCallbackParameterMask, RenderResultRenderer, WebTransitionEasingName} from 'lupos.html'
-import {Coord, EventUtils} from 'ff-kit'
 import {DOMEvents} from 'lupos'
 import {GlobalDragDropRelationship} from './drag-drop-helpers/relationship'
-import {registerDraggable} from './drag-drop-helpers/all-draggable'
 import {droppable} from './droppable'
+import {DragMover} from './drag-drop-helpers/drag-mover'
+import {device} from '../tools/device'
+import {SimulatedEvents} from 'ff-kit'
+import {registerDraggable, unregisterDraggable} from './drag-drop-helpers/all-draggable'
 
 
 export interface DraggableOptions {
@@ -20,7 +22,10 @@ export interface DraggableOptions {
 	/** The class name to apply after start dragging. */
 	draggingClassName?: string
 
-	/** Which style value should be persisted, like width, height. */
+	/** 
+	 * Which style value should be persisted besides cloning for dragging indicator,
+	 * like width, height.
+	 */
 	persistStyleProperties?: (string & keyof CSSStyleDeclaration)[]
 
 	/** Transition duration when playing dragging movement, in milliseconds. */
@@ -29,8 +34,11 @@ export interface DraggableOptions {
 	/** Transition easing when playing dragging movement. */
 	transitionEasing?: WebTransitionEasingName
 
-	/** Can cause nearest scroller to scroll when touch edges of scroll area. */
-	canCauseScrolling?: boolean
+	/** 
+	 * Can cause nearest scroller to scroll when touch edges of scroll area.
+	 * Default value is `false`.
+	 */
+	autoScroll?: boolean
 
 	/** 
 	 * Generate an element to follow mouse after start dragging.
@@ -42,7 +50,7 @@ export interface DraggableOptions {
 	 * On dragging start.
 	 * If prevent default of `e`, will stop dragging action.
 	 */
-	onStart?: (e: MouseEvent) => void
+	onStart?: (e: PointerEvent | TouchEvent) => void
 
 	/** 
 	 * On dragging end.
@@ -53,9 +61,8 @@ export interface DraggableOptions {
 
 const DefaultDraggableOptions: DraggableOptions = {
 	name: '',
-	canCauseScrolling: false,
+	autoScroll: false,
 }
-
 
 
 /** 
@@ -78,9 +85,6 @@ export abstract class DraggableBase<T = any> implements Part {
 	index: number = -1
 
 	protected connected: boolean = false
-	protected inHanding: boolean = false
-	protected inDragging: boolean = false
-	protected startPosition: DOMPoint | null = null
 
 	constructor(el: Element, context: any) {
 		this.el = el as HTMLElement
@@ -92,14 +96,17 @@ export abstract class DraggableBase<T = any> implements Part {
 			return
 		}
 
-		registerDraggable(this)
-
-		// Use mouse event to handle `reorder` dragging.
-		DOMEvents.on(this.el, 'mousedown', this.onMouseDown, this)
-		DOMEvents.on(this.el, 'mouseenter', this.onMouseEnter, this)
+		if (device.touch) {
+			SimulatedEvents.on(this.el, 'hold:start', this.onPointerDownOrHold, this)
+		}
+		else {
+			DOMEvents.on(this.el, 'pointerdown', this.onPointerDownOrHold, this)
+		}
 
 		this.el.setAttribute('draggable', 'false')
 		this.connected = true
+
+		registerDraggable(this)
 	}
 
 	beforeDisconnectCallback(param: PartCallbackParameterMask | 0) {
@@ -107,15 +114,15 @@ export abstract class DraggableBase<T = any> implements Part {
 			return
 		}
 
-		DOMEvents.off(this.el, 'mousedown', this.onMouseDown, this)
-		DOMEvents.off(this.el, 'mouseenter', this.onMouseEnter, this)
+		DOMEvents.off(this.el, 'mousedown', this.onPointerDownOrHold, this)
 
-		this.endDragging()
 		this.el.removeAttribute('draggable')
 		this.connected = false
+
+		unregisterDraggable(this)
 	}
 
-	protected onMouseDown(e: MouseEvent) {
+	protected onPointerDownOrHold(e: MouseEvent | TouchEvent) {
 
 		// If have `matchSelector` and not match, ignore.
 		if (this.options.matchSelector) {
@@ -125,73 +132,35 @@ export abstract class DraggableBase<T = any> implements Part {
 			}
 		}
 
-		e.preventDefault()
-
-		this.inHanding = true
-		this.inDragging = false
-		this.startPosition = EventUtils.getClientPosition(e)
-	
-		DOMEvents.on(document, 'mousemove', this.onMouseMove, this)
-		DOMEvents.on(document, 'mouseup', this.onMouseUp, this)
+		this.initMover(e)
 	}
 
-	protected onMouseMove(e: MouseEvent) {
-		let currentPosition = EventUtils.getClientPosition(e)
-
-		let moves: Coord = {
-			x: currentPosition.x - this.startPosition!.x,
-			y: currentPosition.y - this.startPosition!.y,
-		}
-
-		let movesLength = Math.sqrt(moves.x ** 2 + moves.y ** 2)
-
-		if (!this.inDragging && movesLength > 5) {
-			this.options.onStart?.call(this.context, e)
-
-			// Prevent dragging this time.
-			if (e.defaultPrevented) {
-				this.endDragging()
-			}
-			else {
-				GlobalDragDropRelationship.startDragging(this, e)
-				this.startPosition = currentPosition
-				this.inDragging = true
-
-				moves.x = 0
-				moves.y = 0
-			}
-		}
+	protected initMover(e: MouseEvent | TouchEvent) {
 		
-		if (this.inDragging) {
-			GlobalDragDropRelationship.translateDraggingElement(moves, e)
-		}
+		// Not persist mover, this object is reuseable.
+		let mover = new DragMover(
+			false,
+			this.onDragStart.bind(this),
+			this.onDragEnd.bind(this)
+		)
+
+		mover.setDragStart(e)
 	}
 
-	protected onMouseUp() {
-		this.endDragging()
+	protected onDragStart(e: PointerEvent | TouchEvent) {
+		this.options.onStart?.call(this.context, e)
+		GlobalDragDropRelationship.startDragging(this, e)
 	}
 
-	protected endDragging() {
-		if (this.inHanding) {
-			DOMEvents.off(document, 'mousemove', this.onMouseMove, this)
-			DOMEvents.off(document, 'mouseup', this.onMouseUp, this)
-			this.inHanding = false
-		}
+	protected onDragEnd() {
+		let activeDroppable = GlobalDragDropRelationship.activeDrop
+		GlobalDragDropRelationship.endDragging()
 
-		if (this.inDragging) {
-			let activeDroppable = GlobalDragDropRelationship.activeDrop
-			GlobalDragDropRelationship.endDragging()
-
-			if (this.options.draggingClassName) {
-				this.el.classList.remove(this.options.draggingClassName)
-			}
-
-			this.options.onEnd?.call(this.context, activeDroppable)
-		}
+		this.options.onEnd?.call(this.context, activeDroppable)
 	}
 
-	protected onMouseEnter() {
-		GlobalDragDropRelationship.enterDrag(this)
+	protected onDataChanged() {
+		GlobalDragDropRelationship.tryUpdateDraggingEl(this.el, this.data, this.index)
 	}
 }
 
@@ -203,14 +172,30 @@ export abstract class DraggableBase<T = any> implements Part {
  * `:draggable=${data, ?options}`
  * - `data`: Data item to identify current dragging item.
  * - `options` Draggable options.
+ * 
+ * For bound element, you may need to set styles to prevent default selection and hold action:
+ * `
+ *  user-select: none;
+ *	-webkit-user-select: none;
+ *	-webkit-touch-callout: none;
+ *  touch-action: none;
+ * `
+ * 
+ * or `@include non-select;`.
  */
 export class draggable<T = any> extends DraggableBase<T> implements Binding, Part {
 
 	readonly mode: string = 'drag'
 	
 	update(data: T, options: Partial<DraggableOptions> = {}) {
+		let dataChanged = data !== this.data
+
 		this.data = data
 		this.options = {...DefaultDraggableOptions, ...options}
+
+		if (dataChanged) {
+			this.onDataChanged()
+		}
 	}
 }
 

@@ -1,20 +1,21 @@
 import {Coord, DOMUtils, HVDirection, ScrollUtils} from 'ff-kit'
-import {DraggableBase} from '../draggable'
+import {DraggableBase, DraggableOptions} from '../draggable'
 import {droppable} from '../droppable'
-import {EdgeMovementTimer} from '../../components/rect-selection-helpers/edge-movement-timer'
+import {EdgeMoveTimer} from '../../tools/edge-move-timer'
+import {DraggingProperties} from './types'
 
 
-/** To handle draggable element movements. */
-export class DragMovement {
+/** To handle items placement after drag over. */
+export class DragPlacer {
 	
 	/** Dragging draggable. */
-	protected readonly dragging: DraggableBase
+	protected readonly dragging: DraggingProperties<DraggableOptions>
 
 	/** Dragging element. */
-	protected readonly draggingEl: HTMLElement
+	protected readonly draggingIndicator: HTMLElement
 
-	/** Keeps original style text for dragging element and restore it after dragging end. */
-	protected readonly startStyleText: string | null = null
+	/** Whether the dragging el is cloned. */
+	protected draggingIndicatorMode: 'cloned' | 'created'
 
 	/** Dragging element translate. */
 	protected translate: Coord = {x: 0, y: 0}
@@ -29,61 +30,55 @@ export class DragMovement {
 	protected scrollerPosition: number = 0
 
 	/** To do timer after mouse leaves edge. */
-	protected edgeTimer: EdgeMovementTimer | null = null
+	protected edgeTimer: EdgeMoveTimer | null = null
 
 	constructor(
-		dragging: DraggableBase,
+		dragging: DraggingProperties<DraggableOptions>,
 		draggingEl: HTMLElement,
-		applyDraggingStyle: boolean,
+		draggingElMode: 'cloned' | 'created',
 		mousePosition: Coord
 	) {
 		this.dragging = dragging
-		this.draggingEl = draggingEl
+		this.draggingIndicator = draggingEl
+		this.draggingIndicatorMode = draggingElMode
 
-		if (applyDraggingStyle && dragging.mode === 'order') {
-			this.startStyleText = this.draggingEl.style.cssText
+		this.setGlobalDraggingStyle()
+
+		if (draggingElMode) {
+			this.setSelfDraggingStyle(mousePosition)
 		}
 
-		this.setBaseDraggingStyle(mousePosition)
-
-		if (applyDraggingStyle) {
-			this.setAdditionalDraggingStyle()
-		}
-
-		if (dragging.options.canCauseScrolling) {
-			this.initScroller()
+		if (dragging.options.autoScroll) {
+			this.initEdgeScroller()
 		}
 	}
 
 	/** Apply mouse position to dragging followed. */
-	protected setBaseDraggingStyle(mousePosition: Coord) {
+	protected setGlobalDraggingStyle() {
 		document.body.style.cursor = 'grabbing'
 		document.body.style.userSelect = 'none'
-		
-		let elMarginVector = {
-			x: DOMUtils.getNumericStyleValue(this.draggingEl, 'marginLeft'),
-			y: DOMUtils.getNumericStyleValue(this.draggingEl, 'marginTop'),
-		}
-
-		this.draggingEl.style.left = mousePosition.x - elMarginVector.x + 'px'
-		this.draggingEl.style.top = mousePosition.y - elMarginVector.y + 'px'
 	}
 
 	/** Set dragging style for dragging element. */
-	protected setAdditionalDraggingStyle() {
-		if (this.draggingEl.localName !== 'tr') {
-			this.draggingEl.style.position = 'fixed'
+	protected setSelfDraggingStyle(mousePosition: Coord) {
+		let elMarginVector = {
+			x: DOMUtils.getNumericStyleValue(this.dragging.el!, 'marginLeft'),
+			y: DOMUtils.getNumericStyleValue(this.dragging.el!, 'marginTop'),
 		}
-		
-		this.draggingEl.style.zIndex = '9999'
-		this.draggingEl.style.boxShadow = `0 0 var(--popup-shadow-blur-radius) var(--popup-shadow-color)`
-		this.draggingEl.style.pointerEvents = 'none'
-		this.draggingEl.style.willChange = 'transform'
+
+		this.draggingIndicator.style.position = 'fixed'
+		this.draggingIndicator.style.left = mousePosition.x - elMarginVector.x + 'px'
+		this.draggingIndicator.style.top = mousePosition.y - elMarginVector.y + 'px'
+
+		this.draggingIndicator.style.zIndex = '9999'
+		this.draggingIndicator.style.boxShadow = `0 0 var(--popup-shadow-blur-radius) var(--popup-shadow-color)`
+		this.draggingIndicator.style.pointerEvents = 'none'
+		this.draggingIndicator.style.willChange = 'transform'
 	}
 
 	/** Init scroller if need. */
-	protected initScroller() {
-		let wrapperAndDirection = ScrollUtils.findClosestCSSScrollWrapper(this.dragging.el)
+	protected initEdgeScroller() {
+		let wrapperAndDirection = ScrollUtils.findClosestCSSScrollWrapper(this.dragging.el!)
 
 		if (wrapperAndDirection) {
 			this.scroller = wrapperAndDirection.wrapper
@@ -93,7 +88,7 @@ export class DragMovement {
 				: this.scrollDirection === 'horizontal' ? this.scroller.scrollLeft
 				: 0
 
-			this.edgeTimer = new EdgeMovementTimer(this.scroller, {padding: 0})
+			this.edgeTimer = new EdgeMoveTimer(this.scroller, {padding: 0})
 			this.edgeTimer.onUpdate = this.onEdgeTimerUpdate.bind(this)
 		}
 	}
@@ -110,7 +105,7 @@ export class DragMovement {
 	/** Translate dragging element follow mouse. */
 	translateDraggingElement(moves: Coord, e: MouseEvent) {
 		this.translate = moves
-		this.draggingEl.style.transform = `translate(${moves.x}px, ${moves.y}px)`
+		this.draggingIndicator.style.transform = `translate(${moves.x}px, ${moves.y}px)`
 		this.edgeTimer?.updateEvent(e)
 	}
 
@@ -124,16 +119,16 @@ export class DragMovement {
 		return -1
 	}
 
-	protected onEdgeTimerUpdate(movements: Coord, frameTime: number) {
+	protected onEdgeTimerUpdate(moves: Coord, frameTime: number) {
 		if (!this.scroller) {
 			return
 		}
 
 		if (this.scrollDirection === 'vertical') {
-			if (movements.y !== 0) {
+			if (moves.y !== 0) {
 				let clientSize = this.scroller.clientHeight
 				let scrollSize = this.scroller.scrollHeight
-				let scrollPosition = this.scrollerPosition + this.getIncrementalMovement(movements.y, frameTime)
+				let scrollPosition = this.scrollerPosition + this.getIncrementalMovement(moves.y, frameTime)
 
 				scrollPosition = Math.max(scrollPosition, 0)
 				scrollPosition = Math.min(scrollPosition, scrollSize - clientSize)
@@ -145,10 +140,10 @@ export class DragMovement {
 			}
 		}
 		else if (this.scrollDirection === 'horizontal') {
-			if (movements.x !== 0) {
+			if (moves.x !== 0) {
 				let clientSize = this.scroller.clientWidth
 				let scrollSize = this.scroller.scrollWidth
-				let scrollPosition = this.scrollerPosition + this.getIncrementalMovement(movements.x, frameTime)
+				let scrollPosition = this.scrollerPosition + this.getIncrementalMovement(moves.x, frameTime)
 				
 				scrollPosition = Math.max(scrollPosition, 0)
 				scrollPosition = Math.min(scrollPosition, scrollSize - clientSize)
@@ -163,8 +158,8 @@ export class DragMovement {
 
 	protected getIncrementalMovement(move: number, frameTime: number) {
 
-		// Equals every frame moves by `move`.
-		return move * frameTime / 16.66
+		// Equals every frame moves by half `move`.
+		return move * frameTime / 16.66 / 2
 	}
 
 	/** End dragging and play drag end transition. */
@@ -176,12 +171,5 @@ export class DragMovement {
 	protected clearDraggingStyle() {
 		document.body.style.cursor = ''
 		document.body.style.userSelect = ''
-
-		if (this.startStyleText) {
-			this.draggingEl.style.cssText = this.startStyleText
-
-			// Normally anchor-alignment has been removed now.
-			this.draggingEl.style.removeProperty('anchor-name')
-		}
 	}
 }

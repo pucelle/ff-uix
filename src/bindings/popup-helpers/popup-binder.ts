@@ -67,7 +67,7 @@ export class PopupTriggerBinder {
 
 	/** Must re-bind after change to a different trigger type. */
 	setTriggerType(trigger: TriggerType) {
-		trigger = this.mapTriggerType(trigger)
+		trigger = this.trigger
 
 		if (this.trigger !== trigger) {
 			this.clear()
@@ -78,16 +78,6 @@ export class PopupTriggerBinder {
 	/** If specified, only when element match this selector then triggers action. */
 	setMatchSelector(matchSelector: string | undefined) {
 		this.matchSelector = matchSelector
-	}
-
-	private mapTriggerType(trigger: TriggerType): TriggerType {
-
-		// If can't hover by mouse or pencil, uses mousedown event instead.
-		// if (trigger === 'hover') {
-		// 	trigger = 'mousedown'
-		// }
-
-		return trigger
 	}
 
 	/** Bind enter events if haven't bound. */
@@ -112,7 +102,6 @@ export class PopupTriggerBinder {
 		else if (this.trigger === 'hold') {
 			SimulatedEvents.on(this.el, 'hold:start', this.triggerWithoutDelay, this, {
 				becomeHoldAfterDuration: this.config.getOptions().showDelay,
-				prevent: true,
 			})
 		}
 

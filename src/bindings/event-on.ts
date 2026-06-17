@@ -16,8 +16,18 @@ export type EventOptionsMixed = AddEventListenerOptions| SimulatedEvents.Options
 /**
  * To bind dynamic event type, can be used to bind simulated events.
  * 
- * `:eventOn=${onTouch ? 'touchstart' : 'mousedown', (e) => ...}`
- * `:eventOn=${onTouch ? 'hold' : 'click', (e) => ...}`
+ * `:eventOn=${onTouch ? 'touchstart' : 'mousedown', (e) => ...}, options?`
+ * `:eventOn=${onTouch ? 'hold' : 'click', (e) => ...}, options?`
+ * 
+ * For hold event bound element, you may need to set styles to prevent default selection and hold action:
+ * `
+ *  user-select: none;
+ *	-webkit-user-select: none;
+ *	-webkit-touch-callout: none;
+ * `
+ * 
+ * or
+ * `@include non-select;`.
  */
 export class eventOn implements Binding, Part {
 
@@ -26,7 +36,7 @@ export class eventOn implements Binding, Part {
 	protected type: EventTypeMixed | null = null
 	protected handler: EventHandlerMixed | null = null
 	protected options: EventOptionsMixed | undefined = undefined
-	protected boundType: EventType | null = null
+	protected boundType: EventTypeMixed | null = null
 
 	constructor(el: Element, context: any) {
 		this.el = el
@@ -41,7 +51,6 @@ export class eventOn implements Binding, Part {
 
 	afterConnectCallback(_param: PartCallbackParameterMask | 0) {
 		if (this.boundType && this.boundType !== this.type) {
-
 			if (SimulatedEvents.hasType(this.boundType)) {
 				SimulatedEvents.off(this.el, this.boundType as SimulatedEvents.EventType, this.handle as any, this)
 			}
@@ -59,6 +68,8 @@ export class eventOn implements Binding, Part {
 			else {
 				DOMEvents.on(this.el, this.type, this.handle, this, this.options as AddEventListenerOptions)
 			}
+
+			this.boundType = this.type
 		}
 	}
 

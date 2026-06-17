@@ -2,7 +2,7 @@ import {Box, EventUtils, Vector} from 'ff-kit'
 import {FrameLoop} from 'lupos.html'
 
 
-export interface EdgeMovementTimerOptions {
+export interface EdgeHoldTimerOptions {
 
 	/** 
 	 * Especially for touch events, finger may can't strictly touch viewport edge,
@@ -12,26 +12,26 @@ export interface EdgeMovementTimerOptions {
 }
 
 
-const DefaultEdgeMovementTimerOptions: EdgeMovementTimerOptions = {
+const DefaultEdgeHoldTimerOptions: EdgeHoldTimerOptions = {
 	padding: 1,
 }
 
 
 /** Get periodically callback per animation frame after mouse touches viewport edge. */
-export class EdgeMovementTimer {
+export class EdgeMoveTimer {
 
 	/** 
 	 * The new movement relative to last time update.
 	 * E.g., mouse leaves edge for 100px, and for each 16ms,
-	 * receive update movements for 100 and frame time 16.
+	 * receive moves for 100 and frame time 16.
 	 */
-	onUpdate!: (movements: Vector, frameTime: number) => void
+	onUpdate!: (moves: Vector, frameTime: number) => void
 
 	/** Rect of `el`. */
 	private rect: DOMRect
 
 	/** The options. */
-	private options: EdgeMovementTimerOptions
+	private options: EdgeHoldTimerOptions
 
 	/** The previous update time. */
 	private lastUpdateTime: number = 0
@@ -45,8 +45,8 @@ export class EdgeMovementTimer {
 	/** Callback every animation frame. */
 	private frameLoop: FrameLoop
 
-	constructor(el: Element, options: Partial<EdgeMovementTimerOptions> = {}) {
-		this.options = {...DefaultEdgeMovementTimerOptions, ...options}
+	constructor(el: Element, options: Partial<EdgeHoldTimerOptions> = {}) {
+		this.options = {...DefaultEdgeHoldTimerOptions, ...options}
 		this.rect = Box.fromLike(el.getBoundingClientRect()).expandSelf(-this.options.padding)
 		this.frameLoop = new FrameLoop(this.onAnimationFrame.bind(this))
 	}

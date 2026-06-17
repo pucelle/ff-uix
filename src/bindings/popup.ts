@@ -379,7 +379,7 @@ export class popup implements Binding, Part {
 		}
 
 		if (this.options.activeClassName) {
-			this.getActiveTarget().classList.add(this.options.activeClassName)
+			this.getActiveTarget().classList.add(...this.options.activeClassName.split(' '))
 		}
 
 		this.options.onOpened?.()

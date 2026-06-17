@@ -1,6 +1,6 @@
 import {Box, Coord, EventUtils, HVDirection, NumberUtils, ScrollUtils} from 'ff-kit'
 import {Component, css, html, RenderResult} from 'lupos.html'
-import {EdgeMovementTimer} from './rect-selection-helpers/edge-movement-timer'
+import {EdgeMoveTimer} from '../tools/edge-move-timer'
 import {DOMEvents} from 'lupos'
 
 
@@ -87,7 +87,7 @@ export class RectSelection extends Component<RectSelectionEvents> {
 	protected scrollDirection: HVDirection | null = null
 
 	/** To do timer after mouse leaves edge. */
-	protected edgeTimer: EdgeMovementTimer | null = null
+	protected edgeTimer: EdgeMoveTimer | null = null
 
 	/** Whether started selecting. */
 	protected inSelecting: boolean = false
@@ -119,7 +119,7 @@ export class RectSelection extends Component<RectSelectionEvents> {
 		let point = EventUtils.getClientPosition(e)
 		this.startScrollPoint = this.clientPointToLocal(point)
 
-		this.edgeTimer = new EdgeMovementTimer(this.scroller!, {padding: this.edgePadding})
+		this.edgeTimer = new EdgeMoveTimer(this.scroller!, {padding: this.edgePadding})
 		this.edgeTimer.onUpdate = this.onEdgeTimerUpdate.bind(this)
 
 		this.startEvent = e

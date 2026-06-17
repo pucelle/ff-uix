@@ -1,8 +1,9 @@
 import {DOMEvents} from 'lupos'
 import {Binding, Part, PartCallbackParameterMask} from 'lupos.html'
 import {GlobalDragDropRelationship} from './drag-drop-helpers/relationship'
-import {DraggableBase} from './draggable'
 import {HVDirection} from 'ff-kit'
+import {DraggingProperties} from './drag-drop-helpers/types'
+import {registerDroppable, unregisterDroppable} from './drag-drop-helpers/all-draggable'
 
 
 export interface DroppableOptions<T> {
@@ -23,11 +24,11 @@ export interface DroppableOptions<T> {
 	readonly enterClassNameApplyTo?: string
 
 	/** 
-	 * The align direction of child draggable elements.
+	 * The growth direction of child draggable elements.
 	 * It indices in which direction an appended draggable element will align.
 	 * It's default value is `vertical`.
 	 */
-	itemsAlignDirection?: HVDirection
+	itemsDirection?: HVDirection
 
 	/** Determines whether specified dragging data can drop to current droppable. */
 	canDrop?: (data: T) => boolean
@@ -80,8 +81,6 @@ export class droppable<T = any> implements Binding, Part {
 			return
 		}
 
-		DOMEvents.on(this.el, 'mouseenter', this.onMouseEnter, this)
-
 		if (this.options.fileDroppable) {
 			DOMEvents.on(this.el, 'dragover', this.onDragOver, this)
 			DOMEvents.on(this.el, 'dragenter', this.onDragEnter, this)
@@ -89,14 +88,13 @@ export class droppable<T = any> implements Binding, Part {
 		}
 
 		this.connected = true
+		registerDroppable(this)
 	}
 
 	beforeDisconnectCallback(param: PartCallbackParameterMask | 0) {
 		if ((param & PartCallbackParameterMask.FromOwnStateChange) === 0) {
 			return
 		}
-
-		DOMEvents.off(this.el, 'mouseenter', this.onMouseEnter, this)
 
 		if (this.options.fileDroppable) {
 			DOMEvents.off(this.el, 'dragover', this.onDragOver, this)
@@ -105,16 +103,12 @@ export class droppable<T = any> implements Binding, Part {
 		}
 
 		this.connected = false
+		unregisterDroppable(this)
 	}
 
 	update(ondrop: (data: T, toIndex: number, fromIndex: number) => void, options: Partial<DroppableOptions<T>> = {}) {
 		this.dropCallback = ondrop
 		this.options = {...DefaultDroppableOptions, ...options}
-	}
-
-	protected onMouseEnter() {
-		GlobalDragDropRelationship.enterDrop(this)
-		DOMEvents.once(this.el, 'mouseleave', this.onMouseLeave, this)
 	}
 
 	protected onDragEnter(e: DragEvent) {
@@ -168,7 +162,7 @@ export class droppable<T = any> implements Binding, Part {
 	protected mayAddEnterClassName() {
 		if (this.options.enterClassName) {
 			let el = this.getElementToApplyEnterStyle()
-			el?.classList.add(this.options.enterClassName)
+			el?.classList.add(...this.options.enterClassName.split(' '))
 		}
 	}
 
@@ -232,7 +226,7 @@ export class droppable<T = any> implements Binding, Part {
 	}
 
 	/** After draggable enter current droppable. */
-	fireEnter(dragging: DraggableBase<T>) {
+	fireEnter(dragging: DraggingProperties) {
 		this.mayAddEnterClassName()
 
 		if (this.options.onEnter) {
@@ -245,7 +239,7 @@ export class droppable<T = any> implements Binding, Part {
 	}
 
 	/** After draggable leave current droppable. */
-	fireLeave(dragging: DraggableBase) {
+	fireLeave(dragging: DraggingProperties) {
 		this.mayRemoveEnterClassName()
 
 		if (this.options.onLeave) {
@@ -257,7 +251,7 @@ export class droppable<T = any> implements Binding, Part {
 	 * After draggable drop to current droppable.
 	 * `insertIndex` indicates at which index should insert into on 'reorder' mode.
 	 */
-	fireDrop(dragging: DraggableBase, insertIndex: number) {
+	fireDrop(dragging: DraggingProperties, insertIndex: number) {
 		this.mayRemoveEnterClassName()
 		this.dropCallback.call(this.context, dragging.data as T, insertIndex, dragging.index)
 	}

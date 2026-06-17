@@ -2,8 +2,6 @@ import {Component, html, css} from 'lupos.html'
 import {EventUtils, NumberUtils} from 'ff-kit'
 import {DOMEvents} from 'lupos'
 import {tooltip, TooltipOptions} from '../bindings/tooltip'
-import {eventOn} from '../bindings/event-on'
-import {device} from '../tools/device'
 
 
 interface SliderEvents {
@@ -161,7 +159,7 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 				:class=${this.vertical ? 'slider-vertical' : 'slider-horizontal'}
 				:class.dragging=${this.dragging}
 				:tooltip=${this.renderTooltipContent, tooltipOptions}
-				:eventOn=${device.touch ? 'touchstart' : 'mousedown', this.onMouseDownOrTouchStart}
+				@pointerdown=${this.onPointerDown}
 				@focus=${this.onFocus}
 				@blur=${this.onBlur}
 			>
@@ -235,35 +233,42 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 		return NumberUtils.clamp(percentage, 0, 100)
 	}
 
-	protected onMouseDownOrTouchStart(this: Slider, e: MouseEvent | TouchEvent) {
+	protected onPointerDown(this: Slider, e: PointerEvent) {
 		let rect = this.grooveEl.getBoundingClientRect()
 
 		this.dragging = true
 
-		// If clicked the ball, not move; only move when clicked the groove.
+
+		// If clicked the slider ball, not move.
+		// only move when clicked the groove.
 		if (!(e.target as Element).matches('.slider-ball')) {
 			this.changeValueByEvent(e, rect)
 		}
 
-		let onMouseOrTouchMove = (e: MouseEvent | TouchEvent) => {
+
+		let onPointerMove = (e: PointerEvent) => {
+
 			// Disable selecting text unexpectedly, and make sure ball not lose focus.
 			e.preventDefault()
+
 			this.changeValueByEvent(e, rect)
 		}
 
-		DOMEvents.on(document, device.touch ? 'touchmove' : 'mousemove', onMouseOrTouchMove)
 
-		DOMEvents.once(document, device.touch ? 'touchend' : 'mouseup', () => {
-			DOMEvents.off(document, device.touch ? 'touchmove' : 'mousemove', onMouseOrTouchMove)
-
+		let onPointerUp = () => {
+			DOMEvents.off(document, 'pointermove', onPointerMove)
 			this.dragging = false
 			this.fire('dragend')
-		})
+		}
+
+		
+		DOMEvents.on(document, 'pointermove', onPointerMove)
+		DOMEvents.once(document, 'pointerup', onPointerUp)
 
 		this.fire('dragstart')
 	}
 
-	protected changeValueByEvent(this: Slider, e: MouseEvent | TouchEvent, rect: DOMRect) {
+	protected changeValueByEvent(this: Slider, e: PointerEvent, rect: DOMRect) {
 		let clientPosition = EventUtils.getClientPosition(e)
 		let rate
 
