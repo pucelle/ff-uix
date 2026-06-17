@@ -67,8 +67,6 @@ export class PopupTriggerBinder {
 
 	/** Must re-bind after change to a different trigger type. */
 	setTriggerType(trigger: TriggerType) {
-		trigger = this.trigger
-
 		if (this.trigger !== trigger) {
 			this.clear()
 			this.trigger = trigger
