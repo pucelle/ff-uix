@@ -1,4 +1,4 @@
-import {DOMUtils, ListUtils, ValueListUtils} from 'ff-kit'
+import {DOMUtils, ListUtils, NumberUtils, ValueListUtils} from 'ff-kit'
 import type {TableColumn} from '../table'
 import {html, inSSR, render} from 'lupos.html'
 import {DOMEvents, barrierDOMReading, barrierDOMWriting} from 'lupos'
@@ -198,7 +198,7 @@ export class ColumnWidthResizer {
 			let cssWidth = i === widths.length - 1
 				? ''
 				: this.columns[i].flex
-				? percent * 100 + '%'
+				? NumberUtils.toDecimal(percent * 100, 2) + '%'
 				: width + 'px'
 
 			headCol.style.width = col.style.width = cssWidth
