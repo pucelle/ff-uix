@@ -172,7 +172,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 
 		return html`
 			<div class="modal-mask"
-				:transition.immediate.global=${fade()}
+				:transition.global=${fade()}
 				@click.stop=${this.onClickMask}
 				@mousedown.stop=${() => {}}
 			/>
@@ -184,7 +184,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			<div tabindex="0" autofocus
 				class="modal"
 				:ref=${this.modalEl}
-				:transition.immediate=${fade()}
+				:transition=${fade()}
 			>
 				${this.renderHeader()}
 				${this.renderContent()}

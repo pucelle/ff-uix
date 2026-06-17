@@ -77,7 +77,7 @@ export class Popup<E = {}> extends Component<E> {
 	protected override render(): RenderResult {
 		return html`
 			<template class="popup" tabindex="0"
-				:transition.immediate=${fade()}
+				:transition=${fade()}
 			>
 				<lu:if ${this.triangle}>
 					<Triangle

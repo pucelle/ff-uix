@@ -450,7 +450,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 
 		return html`
 			<div class="list-subsection"
-				:transition.immediate=${
+				:transition=${
 					() => item.value === this.latestExpandedOrCollapsed
 						? fold() as TransitionResult<Element, FoldTransitionOptions>
 						: null

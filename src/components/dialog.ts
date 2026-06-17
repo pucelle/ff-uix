@@ -218,13 +218,13 @@ export class Dialog<E = {}> extends Component<E> {
 		return html`
 			<template tabindex="0" autofocus
 				class="dialog"
-				:transition.immediate=${fade()}
+				:transition=${fade()}
 				@transition-leave-ended=${this.onLeaveTransitionEnded}
 			>
 				<lu:portal>
 					<div class="dialog-mask"
 						:ref=${this.maskEl}
-						:transition.immediate.global=${fade()}
+						:transition.global=${fade()}
 					/>
 				</lu:portal>
 

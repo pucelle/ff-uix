@@ -106,7 +106,7 @@ export class Popover<E = {}> extends Popup<E> {
 	protected override render() {
 		return html`
 			<template class="popup popover"
-				:transition.immediate=${fade()}
+				:transition=${fade()}
 			>
 				<lu:if ${this.triangle}>
 					<Triangle class="popover-triangle" .direction=${this.triangleDirection} />

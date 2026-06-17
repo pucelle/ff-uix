@@ -242,7 +242,7 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 			<Popup class="select-popup"
 				.triangle=${false}
 				:ref.el=${this.popupEl}
-				:transition.immediate=${fade()}
+				:transition=${fade()}
 			>
 				<List class="select-list"
 					:ref.el=${this.listEl}

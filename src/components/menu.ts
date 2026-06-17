@@ -54,7 +54,7 @@ export class Menu<E = {}> extends Popup<E> {
 	protected override render() {
 		return html`
 			<template class="popup menu"
-				:transition.immediate=${fade()}
+				:transition=${fade()}
 			>
 				<lu:if ${this.triangle}>
 					<Triangle

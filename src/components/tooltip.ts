@@ -80,7 +80,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 	protected override render() {
 		return html`
 			<template class="popup tooltip tooltip-type-${this.type}"
-				:transition.immediate=${fade()}
+				:transition=${fade()}
 			>
 				<lu:if ${this.triangle}>
 					<Triangle class="tooltip-triangle"

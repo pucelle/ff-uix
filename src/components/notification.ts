@@ -212,8 +212,8 @@ export class Notification<E = {}> extends Component<E> {
 					@mouseenter=${() => this.onMouseEnter(item)}
 					@mouseleave=${() => this.onMouseLeave(item)}
 					@transition-leave-ended=${this.onLeaveTransitionEnded}
-					:transition.immediate=${fade()}
-					:transition=${fold()}
+					:transition=${fade()}
+					:transition.leave=${fold()}
 				>
 					<div class="notification-stripe" />
 
