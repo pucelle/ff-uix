@@ -609,6 +609,9 @@ export class popup implements Binding, Part {
 		// Rendered content to be referenced as a slot content by popup,
 		let promise = this.rendered?.remove(!immediately)
 
+		// Must clear usage immediately.
+		this.clearUsage()
+		
 		// After transition end, stop alignment.
 		if (promise) {
 			await promise
@@ -617,24 +620,35 @@ export class popup implements Binding, Part {
 		// Clear rendered and popup.
 		// May need to clear transition immediately later,
 		// so here clear after transition end.
-		this.clearPopup()
+		if (!this.opened) {
+			this.clearPopup()
+		}
 	}
 
-	/** Clears popup content, reset to initial state. */
-	protected clearPopup() {
+	/** Clear usage of shared popups. */
+	protected clearUsage() {
 		if (this.rendered) {
 			SharedPopups.clearCacheUser(this.rendered)
-			this.rendered = null
 		}
 
 		if (this.popup) {
 			this.popup.off('will-disconnect', this.hidePopup, this)
 			SharedPopups.clearPopupUser(this.popup)
+		}
+	}
+
+	/** Clears popup content, reset to initial state. */
+	protected clearPopup() {
+		if (this.rendered) {
+			this.rendered = null
+		}
+
+		if (this.popup) {
 			this.popup = null
 		}
 
-		if (!this.opened) {
-			this.aligner?.stop()
+		if (this.aligner) {
+			this.aligner.stop()
 			this.aligner = null
 		}
 	}
