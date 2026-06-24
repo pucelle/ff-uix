@@ -153,10 +153,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 			trackGet(this, 'endIndex')
 		}
 
-		UpdateQueue.onSyncUpdateStart(this)
 		this.updateRendering()
-		UpdateQueue.onSyncUpdateEnd()
-
 		this.handleUpdated()
 	}
 

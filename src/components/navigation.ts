@@ -183,7 +183,8 @@ export class Navigation<T> extends List<T> {
 		let top = CSSUtils.add(this.sticky.start, CSSUtils.multiply(this.sticky.each, depth)!, depth)
 
 		return {
-			top,
+			'top': top,
+			'z-index': String(20 - depth),
 		}
 	}
 }

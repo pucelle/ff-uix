@@ -269,7 +269,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		this.keyNavigator.update(this.data, this.expanded)
 	}
 
-	@watch(function(){return this.multipleSelect ? undefined : this.selected[0]})
+	@watch(function(){return this.multipleSelect ? undefined : this.selected[0]}, {immediate: true})
 	protected onSingleSelectedChanged(firstSelected: T | undefined) {
 		if (firstSelected === undefined) {
 			return
