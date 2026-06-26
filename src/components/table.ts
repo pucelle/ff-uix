@@ -139,6 +139,8 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			color: color-mix(in srgb, var(--text-color) 70%, var(--background));;
 			font-weight: bold;
 			user-select: none;
+			position: relative;
+			z-index: 1;
 		}
 
 		.table-columns{
