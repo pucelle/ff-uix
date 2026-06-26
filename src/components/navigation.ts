@@ -3,8 +3,7 @@ import {List, ListItem} from './list'
 import {tooltip} from '../bindings/tooltip'
 import {contextmenu} from '../bindings/contextmenu'
 import {PopupOptions} from '../bindings/popup'
-import {CSSUtils} from 'ff-kit'
-import {UpdateQueue} from 'lupos'
+import {CSSUtils, sleep} from 'ff-kit'
 
 
 export interface NavigationSticky {
@@ -81,14 +80,17 @@ export class Navigation<T> extends List<T> {
 
 		if (this.autoScrolled === 'always') {
 			this.expandDeeply(firstSelected)
-			await UpdateQueue.untilComplete()
+
+			// Not delay first screen.
+			await sleep(0)
 
 			let gaps = this.computeTopScrollGaps()
 			this.scrollSelectedToView(gaps, 200)
 		}
 		else if (this.autoScrolled === 'once') {
 			this.expandDeeply(firstSelected)
-			await UpdateQueue.untilComplete()
+
+			await sleep(0)
 
 			let gaps = this.computeTopScrollGaps()
 			this.scrollSelectedToView(gaps, 200)
