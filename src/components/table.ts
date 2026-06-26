@@ -1,4 +1,4 @@
-import {Component, css, html, RenderResult, TemplateResult, PerFrameTransitionEasingName, TransitionResult, inSSR, RenderResultRenderer} from 'lupos.html'
+import {Component, css, html, RenderResult, TemplateResult, PerFrameTransitionEasingName, TransitionResult, IN_SSR, RenderResultRenderer} from 'lupos.html'
 import {Store} from '../data'
 import {computed, DOMEvents, effect, Observed, watch} from 'lupos'
 import {Selections, sleep, ListUtils} from 'ff-kit'
@@ -553,7 +553,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		super.onConnected()
 
 		let stateKeyOptionsList = this.currentStateKeyOptionsList
-		if (stateKeyOptionsList && !inSSR) {
+		if (stateKeyOptionsList && !IN_SSR) {
 			for (let keyOptions of stateKeyOptionsList) {
 				let restored = this.restoreState(keyOptions.key)
 				if (!restored) {
@@ -567,7 +567,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		super.onWillDisconnect()
 
 		let stateKeyOptionsList = this.currentStateKeyOptionsList
-		if (stateKeyOptionsList && !inSSR) {
+		if (stateKeyOptionsList && !IN_SSR) {
 			for (let keyOptions of stateKeyOptionsList) {
 				this.saveState(keyOptions.key, keyOptions.options)
 			}

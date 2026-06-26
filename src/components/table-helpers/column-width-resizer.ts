@@ -1,6 +1,6 @@
 import {DOMUtils, ListUtils, NumberUtils, ValueListUtils} from 'ff-kit'
 import type {TableColumn} from '../table'
-import {html, inSSR, render} from 'lupos.html'
+import {html, IN_SSR, render} from 'lupos.html'
 import {DOMEvents, barrierDOMReading, barrierDOMWriting} from 'lupos'
 
 
@@ -66,7 +66,7 @@ export class ColumnWidthResizer {
 	async updateColumnWidths() {
 		await barrierDOMReading()
 
-		let headAvailableWidth = inSSR ? 1200 : this.head.clientWidth
+		let headAvailableWidth = IN_SSR ? 1200 : this.head.clientWidth
 			- DOMUtils.getNumericStyleValue(this.head, 'paddingLeft')
 			- DOMUtils.getNumericStyleValue(this.head, 'paddingRight')
 

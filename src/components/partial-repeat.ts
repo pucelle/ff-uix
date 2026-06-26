@@ -1,6 +1,6 @@
 import {effect, trackGet, UnObserved, untilBarriersComplete, UpdateQueue} from 'lupos'
 import {Repeat, RepeatRenderFn} from './repeat'
-import {html, inSSR, PartCallbackParameterMask, PerFrameTransitionEasingName} from 'lupos.html'
+import {html, IN_SSR, PartCallbackParameterMask, PerFrameTransitionEasingName} from 'lupos.html'
 import {PartialRenderer} from './repeat-helpers/partial-renderer'
 import {LowerIndexWithin} from '../tools'
 import {locateVisibleIndexAtOffset} from './repeat-helpers/index-locator'
@@ -125,7 +125,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 			return
 		}
 
-		if (inSSR) {
+		if (IN_SSR) {
 			this.endIndex = Math.min(this.reservedCount, this.data.length)
 			super.update()
 			return
@@ -174,7 +174,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	protected override onConnected(this: PartialRepeat<any, {}>) {
 		super.onConnected()
 
-		if (!inSSR) {
+		if (!IN_SSR) {
 			this.initPlaceholders()
 			this.initRenderer()
 			this.renderer?.connect()
