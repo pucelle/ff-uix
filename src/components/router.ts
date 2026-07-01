@@ -1,4 +1,4 @@
-import {Component, html, RenderResult} from 'lupos.html'
+import {Component, html, IN_SSR, RenderResult} from 'lupos.html'
 import {computed, DOMEvents, UnObserved} from 'lupos'
 import {getPathMatcher} from './router-helpers/path-match'
 import {Popup} from './popup'
@@ -389,6 +389,11 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		}
 		else {
 			history.pushState(state, '', uri)
+		}
+
+		// SSR env location is not mutable.
+		if (IN_SSR) {
+			window.location = new URL(uri, location.href) as any
 		}
 
 		this.onRouterChange(isRedirecting ? 'redirect' : 'goto', this.state, oldState)
