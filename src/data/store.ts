@@ -1,4 +1,4 @@
-import {computed, Observed} from 'lupos'
+import {computed, Connectable, Observed} from 'lupos'
 import {ListUtils} from 'ff-kit'
 
 
@@ -22,7 +22,7 @@ export interface StoreOptions<T> {
 
 
 /** `Store` can be used to cache data items while support ordering and filtering. */
-export class Store<T = any> implements StoreOptions<T>, Observed {
+export class Store<T = any> implements StoreOptions<T>, Observed, Connectable {
 	
 	filter: ((item: T) => boolean) | null = null
 	orderRule: ListUtils.OrderKey<T> | ListUtils.OrderFunction<T> | ListUtils.OrderRule<T> | ListUtils.Order<T> | null = null
@@ -33,6 +33,10 @@ export class Store<T = any> implements StoreOptions<T>, Observed {
 	constructor(options: Partial<StoreOptions<T>> = {}) {
 		Object.assign(this, options)
 	}
+
+	onCreated() {}
+	onConnected() {}
+	onWillDisconnect() {}
 
 	/** Set new order rule. */
 	setOrder(

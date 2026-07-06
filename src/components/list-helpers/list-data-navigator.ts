@@ -1,9 +1,9 @@
-import {computed, Observed} from 'lupos'
+import {computed, Connectable, Observed} from 'lupos'
 import {ListItem} from '../list'
 
 
 /** It help to control key navigation inside a tree-like list data. */
-export class ListDataNavigator<T = any> implements Observed {
+export class ListDataNavigator<T = any> implements Observed, Connectable {
 
 	private data: ReadonlyArray<ListItem<T>> = []
 	private expanded: ReadonlyArray<T> = []
@@ -13,6 +13,10 @@ export class ListDataNavigator<T = any> implements Observed {
 	 * Should every time validate items because may add new items quietly.
 	 */
 	private path: {item: ListItem<T>, index: number}[] = []
+
+	onCreated() {}
+	onConnected() {}
+	onWillDisconnect() {}
 
 	/** Correct and get currently active item. */
 	@computed
