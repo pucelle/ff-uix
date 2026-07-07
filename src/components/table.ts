@@ -966,7 +966,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		}
 
 		this.whenUpdated(() => {
-			(this.repeatRef as LiveRepeat).setStartVisibleIndex(startIndex)
+			(this.repeatRef as LiveRepeat)?.setStartVisibleIndex(startIndex)
 		})
 	}
 

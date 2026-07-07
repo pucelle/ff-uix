@@ -1,9 +1,8 @@
-import {Component, css, html} from 'lupos.html'
+import {Component, css, html, on} from 'lupos.html'
 import {Icon} from './icon'
 import {IconLeft, IconRight} from '../icons'
 import {BoxOffsetKey, Coord, NumberUtils} from 'ff-kit'
 import {watchWidth} from '../bindings/watch-size'
-import {eventOn} from '../bindings/event-on'
 
 
 /** Normally for previewing wide contents on pad or phone. */
@@ -105,8 +104,8 @@ export class Carousel extends Component {
 		return html`
 			<template class="carousel"
 				:watchWidth=${(width: number) => this.containerWidth = width}
-				?:eventOn=${slidable, 'slide:translate', this.handleSlideTranslate}
-				?:eventOn=${slidable, 'slide', this.handleSlide}
+				?:on=${slidable, 'slide:translate', this.handleSlideTranslate}
+				?:on=${slidable, 'slide', this.handleSlide}
 			>
 				<div class="carousel-inner"
 					:style.transform="translateX(${translateX}px)"
