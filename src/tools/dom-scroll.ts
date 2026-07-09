@@ -282,6 +282,10 @@ function getUnScrolledOffset(el: HTMLElement, wrapper: HTMLElement, direction: H
 		offset += parent[property]
 		parent = parent.offsetParent as HTMLElement
 
+		if (!parent) {
+			break
+		}
+
 		// Out of range of wrapper.
 		if (parent.contains(wrapper)) {
 			if (parent === wrapper.offsetParent) {

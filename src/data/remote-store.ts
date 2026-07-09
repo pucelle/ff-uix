@@ -1,4 +1,4 @@
-import {computed, effect, Observed} from 'lupos'
+import {computed, Connectable, effect, Observed} from 'lupos'
 import {ListUtils} from 'ff-kit'
 import {PageDataLoader} from './page-data-loader'
 
@@ -29,7 +29,7 @@ export interface RemoteStoreOptions<T> {
  * You should extend this class to implement `dataCountGetter` and `pageDataGetter`,
  * and may also implement `applyOrder` and `applyFilter`,
  */
-export abstract class RemoteStore<T = any> implements RemoteStoreOptions<T>, Observed {
+export abstract class RemoteStore<T = any> implements RemoteStoreOptions<T>, Observed, Connectable {
 
 	pageSize: number = 1
 	preloadPageCount: number = 0
@@ -40,6 +40,10 @@ export abstract class RemoteStore<T = any> implements RemoteStoreOptions<T>, Obs
 	constructor(options: Partial<RemoteStoreOptions<T>> = {}) {
 		Object.assign(this, options)
 	}
+
+	onCreated() {}
+	onConnected() {}
+	onWillDisconnect() {}
 
 	@computed
 	get dataLoader(): PageDataLoader<T> {
