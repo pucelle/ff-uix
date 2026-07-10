@@ -346,7 +346,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 * Goto a new path and update render result, add a history state.
 	 * Note `goto` href parameter ignores prefix.
 	 */
-	goto(href: string, prefix = this.prefix): boolean {
+	goto(href: string, prefix?: string): boolean {
 		return this.navigateTo(href, prefix, false)
 	}
 
@@ -354,12 +354,12 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 * Redirect to a new path and update render result, replace current history state.
 	 * Note `redirectTo` href parameter ignores prefix.
 	 */
-	redirectTo(href: string, prefix = this.prefix): boolean {
+	redirectTo(href: string, prefix?: string): boolean {
 		return this.navigateTo(href, prefix, true)
 	}
 
 	/** `isRedirection` determines redirect or go to a href. */
-	navigateTo(this: UnObserved<Router>, href: string, prefix: string, isRedirection: boolean): boolean {
+	navigateTo(this: UnObserved<Router>, href: string, prefix: string = this.prefix, isRedirection: boolean): boolean {
 		let parsed = this.hrefParser.parseUnprefixed(href)
 		let state: RouterHistoryState
 		let newIndex = (this.state?.index ?? 0) + (isRedirection ? 0 : 1)
