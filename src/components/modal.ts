@@ -156,6 +156,10 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 
 	protected modalEl!: HTMLElement
 
+	constructor(el: HTMLElement = document.createElement('slot')) {
+		super(el)
+	}
+
 	protected override render() {
 		return html`
 			<template>
@@ -262,10 +266,6 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 				<slot />
 			</div>
 		`
-	}
-
-	protected override onCreated() {
-		super.onCreated()
 	}
 
 	protected override onReady() {
