@@ -26,11 +26,17 @@ export class PathMatcher {
 				keys.push(keys.length)
 				return '\\b(.*?)\\b'
 			})
-			.replace(/(\/):(\w+)/g, (_m0, slash, property) => {
+			.replace(/(\/):(\w+)(?:\{(.*?)\})?/g, (_m0, slash, property, propertyMatch) => {
 				if (property) {
 					keys.push(property)
 				}
-				return slash + '([\\w-]+)'
+
+				if (propertyMatch) {
+					return slash + '(' + propertyMatch + ')'
+				}
+				else {
+					return slash + '([\\w-]+)'
+				}
 			})
 			.replace(/^/, '^')
 			.replace(/$/, '$'),

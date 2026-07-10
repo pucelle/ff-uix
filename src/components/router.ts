@@ -4,6 +4,7 @@ import {getPathMatcher} from './router-helpers/path-match'
 import {Popup} from './popup'
 import {PathMatcher} from './router-helpers/path-matcher'
 import {HrefParsed, HrefParser, PrefixedPath} from './router-helpers/path-parser'
+import {ListUtils} from 'ff-kit'
 
 
 export interface RouterEvents {
@@ -35,6 +36,9 @@ export type RouteRedirect = string | ((params: Record<string | number, string>) 
 /** To handle redirection. */
 export type RouteRedirects = Record<string, RouteRedirect>
 
+/** Calls it when router change. */
+type RouterChangeHandler = (type: RouterChangeType, newState: RouterHistoryState, oldState: RouterHistoryState | null) => void
+
 
 /** 
  * `<Router>` serves as the top-level container for all routable content,
@@ -44,6 +48,10 @@ export type RouteRedirects = Record<string, RouteRedirect>
  *
  * ```ts
  *   this.route('/user:id', ({id}) => {
+ *     return html`User Id: ${id}`
+ *   })
+ * 
+ * 	 this.route('/user:id{\\w+}', ({id}) => {
  *     return html`User Id: ${id}`
  *   })
  * 
@@ -98,6 +106,30 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		return matcher.test(path)
 	}
 
+
+	static changeHandlers: {handler: RouterChangeHandler, scope: any}[] = []
+
+	/** 
+	 * Bind a handler to call it after router state change.
+	 * It be used before any router instance initialized.
+	 * Note it doesn't fire initial state.
+	 */
+	static onChange(handler: RouterChangeHandler, scope: any = null) {
+		this.changeHandlers.push({handler, scope})
+	}
+
+	/** Unbind router state change event. */
+	static offChange(handler: RouterChangeHandler, scope: any = null) {
+		ListUtils.removeWhere(this.changeHandlers, item => item.handler === handler && item.scope === scope)
+	}
+
+	static fireChange(type: RouterChangeType, newState: RouterHistoryState, oldState: RouterHistoryState | null) {
+		for (let item of this.changeHandlers) {
+			item.handler.call(item.scope, type, newState, oldState)
+		}
+	}
+
+
 	/** 
 	 * Whether cache content rendering, and quickly restore after navigate back.
 	 * Default value is `false`.
@@ -143,11 +175,12 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 * If specified, will interpolate links and do custom redirecting.
 	 * Then to match routers.
 	 * Work with `routes`, but not work with `popupRoutes`.
+	 * Note it ignores `prefix`.
 	 */
 	redirects: RouteRedirects | null = null
 
 	/** Current history state. */
-	state!: RouterHistoryState
+	state: RouterHistoryState | null = null
 
 	/** To indicate latest state index. */
 	protected latestStateIndex: number = 0
@@ -285,7 +318,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 		if (routeMatch) {
 			e.preventDefault()
-			this.goto(this.hrefParser.buildUnprefixed(parsed))
+			this.goto(this.hrefParser.buildUnprefixed(parsed), parsed.prefix)
 		}
 	}
 
@@ -309,36 +342,45 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		}
 	}
 
-	/** Goto a new path and update render result, add a history state. */
-	goto(href: string): boolean {
-		return this.navigateTo(href, false)
+	/** 
+	 * Goto a new path and update render result, add a history state.
+	 * Note `goto` href parameter ignores prefix.
+	 */
+	goto(href: string, prefix = this.prefix): boolean {
+		return this.navigateTo(href, prefix, false)
 	}
 
-	/** Redirect to a new path and update render result, replace current history state. */
-	redirectTo(href: string): boolean {
-		return this.navigateTo(href, true)
+	/** 
+	 * Redirect to a new path and update render result, replace current history state.
+	 * Note `redirectTo` href parameter ignores prefix.
+	 */
+	redirectTo(href: string, prefix = this.prefix): boolean {
+		return this.navigateTo(href, prefix, true)
 	}
 
 	/** `isRedirection` determines redirect or go to a href. */
-	navigateTo(this: UnObserved<Router>, href: string, isRedirection: boolean): boolean {
+	navigateTo(this: UnObserved<Router>, href: string, prefix: string, isRedirection: boolean): boolean {
 		let parsed = this.hrefParser.parseUnprefixed(href)
 		let state: RouterHistoryState
 		let newIndex = (this.state?.index ?? 0) + (isRedirection ? 0 : 1)
 
 		if (parsed.path === '') {
-			if (parsed.hash === this.hash) {
+			if (prefix === this.prefix
+				&& parsed.hash === this.hash
+			) {
 				return false
 			}
 
 			state = {
 				path: this.path,
 				hash: parsed.hash,
-				prefix: this.prefix,
+				prefix,
 				index: newIndex,
 			}
 		}
 		else {
-			if (parsed.path === this.path
+			if (prefix === this.prefix
+				&& parsed.path === this.path
 				&& parsed.hash === this.hash
 			) {
 				return false
@@ -351,7 +393,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			
 			state = {
 				...parsed,
-				prefix: this.prefix,
+				prefix,
 				index: newIndex,
 			}
 		}
@@ -411,6 +453,10 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 	protected onRouterChange(this: Router, type: RouterChangeType, newState: RouterHistoryState, oldState: RouterHistoryState | null) {
 		this.fire('change', type, newState, oldState)
+
+		if (oldState) {
+			Router.fireChange(type, newState, oldState)
+		}
 	}
 
 	/** Check whether can go back. */
