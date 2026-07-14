@@ -1,4 +1,4 @@
-import {html, Component, render, defineCustomElement, inSSR, RenderResult} from 'lupos.html'
+import {html, Component, render, defineCustomElement, IN_SSR, RenderResult} from 'lupos.html'
 import {watch} from 'lupos'
 import {
 	Radio, RadioGroup, Checkbox, CheckboxGroup, Row, Col, Icon, Button, ButtonGroup,
@@ -451,8 +451,8 @@ export class Preview extends Component {
 
 					<Col .span=${6} style="line-height: 2em;">
 						<header>Size</header>
-						<Slider style="width: calc(100% - 2em); margin-right: 1em;" .value=${50} .grooveSize=${1} />1<br>
-						<Slider style="width: calc(100% - 2em); margin-right: 1em;" .value=${50} .grooveSize=${2} .ballSize=${18} />2<br>
+						<Slider style="width: calc(100% - 2em); margin-right: 1em;" .value=${50} />1<br>
+						<Slider style="width: calc(100% - 2em); margin-right: 1em; --slider-groove-size: 2px; --slider-ball-size: 18px;" .value=${50} />2<br>
 					</Col>
 				</Row>
 			</section>
@@ -1038,7 +1038,7 @@ export class Preview extends Component {
 				.resizable
 				.live
 				.store=${new Store({
-					data: [...range(1, inSSR ? 11 : 1001)].map(n => ({id: n, value: Math.round(Math.random() * 100)})),
+					data: [...range(1, IN_SSR ? 11 : 1001)].map(n => ({id: n, value: Math.round(Math.random() * 100)})),
 				})}
 				.columns=${[
 					{
@@ -1124,7 +1124,7 @@ export class Preview extends Component {
 						else {
 							this.leftData.splice(index, 0, value)
 						}
-					}), {itemsAlignDirection: 'horizontal'} as DroppableOptions<number>}
+					}), {itemsDirection: 'horizontal'} as DroppableOptions<number>}
 				>
 					${this.leftData.map((data: number, index: number) => html`
 						<div style="width: 100px; vertical-align: top; margin: 4px; cursor: grab; background: color-mix(in srgb, var(--background) 85%, var(--text-color))"
@@ -1145,7 +1145,7 @@ export class Preview extends Component {
 						else {
 							this.rightData.splice(index, 0, value)
 						}
-					}), {itemsAlignDirection: 'horizontal'} as DroppableOptions<number>}
+					}), {itemsDirection: 'horizontal'} as DroppableOptions<number>}
 				>
 					${this.rightData.map((data: number, index: number) => html`
 						<div style="width: 100px; vertical-align: top; margin: 4px; cursor: grab; background: color-mix(in srgb, var(--background) 85%, var(--text-color));"
@@ -1213,7 +1213,7 @@ class ExampleRemoteStore extends RemoteStore {
 	}
 
 	protected dataCountGetter() {
-		return inSSR ? 11 : 1000
+		return IN_SSR ? 11 : 1000
 	}
 
 	async pageDataGetter(start: number, end: number) {
