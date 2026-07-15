@@ -102,6 +102,10 @@ table{
 	border-spacing: 0;
 }
 
+header, h1, h2, h3, h4, h5, h6{
+	color: var(--heading-color);
+}
+
 
 [hidden]{
 	display: none !important;
@@ -129,6 +133,7 @@ table{
 	--primary-color: ActiveText;
 	--background: light-dark(white, #333);
 	--text-color: CanvasText;
+	--heading-color: CanvasText;
 	--border-color: light-dark(#808080, #888);
 	--selected-color: SelectedItem;
 	--selected-text-color: SelectedItemText;
