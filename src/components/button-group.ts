@@ -7,7 +7,6 @@ export class ButtonGroup<E = {}> extends Component<E> {
 	static override style = css`
 		.button-group{
 			display: inline-flex;
-			vertical-align: top;
 
 			.button{
 				margin-inline: -0.5px;

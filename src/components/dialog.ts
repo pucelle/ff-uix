@@ -568,7 +568,7 @@ export const dialog = /*#__PURE__*/(() => {
 	let d = new QuickDialog()
 
 	/** Default transitions for `<Dialog>`. */
-	translations.addData('en-us', {
+	translations.addData('en', {
 		ok: 'OK',
 		cancel: 'Cancel',
 		yes: 'Yes',
