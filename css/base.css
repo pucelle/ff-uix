@@ -39,12 +39,11 @@
   --border-color-lighter: color-mix(in srgb, var(--border-color) 25%, var(--background));
   --border-color-lightest: color-mix(in srgb, var(--border-color) 12.5%, var(--background));
   --border-color-selected: color-mix(in srgb, var(--primary-color) 50%, var(--border-color));
-  --hover-background: color-mix(var(--text-color) 5%, var(--background));
-  --hover-background-bold: color-mix(var(--text-color) 10%, var(--background));
-  --hover-background-bold: color-mix(var(--text-color) 15%, var(--background));
-  --selected-background-light: color-mix(var(--primary-color) 4%, var(--background));
-  --selected-background: color-mix(var(--primary-color) 8%, var(--background));
-  --selected-background-bold: color-mix(var(--primary-color) 16%, var(--background));
+  --hover-background: color-mix(var(--text-color) 5%, transparent);
+  --hover-background-bold: color-mix(var(--text-color) 10%, transparent);
+  --selected-background-light: color-mix(var(--primary-color) 4%, transparent);
+  --selected-background: color-mix(var(--primary-color) 8%, transparent);
+  --selected-background-bold: color-mix(var(--primary-color) 16%, transparent);
 }
 
 *, *::before, *::after {
@@ -139,7 +138,7 @@ table {
   border-spacing: 0;
 }
 
-header, h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6 {
   color: var(--heading-color);
 }
 

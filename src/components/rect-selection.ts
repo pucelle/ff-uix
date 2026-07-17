@@ -40,7 +40,7 @@ export class RectSelection extends Component<RectSelectionEvents> {
 		.rect-selection{
 			position: absolute;
 			border: 1px solid var(--primary-color);
-			background: var(--rect-selection-background);
+			background: var(--selected-background);
 			margin-bottom: -100px;
 			margin-right: -100px;
 		}
