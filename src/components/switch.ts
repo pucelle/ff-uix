@@ -27,7 +27,7 @@ export class Switch<E = {}> extends Component<E & SwitchEvents> {
 
 			&:hover, &:focus{
 				.switch-ball{
-					background: color-mix(in srgb, var(--switch-background) 50%, var(--primary-color));
+					background: var(--switch-background-selected);
 				}
 			}
 		}

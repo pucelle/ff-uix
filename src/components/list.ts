@@ -105,7 +105,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 
 		.list-splitter{
 			height: 1px;
-			background: color-mix(in srgb, var(--border-color) 50%, var(--background));
+			background: var(--border-color-light);
 			margin: 2px 0;
 		}
 
@@ -119,31 +119,19 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 			cursor: pointer;
 
 			&:hover{
-				background: light-dark(
-					color-mix(in srgb, var(--text-color) 5%, var(--background)),
-					color-mix(in srgb, var(--text-color) 7%, var(--background))
-				);
+				background: var(--hover-background);
 			}
 
 			&.selected{
-				background: light-dark(
-					color-mix(in srgb, var(--primary-color) 7%, var(--background)),
-					color-mix(in srgb, var(--primary-color) 12%, var(--background))
-				);
+				background: var(--selected-background);
 			}
 
 			&.list-menu-active{
-				background: light-dark(
-					color-mix(in srgb, var(--text-color) 5%, var(--background)),
-					color-mix(in srgb, var(--text-color) 7%, var(--background))
-				);
+				background: var(--hover-background);
 			}
 
 			&.arrow-selected{
-				background: light-dark(
-					color-mix(in srgb, var(--text-color) 5%, var(--background)),
-					color-mix(in srgb, var(--text-color) 7%, var(--background))
-				);
+				background: var(--hover-background);
 			}
 		}
 

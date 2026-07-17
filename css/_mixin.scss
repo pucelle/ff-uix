@@ -1,4 +1,7 @@
-/* Under pad width (1024px). */
+@use "sass:color";
+
+
+/// Under pad width (1024px).
 @mixin pad {
 	@media (max-width: 1024px) {
 		@content;
@@ -6,7 +9,7 @@
 }
 
 
-/* Under phone width (768px). */
+/// Under phone width (768px).
 @mixin phone {
 	@media (max-width: 768px) {
 		@content;
@@ -14,7 +17,7 @@
 }
 
 
-/* Under specified width. */
+/// Under specified width.
 @mixin mw($width) {
 	@media (max-width: $width) {
 		@content;
@@ -22,7 +25,7 @@
 }
 
 
-/* Under specified container width. */
+/// Under specified container width.
 @mixin mcw($width) {
 	@container (min-width: $width) {
 		@content;
@@ -30,7 +33,7 @@
 }
 
 
-/* When touch-primary device. */
+/// When touch-primary device.
 @mixin touch() {
 	@media (pointer: coarse) {
 		@content;
@@ -38,7 +41,7 @@
 }
 
 
-/* When in mouse-primary device. */
+/// When in mouse-primary device.
 @mixin mouse() {
 	@media (hover: hover) {
 		@content;
@@ -46,10 +49,40 @@
 }
 
 
-/* Disable user selection, include touch hold selection. */
+/// Disable user selection, include touch hold selection.
 @mixin non-select {
 	user-select: none;
 	-webkit-user-select: none;
 	-webkit-touch-callout: none;
 	touch-action: none;
+}
+
+
+
+/// Adjust a color to return `light-dark(color, dark)`, and adjust
+/// the dark color by adjusting light and saturation.
+@function adaptive(
+	$color,
+	$l: 20%,
+	$s: -10%
+) {
+	@return light-dark($color, color.scale(
+		$color,
+		$lightness: $l,
+		$saturation: $s
+	));
+}
+
+
+/// Mixes two colors.
+/// $weight is the percentage of the first color.
+@function mix(
+	$foreground,
+	$background,
+	$weight
+) {
+	@return color-mix(in srgb,
+		$foreground $weight,
+		$background
+	);
 }

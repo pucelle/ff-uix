@@ -315,10 +315,11 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 		let routes = this.normalizedRoutes
 		let routeMatch = parsed.path === '' || routes.find(r => r.matcher.test(parsed.path))
+		let prefix = parsed.path === '' ? this.prefix : parsed.prefix
 
 		if (routeMatch) {
 			e.preventDefault()
-			this.goto(this.hrefParser.buildUnprefixed(parsed), parsed.prefix)
+			this.goto(this.hrefParser.buildUnprefixed(parsed), prefix)
 		}
 	}
 

@@ -1,166 +1,157 @@
-*, *::before, *::after{
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
+:root {
+  color-scheme: light dark;
+  --text-size: 14px;
+  --border-radius: 4px;
+  --focus-shadow-blur-radius: 4px;
+  --primary-color: ActiveText;
+  --text-color: CanvasText;
+  --heading-color: CanvasText;
+  --border-color: light-dark(#808080, #888);
+  --background: light-dark(white, #333);
+  --input-background: light-dark(#e7e7e7, #444);
+  --switch-background: light-dark(#ddd, #444);
+  --switch-width: 2em;
+  --switch-height: 1.25em;
+  --switch-border-width: 0;
+  --slider-groove-size: 1px;
+  --slider-ball-size: 15px;
+  --popup-background: light-dark(white, #333);
+  --popup-border-radius: 4px;
+  --popup-border-width: 0;
+  --popup-shadow-color: light-dark(rgba(0, 0, 0, 0.5), black);
+  --popup-shadow-blur-radius: 6px;
+  --info-color: adaptive(#3369fa);
+  --success-color: adaptive(#29bc04);
+  --error-color: adaptive(#e10000);
+  --warning-color: adaptive(#f3b907);
+  --info-background: color-mix(in srgb, var(--info-color) 5%, var(--background));
+  --success-background: color-mix(in srgb, var(--success-color) 5%, var(--background));
+  --error-background: color-mix(in srgb, var(--error-color) 5%, var(--background));
+  --warning-background: color-mix(in srgb, var(--warning-color) 5%, var(--background));
+  --switch-background-selected: color-mix(in srgb, var(--switch-background) 50%, var(--primary-color));
+  --rect-selection-background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  --text-color-muted: color-mix(in srgb, var(--text-color) 90%, var(--background));
+  --text-color-subtle: color-mix(in srgb, var(--text-color) 80%, var(--background));
+  --text-color-faint: color-mix(in srgb, var(--text-color) 70%, var(--background));
+  --border-color-bolder: color-mix(in srgb, var(--border-color) 75%, var(--text-color));
+  --border-color-bold: color-mix(in srgb, var(--border-color) 50%, var(--text-color));
+  --border-color-light: color-mix(in srgb, var(--border-color) 50%, var(--background));
+  --border-color-lighter: color-mix(in srgb, var(--border-color) 25%, var(--background));
+  --border-color-lightest: color-mix(in srgb, var(--border-color) 12.5%, var(--background));
+  --border-color-selected: color-mix(in srgb, var(--primary-color) 50%, var(--border-color));
+  --hover-background: color-mix(var(--text-color) 5%, var(--background));
+  --hover-background-bold: color-mix(var(--text-color) 10%, var(--background));
+  --hover-background-bold: color-mix(var(--text-color) 15%, var(--background));
+  --selected-background-light: color-mix(var(--primary-color) 4%, var(--background));
+  --selected-background: color-mix(var(--primary-color) 8%, var(--background));
+  --selected-background-bold: color-mix(var(--primary-color) 16%, var(--background));
 }
 
-:focus{
-	outline: none;
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-
-
-::-webkit-scrollbar{
-	height: 8px;
-	width: 8px;
-	background: color-mix(in srgb, var(--background) 95%, var(--text-color));
+:focus {
+  outline: none;
 }
 
-::-webkit-scrollbar-thumb{
-	background: color-mix(in srgb, var(--background) 80%, var(--text-color));
+::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+  background: color-mix(in srgb, var(--background) 95%, var(--text-color));
 }
 
-::-webkit-scrollbar-thumb:hover{
-	background: color-mix(in srgb, var(--background) 70%, var(--text-color));
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--background) 80%, var(--text-color));
 }
 
-::-webkit-scrollbar-thumb:active{
-	background: color-mix(in srgb, var(--background) 60%, var(--text-color));
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--background) 70%, var(--text-color));
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: color-mix(in srgb, var(--background) 60%, var(--text-color));
 }
 
 @supports not selector(::-webkit-scrollbar) {
-	*{
-		scrollbar-width: thin;
-		scrollbar-color: color-mix(in srgb, var(--background) 96%, var(--text-color))
-		                 color-mix(in srgb, var(--background) 85%, var(--text-color));
-	}
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--background) 96%, var(--text-color)) color-mix(in srgb, var(--background) 85%, var(--text-color));
+  }
+}
+html {
+  height: 100%;
+  tab-size: 4;
+  font-size: var(--text-size);
+  color: var(--text-color);
+  line-height: 1.6;
+  text-size-adjust: none;
 }
 
-
-
-html{
-	height: 100%;
-	tab-size: 4;
-	font-size: var(--text-size);
-	color: var(--text-color);
-	line-height: 1.6;
-
-	/** Not adjust character width. */
-	text-size-adjust: none;
+body {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-body{
-
-	/* Disables tap highlight on apple mobile devices. */
-	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+a {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+a:hover {
+  text-decoration: underline;
 }
 
-a{
-	color: inherit;
-	text-decoration: none;
-	cursor: pointer;
-
-	&:hover{
-		text-decoration: underline;
-	}
+ul {
+  list-style-type: none;
 }
 
-ul{
-	list-style-type: none;
+hr {
+  height: 1px;
+  border: none;
 }
 
-hr{
-	height: 1px;
-	border: none;
+img, iframe {
+  border: none;
 }
 
-img, iframe{
-	border: none;
+input, select, button, textarea, table, optgroup, pre {
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
 }
 
-input, select, button, textarea, table, optgroup, pre{
-	font-size: inherit;
-	font-family: inherit;
-	color: inherit
+input, select, button, textarea, label, img, svg {
+  vertical-align: top;
 }
 
-input, select, button, textarea, label, img, svg{
-	vertical-align: top;
+input, select, button, textarea {
+  border-radius: 0;
 }
 
-/* For ios safari. */
-input, select, button, textarea{
-	border-radius: 0;
+button {
+  cursor: pointer;
 }
 
-button{
-	cursor: pointer;
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
 }
 
-table{
-	border-collapse: collapse;
-	border-spacing: 0;
+header, h1, h2, h3, h4, h5, h6 {
+  color: var(--heading-color);
 }
 
-header, h1, h2, h3, h4, h5, h6{
-	color: var(--heading-color);
+[hidden] {
+  display: none !important;
 }
 
-
-[hidden]{
-	display: none !important;
+[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed !important;
+  pointer-events: none;
 }
-
-[disabled]{
-	opacity: 0.4;
-	cursor: not-allowed !important;
-	pointer-events: none;
-
-	& [disabled]{
-		opacity: 1;
-	}
-}
-
-
-/* Theme variables. see https://css-tricks.com/come-to-the-light-dark-side/ */
-:root{
-	color-scheme: light dark;
-
-	--text-size: 14px;
-	--border-radius: 4px;
-	--focus-shadow-blur-radius: 4px;
-	
-	--primary-color: ActiveText;
-	--background: light-dark(white, #333);
-	--text-color: CanvasText;
-	--heading-color: CanvasText;
-	--border-color: light-dark(#808080, #888);
-	--selected-color: SelectedItem;
-	--selected-text-color: SelectedItemText;
-
-	--input-background: light-dark(#e7e7e7, #444);
-	--input-text-color: FieldText;
-
-	--link-color: LinkText;
-
-	--switch-background: light-dark(#ddd, #444);
-	--switch-width: 2em;
-	--switch-height: 1.25em;
-	--switch-border-width: 0;
-
-	--slider-groove-size: 1px;
-	--slider-ball-size: 15px;
-
-	--popup-background: light-dark(white, #333);
-	--popup-text-color: var(--text-color);
-	--popup-border-radius: 4px;
-	--popup-border-color: var(--border-color);
-	--popup-border-width: 0;
-	--popup-shadow-color: light-dark(rgba(0, 0, 0, 0.5), black);
-	--popup-shadow-blur-radius: 6px;
-	
-	--info-color: #3369fa;
-	--success-color: #29bc04;
-	--error-color: #e10000;
-	--warning-color: #f3b907;
+[disabled] [disabled] {
+  opacity: 1;
 }

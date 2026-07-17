@@ -52,7 +52,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			border-radius: var(--popup-border-radius);
 			box-shadow: 0 0 var(--popup-shadow-blur-radius) var(--popup-shadow-color);
 			background: var(--background);
-			border: var(--popup-border-width) solid var(--popup-border-color);
+			border: var(--popup-border-width) solid var(--border-color);
 			max-width: calc(100dvw - 20px);
 			max-height: calc(100dvh - 20px);
 			overflow: hidden;
@@ -76,7 +76,8 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			flex: none;
 			font-size: calc(1em - 1px);
 			padding: 0 1.2em;
-			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 80%, var(--background));
+			border-bottom: 1px solid var(--border-color-bold);
+			color: var(--heading-color);
 		}
 
 		.modal-title{

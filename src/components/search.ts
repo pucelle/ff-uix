@@ -26,11 +26,11 @@ export class Search<E = {}> extends Input<SearchEvents & E> {
 			box-shadow: none;
 			
 			&.focused{
-				border-color: color-mix(in srgb, var(--primary-color) 50%, var(--border-color));
+				border-color: var(--border-color-selected);
 				box-shadow: none;
 
 				.input-icon{
-					color: color-mix(in srgb, var(--primary-color) 50%, var(--border-color));
+					color: var(--border-color-selected);
 					height: 100%;
 				}
 			}

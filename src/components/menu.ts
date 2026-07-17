@@ -24,7 +24,7 @@ export class Menu<E = {}> extends Popup<E> {
 
 			.list-item-container{
 				&:not(:last-child){
-					border-bottom: 1px solid color-mix(in srgb, var(--popup-border-color) 20%, var(--background));
+					border-bottom: 1px solid var(--border-color-lighter);
 				}
 			}
 		}
@@ -34,6 +34,7 @@ export class Menu<E = {}> extends Popup<E> {
 			font-size: calc(1em - 1px);
 			padding-bottom: 0.4em;
 			border-bottom: 1px solid var(--border-color);
+			color: var(--heading-color);
 		}
 
 		.menu-title{

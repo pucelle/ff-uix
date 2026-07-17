@@ -136,7 +136,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		}
 
 		.table-head{
-			color: color-mix(in srgb, var(--text-color) 70%, var(--background));;
+			color: var(--text-color-faint);
 			font-weight: bold;
 			user-select: none;
 			position: relative;
@@ -154,7 +154,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			align-items: stretch;
 			font-size: calc(1em - 1px);
 			padding: 0.2em 0.6em;
-			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 20%, var(--background));
+			border-bottom: 1px solid var(--border-color-light);
 
 			&:last-child{
 				flex: 1;
@@ -226,7 +226,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 			&:hover, &.active{
 				&::before{
-					background: color-mix(in srgb, var(--border-color) 80%, var(--text-color));
+					background: var(--border-color-bolder);
 				}
 			}
 		}
@@ -236,7 +236,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			overflow-y: scroll;
 			overflow-x: hidden;
 			position: relative;
-			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 10%, var(--background));
+			border-bottom: 1px solid var(--border-color-lighter);
 		}
 
 		.table-table{
@@ -253,21 +253,18 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			}
 
 			&:hover{
-				background: light-dark(
-					color-mix(in srgb, var(--primary-color) 3%, var(--background)),
-					color-mix(in srgb, var(--primary-color) 5%, var(--background))
-				);
+				background: var(--hover-background);
 			}
 
 			&.selected{
-				background: color-mix(in srgb, var(--primary-color) 10%, var(--background));
+				background: var(--selected-background);
 			}
 		}
 
 		.table-cell{
 			vertical-align: middle;
 			padding: 0.4em 0.6em;
-			border-bottom: 1px solid color-mix(in srgb, var(--text-color) 5%, var(--background));;
+			border-bottom: 1px solid var(--border-color-lightest);
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;

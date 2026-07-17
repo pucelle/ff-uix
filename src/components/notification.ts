@@ -117,7 +117,7 @@ export class Notification<E = {}> extends Component<E> {
 			}
 
 			&:hover{
-				color: color-mix(in srgb, var(--text-color) 90%, var(--background));
+				color: var(--text-color-muted);
 			}
 
 			&:active{
@@ -162,7 +162,7 @@ export class Notification<E = {}> extends Component<E> {
 
 		.notification-type-info{
 			&:hover{
-				background: color-mix(in srgb, var(--info-color) 5%, var(--background));
+				background: var(--info-background);
 			}
 
 			.notification-stripe{
@@ -172,7 +172,7 @@ export class Notification<E = {}> extends Component<E> {
 
 		.notification-type-warning{
 			&:hover{
-				background: color-mix(in srgb, var(--warning-color) 5%, var(--background));
+				background: var(--warning-background);
 			}
 
 			.notification-stripe{
@@ -182,7 +182,7 @@ export class Notification<E = {}> extends Component<E> {
 
 		.notification-type-success{
 			&:hover{
-				background: color-mix(in srgb, var(--success-color) 5%, var(--background));
+				background: var(--success-background);
 			}
 
 			.notification-stripe{
@@ -192,7 +192,7 @@ export class Notification<E = {}> extends Component<E> {
 
 		.notification-type-error{
 			&:hover{
-				background: color-mix(in srgb, var(--error-color) 5%, var(--background));
+				background: var(--error-background);
 			}
 
 			.notification-stripe{

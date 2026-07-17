@@ -20,11 +20,11 @@ export class Button<E = {}> extends Component<E> {
 			text-overflow: ellipsis;
 		
 			&:hover, &:focus{
-				background: color-mix(in srgb, var(--text-color) 6%, var(--background));
+				background: var(--hover-background);
 			}
 
 			&:active{
-				background: color-mix(in srgb, var(--text-color) 12%, var(--background));
+				background: var(--hover-background-bold);
 			}
 
 			.icon{
@@ -54,7 +54,7 @@ export class Button<E = {}> extends Component<E> {
 				border-color: transparent;
 				padding-left: 0;
 				padding-right: 0;
-				color: color-mix(in srgb, var(--border-color) 66%, var(--text-color));
+				color: var(--text-color-faint);
 
 				&:hover, &:focus{
 					background: none;

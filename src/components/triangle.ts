@@ -21,7 +21,7 @@ export class Triangle<E = {}> extends Component<E> {
 
 		.triangle-stroke{
 			stroke-width: var(--popup-border-width);
-			stroke: var(--popup-border-color);
+			stroke: var(--border-color);
 			fill: none;
 		}
 	`

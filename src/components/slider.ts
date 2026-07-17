@@ -73,8 +73,8 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 
 		.slider.dragging{
 			.slider-ball{
-				border-color: color-mix(in srgb, var(--primary-color) 90%, black);
-				background: color-mix(in srgb, var(--primary-color) 90%, black);
+				border-color: var(--primary-color);
+				background: var(--primary-color);
 			}
 		}
 
