@@ -277,7 +277,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 		}
 	}
 
-	protected override async onConnected() {
+	protected override onConnected() {
 		super.onConnected()
 
 		// Make it becomes open it if rendered.
@@ -290,8 +290,9 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			DOMModifiableEvents.on(document, 'keydown', ['Escape'], this.hide, this)
 		}
 
-		await UpdateQueue.untilComplete()
-		this.toCenter()
+		UpdateQueue.untilComplete().then(() => {
+			this.toCenter()
+		})
 	}
 
 	protected override onWillDisconnect() {
