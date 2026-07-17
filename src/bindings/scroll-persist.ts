@@ -42,8 +42,9 @@ export class scrollPersist implements Binding, Part {
 
 		let newKey = options.key ?? ''
 		if (newKey !== this.key) {
-			this.key = newKey
 			this.savePosition()
+			
+			this.key = newKey
 
 			// Restore scroll position for new key after key changed.
 			await UpdateQueue.untilComplete()
