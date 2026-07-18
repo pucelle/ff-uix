@@ -1,4 +1,5 @@
 @use "sass:color";
+@use "sass:math";
 
 
 /// Under pad width (1024px).
@@ -66,12 +67,44 @@
 	$l: 20%,
 	$s: -10%
 ) {
-	@return light-dark($color, color.scale(
+	@return light-dark($color, rgb-to-hex(color.scale(
 		$color,
 		$lightness: $l,
 		$saturation: $s
-	));
+	)));
 }
+
+/// Round rgb channels.
+@function round-color($color) {
+	@return rgb(
+		math.round(color.channel($color, "red")),
+		math.round(color.channel($color, "green")),
+		math.round(color.channel($color, "blue"))
+	);
+}
+
+/// Convert a number to hex.
+@function decimal-to-hex($n) {
+	$hex: "0123456789abcdef";
+
+	$high: math.floor($n / 16);
+	$low: $n % 16;
+
+	@return str-slice($hex, $high + 1, $high + 1) +
+			str-slice($hex, $low + 1, $low + 1);
+}
+
+/// Convert rgb color to hex.
+@function rgb-to-hex($color) {
+	$r: math.round(color.channel($color, "red"));
+	$g: math.round(color.channel($color, "green"));
+	$b: math.round(color.channel($color, "blue"));
+
+	@return unquote(
+		"##{decimal-to-hex($r)}#{decimal-to-hex($g)}#{decimal-to-hex($b)}"
+	);
+}
+
 
 
 /// Mixes two colors.
