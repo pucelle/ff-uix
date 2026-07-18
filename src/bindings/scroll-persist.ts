@@ -15,6 +15,7 @@ export interface ScrollPersistOptions {
  * after it disconnected, and restore it after gets re-connected.
  * 
  * It can also be used reset scroll position after key changed.
+ * Note when working with `:html`, it must be put before `:html`.
  * 
  * If `options.key` is specified, positions will save and restore by this key.
  * If `options.direction` is specified, will try detect itself.
@@ -43,7 +44,7 @@ export class scrollPersist implements Binding, Part {
 		let newKey = options.key ?? ''
 		if (newKey !== this.key) {
 			this.savePosition()
-			
+
 			this.key = newKey
 
 			// Restore scroll position for new key after key changed.
