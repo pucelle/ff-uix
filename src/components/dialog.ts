@@ -217,8 +217,7 @@ export class Dialog<E = {}> extends Component<E> {
 		}
 
 		return html`
-			<template tabindex="0" autofocus
-				class="dialog"
+			<template tabindex="0" autofocus class="dialog" role="dialog"
 				:transition=${fade()}
 				@transition-leave-ended=${this.onLeaveTransitionEnded}
 			>

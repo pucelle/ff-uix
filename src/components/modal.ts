@@ -76,7 +76,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			flex: none;
 			font-size: calc(1em - 1px);
 			padding: 0 1.2em;
-			border-bottom: 1px solid var(--border-color-bold);
+			border-bottom: 1px solid var(--border-color);
 			color: var(--heading-color);
 		}
 

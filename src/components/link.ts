@@ -17,7 +17,9 @@ export class Link<Events = any> extends Component<Events> {
 
 	protected override render() {
 		return html`
-			<template class="link" :class.primary=${this.primary} />
+			<template class="link" role="link"
+				:class.primary=${this.primary}
+			/>
 		`
 	}
 }

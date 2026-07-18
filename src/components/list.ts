@@ -274,7 +274,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 
 	protected override render() {
 		return html`
-			<template class="list">
+			<template class="list" role="list">
 				${this.renderItems(this.data, 0)}
 			</template>
 		`
@@ -322,7 +322,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		return html`
 			<div class="list-item-container">
 				<div
-					class="list-item"
+					class="list-item" role="listitem"
 					:class.selected=${this.hasSelected(item.value!)}
 					:class.arrow-selected=${item === this.keyNavigator.current}
 					?:tooltip=${itemTooltip, itemTooltip!, this.tooltipOptions}

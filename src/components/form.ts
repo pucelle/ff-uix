@@ -1,4 +1,4 @@
-import {Component} from 'lupos.html'
+import {Component, html} from 'lupos.html'
 import {Input} from './input'
 
 
@@ -14,6 +14,12 @@ export class Form<E = {}> extends Component<E> {
 	protected get inputs(): Input[] {
 		return [...this.el.querySelectorAll('.input')]
 			.map(el => Input.from(el)!)
+	}
+
+	protected override render() {
+		return html`
+			<template role="form" />
+		`
 	}
 
 	/** Validate all child inputs and textareas */

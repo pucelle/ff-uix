@@ -27,23 +27,6 @@ export class Button<E = {}> extends Component<E> {
 				background: var(--hover-background-bold);
 			}
 
-			.icon{
-				&:first-child{
-					margin-right: 0.15em;
-					margin-left: -0.25em;
-				}
-
-				&:last-child{
-					margin-left: 0.15em;
-					margin-right: -0.25em;
-				}
-
-				&:only-child{
-					margin-left: -0.25em;
-					margin-right: -0.25em;
-				}
-			}
-
 			&.primary{
 				background: var(--primary-color);
 				border-color: var(--primary-color);

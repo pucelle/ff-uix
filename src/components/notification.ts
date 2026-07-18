@@ -209,6 +209,7 @@ export class Notification<E = {}> extends Component<E> {
 		<template class="notification">
 			<lu:for ${this.items}>${(item: NotificationItem) => html`
 				<div class="notification-item notification-type-${item.type}"
+					role=${item.type === 'error' || item.type === 'warning' ? 'alert' : 'status'}
 					@mouseenter=${() => this.onMouseEnter(item)}
 					@mouseleave=${() => this.onMouseLeave(item)}
 					@transition-leave-ended=${this.onLeaveTransitionEnded}

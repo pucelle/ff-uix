@@ -20,7 +20,7 @@ export class ContextMenu<E = {}> extends Popup<E> {
 
 	protected override render(): RenderResult {
 		return html`
-			<template class="popup contextmenu" tabindex="0"
+			<template class="popup contextmenu" tabindex="0" role="menu"
 				:transition=${fade()}
 			>
 				<slot />

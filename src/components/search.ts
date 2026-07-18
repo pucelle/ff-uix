@@ -66,7 +66,7 @@ export class Search<E = {}> extends Input<SearchEvents & E> {
 
 	protected override render() {
 		return html`
-			<template class="input search"
+			<template class="input search" role="searchbox"
 				:class.focused=${this.focusGot}
 			>
 				${this.renderIcon()}

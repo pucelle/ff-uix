@@ -39,7 +39,7 @@ export class Textarea extends Input {
 
 	protected override renderField() {
 		return html`
-			<textarea class="input-field"
+			<textarea class="input-field" role="textbox"
 				placeholder=${this.placeholder}
 				?autofocus=${this.autoFocus}
 				:ref=${this.fieldRef}

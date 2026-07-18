@@ -87,8 +87,7 @@ export class Checkbox<T = any, E = {}> extends Component<E & CheckboxEvents> {
 			: IconCheckboxUnchecked
 
 		return html`
-			<template tabindex="0"
-				class="checkbox" 
+			<template tabindex="0" class="checkbox" role="checkbox"
 				:class.checked=${this.checked}
 				:class.indeterminate=${this.indeterminate}
 				@click=${this.onClick}

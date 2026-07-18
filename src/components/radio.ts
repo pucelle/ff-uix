@@ -84,9 +84,7 @@ export class Radio<E = {}> extends Component<E & RadioEvents> {
 
 	protected override render() {
 		return html`
-			<template
-				tabindex="0"
-				class="radio"
+			<template role="radio" tabindex="0" class="radio"
 				:class.checked=${this.checked}
 				@click=${this.onClick}
 				@focus=${this.onFocus}

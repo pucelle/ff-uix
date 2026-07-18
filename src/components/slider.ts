@@ -154,8 +154,7 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 		}
 
 		return html`
-			<template tabindex="0"
-				class="slider"
+			<template tabindex="0" class="slider" role="slider"
 				:class=${this.vertical ? 'slider-vertical' : 'slider-horizontal'}
 				:class.dragging=${this.dragging}
 				:tooltip=${this.renderTooltipContent, tooltipOptions}

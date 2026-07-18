@@ -75,6 +75,6 @@ export class Progress<E = {}> extends Component<E> {
 		}
 		tipText += '%'
 
-		return html`<span class="progress-tooltip">${tipText}</span>`
+		return html`<span class="progress-tooltip" role="status">${tipText}</span>`
 	}
 }

@@ -62,8 +62,7 @@ export class Switch<E = {}> extends Component<E & SwitchEvents> {
 
 	protected override render() {
 		return html`
-			<template tabindex="0"
-				class="switch"
+			<template tabindex="0" class="switch" role="switch"
 				:class.switch-on=${this.value}
 				@click=${this.onClick}
 				@focus=${this.onFocus}

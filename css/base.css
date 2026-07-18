@@ -20,10 +20,10 @@
   --popup-border-width: 0;
   --popup-shadow-color: light-dark(rgba(0, 0, 0, 0.5), black);
   --popup-shadow-blur-radius: 6px;
-  --info-color: adaptive(#3369fa);
-  --success-color: adaptive(#29bc04);
-  --error-color: adaptive(#e10000);
-  --warning-color: adaptive(#f3b907);
+  --info-color: light-dark(#3369fa, rgb(99.76, 138.64, 243.04));
+  --success-color: light-dark(#29bc04, rgb(62.2125, 237.51, 18.09));
+  --error-color: light-dark(#e10000, rgb(243.6, 38.4, 38.4));
+  --warning-color: light-dark(#f3b907, rgb(239.3584, 195.928, 62.6416));
   --info-background: color-mix(in srgb, var(--info-color) 5%, var(--background));
   --success-background: color-mix(in srgb, var(--success-color) 5%, var(--background));
   --error-background: color-mix(in srgb, var(--error-color) 5%, var(--background));

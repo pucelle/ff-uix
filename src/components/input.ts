@@ -178,7 +178,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	
 	protected override render() {
 		return html`
-			<template class="input"
+			<template class="input" role="textbox"
 				:class.focused=${this.focusGot}
 				:class.valid=${this.touched && this.valid}
 				:class.invalid=${this.touched && this.valid === false}
@@ -196,7 +196,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 				</lu:if>
 
 				<lu:if ${this.touched && this.errorMessage && !this.errorOnTooltip}>
-					<div class="input-error">${this.errorMessage}</div>
+					<div class="input-error" role="alert">${this.errorMessage}</div>
 				</lu:if>
 			</template>
 		`

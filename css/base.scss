@@ -31,10 +31,10 @@
 	--popup-shadow-color: light-dark(rgba(0, 0, 0, 0.5), black);
 	--popup-shadow-blur-radius: 6px;
 	
-	--info-color: adaptive(#3369fa);
-	--success-color: adaptive(#29bc04);
-	--error-color: adaptive(#e10000);
-	--warning-color: adaptive(#f3b907);
+	--info-color: #{adaptive(#3369fa)};
+	--success-color: #{adaptive(#29bc04)};
+	--error-color: #{adaptive(#e10000)};
+	--warning-color: #{adaptive(#f3b907)};
 
 
 	// Mixed, normally no need to overwrite them.

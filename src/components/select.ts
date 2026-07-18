@@ -186,7 +186,7 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 
 	protected override render() {
 		return html`
-			<template class="dropdown select"
+			<template class="dropdown select" role="listbox"
 				:class.opened=${this.opened}
 				:class.cant-input=${!this.searchable}
 				:popup=${this.renderPopup, this.popupOptions}

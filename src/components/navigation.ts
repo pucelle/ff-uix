@@ -151,7 +151,7 @@ export class Navigation<T> extends List<T> {
 		let stickyStyle = this.renderStickyStyle(item, depth)
 
 		return html`
-			<div class="list-item-container">
+			<div class="list-item-container" role="nav">
 				<div
 					class="list-item"
 					:class.selected=${this.hasSelected(item.value!)}
