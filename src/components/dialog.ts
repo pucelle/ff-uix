@@ -199,9 +199,6 @@ export class Dialog<E = {}> extends Component<E> {
 	declare static tagName: 'slot'
 
 
-	/** Mask element. */
-	protected maskEl!: HTMLElement
-
 	/** The dialog el. */
 	protected dialogEl!: HTMLElement
 
@@ -216,6 +213,10 @@ export class Dialog<E = {}> extends Component<E> {
 
 	/** Whether dialog opened. */
 	protected opened: boolean = false
+
+	constructor(el: HTMLElement = document.createElement('slot')) {
+		super(el)
+	}
 
 	protected override render(): RenderResult {
 		if (!this.options) {
@@ -233,7 +234,6 @@ export class Dialog<E = {}> extends Component<E> {
 	protected renderMask() {
 		return html`
 			<div class="dialog-mask"
-				:ref=${this.maskEl}
 				:transition.global=${fade()}
 			/>
 		`
