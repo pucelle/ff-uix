@@ -43,7 +43,7 @@ export class Navigation<T> extends List<T> {
 		.list-item-sticky{
 			position: sticky;
 			background: var(--background);
-			border-bottom: 1px solid var(--border-color-light);
+			border-bottom: 1px solid var(--border-color-lighter);
 			z-index: 10;
 		}
 
