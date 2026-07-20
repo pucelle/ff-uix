@@ -1,6 +1,6 @@
 import {css, html, Component, fade, RenderResultRenderer, RenderResult} from 'lupos.html'
 import {AnchorAligner, t, translations} from 'ff-kit'
-import {DOMEvents, EventKeys} from 'lupos'
+import {DOMEvents, EventKeys, UpdateQueue} from 'lupos'
 import {Input} from './input'
 import {Textarea} from './textarea'
 import {Icon} from './icon'
@@ -134,6 +134,7 @@ export class Dialog<E = {}> extends Component<E> {
 
 		.dialog-content{
 			display: flex;
+			align-items: start;
 			margin-top: 0.6em;
 		}
 
@@ -194,9 +195,15 @@ export class Dialog<E = {}> extends Component<E> {
 		}
 	`
 
+	/** To contain both modal and mask. */
+	declare static tagName: 'slot'
+
 
 	/** Mask element. */
 	protected maskEl!: HTMLElement
+
+	/** The dialog el. */
+	protected dialogEl!: HTMLElement
 
 	/** Options for current dialog. */
 	protected options: DialogOptions | null = null
@@ -211,23 +218,35 @@ export class Dialog<E = {}> extends Component<E> {
 	protected opened: boolean = false
 
 	protected override render(): RenderResult {
-		let options = this.options
-		if (!options) {
+		if (!this.options) {
 			return null
 		}
 
 		return html`
-			<template tabindex="0" autofocus class="dialog" role="dialog"
-				:transition=${fade()}
-				@transition-leave-ended=${this.onLeaveTransitionEnded}
-			>
-				<lu:portal>
-					<div class="dialog-mask"
-						:ref=${this.maskEl}
-						:transition.global=${fade()}
-					/>
-				</lu:portal>
+			<template>
+				${this.renderMask()}
+				${this.renderDialog()}
+			</template>
+		`
+	}
 
+	protected renderMask() {
+		return html`
+			<div class="dialog-mask"
+				:ref=${this.maskEl}
+				:transition.global=${fade()}
+			/>
+		`
+	}
+
+	protected renderDialog() {
+		let options = this.options!
+
+		return html`
+			<div tabindex="0" autofocus class="dialog" role="dialog"
+				:ref=${this.dialogEl}
+				:transition.global=${fade()}
+			>
 				<lu:if ${options.title}>
 					<div class="dialog-header">
 						<div class="dialog-title">
@@ -255,7 +274,7 @@ export class Dialog<E = {}> extends Component<E> {
 				</div>
 
 				${this.renderActions(options.actions)}
-			</template>
+			</div>
 		`
 	}
 
@@ -318,20 +337,13 @@ export class Dialog<E = {}> extends Component<E> {
 		}
 	}
 
-	protected onLeaveTransitionEnded() {
-		this.maskEl.remove()
-	}
-
 	protected override onConnected() {
 		super.onConnected()
-		
-		this.whenUpdated(() => {
-			if (this.maskEl && this.el.previousElementSibling !== this.maskEl) {
-				this.el.before(this.maskEl)
-			}
-		})
-		
 		DOMEvents.on(window, 'resize', this.onWindowResize, this)
+
+		UpdateQueue.untilComplete().then(() => {
+			this.toCenter()
+		})
 	}
 
 	protected override onWillDisconnect() {
@@ -339,16 +351,12 @@ export class Dialog<E = {}> extends Component<E> {
 		DOMEvents.off(window, 'resize', this.onWindowResize, this)
 	}
 
-	protected override onUpdated() {
-		this.toCenter()
-	}
-
 	protected onWindowResize() {
 		this.toCenter()
 	}
 
 	protected toCenter() {
-		new AnchorAligner(this.el, {position: 'c'}).alignTo(document.documentElement)
+		new AnchorAligner(this.dialogEl, {position: 'c'}).alignTo(document.documentElement)
 	}
 
 	/** Apply options as current options. */

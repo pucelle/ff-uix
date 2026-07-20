@@ -186,10 +186,9 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 
 	protected renderModal() {
 		return html`
-			<div tabindex="0" autofocus
-				class="modal"
+			<div tabindex="0" autofocus class="modal"
 				:ref=${this.modalEl}
-				:transition=${fade()}
+				:transition.global=${fade()}
 			>
 				${this.renderHeader()}
 				${this.renderContent()}
