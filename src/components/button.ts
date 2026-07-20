@@ -18,6 +18,7 @@ export class Button<E = {}> extends Component<E> {
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
+			background: var(--background);
 		
 			&:hover, &:focus{
 				background: var(--hover-background);
@@ -51,12 +52,6 @@ export class Button<E = {}> extends Component<E> {
 				&:focus{
 					box-shadow: none;
 				}
-			}
-		}
-
-		@media not (pointer: coarse) {
-			.button:focus{
-				box-shadow: 0 0 var(--focus-shadow-blur-radius) var(--primary-color);
 			}
 		}
 	`

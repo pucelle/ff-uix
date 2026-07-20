@@ -39,11 +39,12 @@
   --border-color-lighter: color-mix(in srgb, var(--border-color) 25%, var(--background));
   --border-color-lightest: color-mix(in srgb, var(--border-color) 12.5%, var(--background));
   --border-color-selected: color-mix(in srgb, var(--primary-color) 50%, var(--border-color));
-  --hover-background: color-mix(var(--text-color) 5%, transparent);
-  --hover-background-bold: color-mix(var(--text-color) 10%, transparent);
-  --selected-background-light: color-mix(var(--primary-color) 4%, transparent);
-  --selected-background: color-mix(var(--primary-color) 8%, transparent);
-  --selected-background-bold: color-mix(var(--primary-color) 16%, transparent);
+  --hover-background: color-mix(in srgb, var(--text-color) 5%, transparent);
+  --hover-background-bold: color-mix(in srgb, var(--text-color) 10%, transparent);
+  --hover-background-bolder: color-mix(in srgb, var(--text-color) 15%, transparent);
+  --selected-background-light: color-mix(in srgb, var(--primary-color) 4%, transparent);
+  --selected-background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+  --selected-background-bold: color-mix(in srgb, var(--primary-color) 16%, transparent);
 }
 
 *, *::before, *::after {
@@ -131,6 +132,7 @@ input, select, button, textarea {
 
 button {
   cursor: pointer;
+  line-height: inherit;
 }
 
 table {
