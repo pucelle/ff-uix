@@ -17,7 +17,8 @@ export class Loader<E = {}> extends Component<E> {
 				right: 0;
 				bottom: 0;
 				z-index: 10;
-				background: var(--hover-background);
+				/* Dynamic --hover-background */
+				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
 				display: flex;
 				flex-direction: column;
 				justify-content: center;

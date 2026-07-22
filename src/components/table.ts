@@ -253,11 +253,13 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			}
 
 			&:hover{
-				background: var(--hover-background);
+				/* Dynamic --hover-background */
+				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
 			}
 
 			&.selected{
-				background: var(--selected-background);
+				/** Dynamic --selected-background */
+				background: color-mix(in srgb, var(--primary-color) 8%, var(--background));
 			}
 		}
 

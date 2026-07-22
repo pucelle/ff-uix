@@ -119,19 +119,23 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 			cursor: pointer;
 
 			&:hover{
-				background: var(--hover-background);
+				/* Dynamic --hover-background */
+				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
 			}
 
 			&.selected{
-				background: var(--selected-background);
+				/** Dynamic --selected-background */
+				background: color-mix(in srgb, var(--primary-color) 8%, var(--background));
 			}
 
 			&.list-menu-active{
-				background: var(--hover-background);
+				/* Dynamic --hover-background */
+				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
 			}
 
 			&.arrow-selected{
-				background: var(--hover-background);
+				/* Dynamic --hover-background */
+				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
 			}
 		}
 

@@ -4,10 +4,11 @@
   --border-radius: 4px;
   --focus-shadow-blur-radius: 4px;
   --primary-color: ActiveText;
-  --text-color: CanvasText;
-  --heading-color: CanvasText;
+  --text-color: light-dark(#111, #eee);
+  --heading-color: light-dark(#111, #eee);
   --border-color: light-dark(#808080, #888);
   --background: light-dark(white, #333);
+  --foreground: light-dark(black, white);
   --input-background: light-dark(#e7e7e7, #444);
   --switch-background: light-dark(#ddd, #444);
   --switch-width: 2em;
@@ -39,12 +40,14 @@
   --border-color-lighter: color-mix(in srgb, var(--border-color) 25%, var(--background));
   --border-color-lightest: color-mix(in srgb, var(--border-color) 12.5%, var(--background));
   --border-color-selected: color-mix(in srgb, var(--primary-color) 50%, var(--border-color));
-  --hover-background: color-mix(in srgb, var(--text-color) 5%, transparent);
-  --hover-background-bold: color-mix(in srgb, var(--text-color) 10%, transparent);
-  --hover-background-bolder: color-mix(in srgb, var(--text-color) 15%, transparent);
-  --selected-background-light: color-mix(in srgb, var(--primary-color) 4%, transparent);
-  --selected-background: color-mix(in srgb, var(--primary-color) 8%, transparent);
-  --selected-background-bold: color-mix(in srgb, var(--primary-color) 16%, transparent);
+  --primary-hover: color-mix(in srgb, var(--primary-color) 90%, var(--foreground));
+  --primary-selected: color-mix(in srgb, var(--primary-color) 80%, var(--foreground));
+  --hover-background: color-mix(in srgb, var(--text-color) 5%, var(--background));
+  --hover-background-bold: color-mix(in srgb, var(--text-color) 10%, var(--background));
+  --hover-background-bolder: color-mix(in srgb, var(--text-color) 15%, var(--background));
+  --selected-background-light: color-mix(in srgb, var(--primary-color) 4%, var(--background));
+  --selected-background: color-mix(in srgb, var(--primary-color) 8%, var(--background));
+  --selected-background-bold: color-mix(in srgb, var(--primary-color) 16%, var(--background));
 }
 
 *, *::before, *::after {

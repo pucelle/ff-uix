@@ -81,10 +81,6 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 			font-style: inherit;
 			text-align: inherit;
 			line-height: inherit;
-
-			&:focus{
-				box-shadow: none;
-			}
 		}
 
 		.select-placeholder{

@@ -21,17 +21,27 @@ export class Button<E = {}> extends Component<E> {
 			background: var(--background);
 		
 			&:hover, &:focus{
-				background: var(--hover-background);
+				/* Dynamic --hover-background */
+				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
 			}
 
 			&:active{
-				background: var(--hover-background-bold);
+				/* Dynamic --hover-background-bold */
+				background: color-mix(in srgb, var(--text-color) 10%, var(--background));
 			}
 
 			&.primary{
 				background: var(--primary-color);
 				border-color: var(--primary-color);
 				color: #fff;
+
+				&:hover, &:focus{
+					background: var(--primary-hover);
+				}
+
+				&:active{
+					background: var(--primary-selected);
+				}
 			}
 
 			&.flat{
@@ -47,10 +57,6 @@ export class Button<E = {}> extends Component<E> {
 
 				&:active{
 					background: none;
-				}
-
-				&:focus{
-					box-shadow: none;
 				}
 			}
 		}

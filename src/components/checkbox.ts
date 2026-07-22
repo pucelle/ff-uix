@@ -24,11 +24,7 @@ export class Checkbox<T = any, E = {}> extends Component<E & CheckboxEvents> {
 			align-items: center;
 			cursor: pointer;
 
-			&:hover{
-				color: var(--primary-color);
-			}
-
-			&:focus{
+			&:hover, &:focus{
 				color: var(--primary-color);
 			}
 

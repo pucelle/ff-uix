@@ -27,14 +27,10 @@ export class Radio<E = {}> extends Component<E & RadioEvents> {
 			align-items: center;
 			cursor: pointer;
 
-			&:hover{
+			&:hover, &:focus{
 				color: var(--primary-color);
 			}
 
-			&:focus{
-				color: var(--primary-color);
-			}
-			
 			&.checked{
 				color: var(--primary-color);
 			}
