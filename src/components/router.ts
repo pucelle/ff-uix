@@ -147,6 +147,12 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	path: string = ''
 
 	/** 
+	 * Current router search part.
+	 * Must start with `?` if provided.
+	 */
+	search: string = ''
+
+	/** 
 	 * If can render popup content, it's the popup path to match popup routes.
 	 * Note `#` get excluded, and not limit to must start with `/`.
 	 */
@@ -254,11 +260,12 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		super.onConnected()
 
 		let href: string
+
 		if (this.path) {
-			href = this.hrefParser.buildPrefixed({path: this.path, prefix: this.prefix, hash: this.hash})
+			href = this.hrefParser.buildPrefixed({path: this.path, prefix: this.prefix, search: '', hash: this.hash})
 		}
 		else {
-			href = location.pathname + location.hash
+			href = location.pathname + location.search + location.hash
 		}
 
 		let parsed = this.hrefParser.parsePrefixed(href)
@@ -374,6 +381,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 			state = {
 				path: this.path,
+				search: this.search,
 				hash: parsed.hash,
 				prefix,
 				index: newIndex,
@@ -382,6 +390,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		else {
 			if (prefix === this.prefix
 				&& parsed.path === this.path
+				&& parsed.search === this.search
 				&& parsed.hash === this.hash
 			) {
 				return false
@@ -424,6 +433,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		
 		this.prefix = state.prefix
 		this.path = state.path
+		this.search = state.search
 		this.hash = state.hash
 		this.state = state
 

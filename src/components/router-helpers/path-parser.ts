@@ -2,6 +2,7 @@
 export interface HrefParsed {
 	prefix: string
 	path: string
+	search: string
 	hash: string
 }
 
@@ -18,11 +19,23 @@ export class HrefParser {
 		this.parsePath = parsePath
 	}
 
+	/** Parse to path, search, hash parts. */
+	private parseHref(href: string) {
+		let match = href.match(/(.+?)(\?.*?)?(#.*)?$/)!
+
+		return {
+			path: match[1],
+			search: match[2] ?? '',
+			hash: match[3] ?? '',
+		}
+	}
+
 	/** Get an empty parsed. */
 	empty(): HrefParsed {
 		return {
 			prefix: '',
 			path: '/',
+			search: '',
 			hash: '',
 		}
 	}
@@ -32,12 +45,13 @@ export class HrefParser {
 	 * If href is '', will persist it.
 	 */
 	parsePrefixed(href: string): HrefParsed | null {
-		let [path, hash] = href.split('#')
+		let {path, search, hash} = this.parseHref(href)
 		if (!path) {
 			return {
 				prefix: '',
 				path: '',
-				hash: hash ?? '',
+				search: '',
+				hash,
 			}
 		}
 
@@ -48,7 +62,8 @@ export class HrefParser {
 
 		return {
 			...parsed,
-			hash: hash ?? '',
+			search: search,
+			hash: hash,
 		}
 	}
 
@@ -57,12 +72,13 @@ export class HrefParser {
 	 * If href is '', will persist it.
 	 */
 	parseUnprefixed(href: string): HrefParsed {
-		let [path, hash] = href.split('#')
+		let {path, search, hash} = this.parseHref(href)
 
 		return {
 			prefix: '',
 			path,
-			hash: hash ?? '',
+			search,
+			hash,
 		}
 	}
 
@@ -70,12 +86,14 @@ export class HrefParser {
 	buildPrefixed(parsed: HrefParsed): string {
 		return parsed.prefix
 			+ (parsed.path === '/' && parsed.prefix ? '' : parsed.path)
+			+ parsed.search
 			+ (parsed.hash ? '#' + parsed.hash : '')
 	}
 
 	/** Build a path ignores prefix. */
 	buildUnprefixed(parsed: HrefParsed): string {
 		return parsed.path
+			+ parsed.search
 			+ (parsed.hash ? '#' + parsed.hash : '')
 	}
 }

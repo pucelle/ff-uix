@@ -17,7 +17,7 @@ export class Progress<E = {}> extends Component<E> {
 			width: 100%;
 			height: 1px;
 			/** Dynamic --selected-background-bold */
-				background: color-mix(in srgb, var(--primary-color) 16%, var(--background));
+			background: color-mix(in srgb, var(--primary-color) 16%, var(--background));
 		}
 
 		.progress-progress{
