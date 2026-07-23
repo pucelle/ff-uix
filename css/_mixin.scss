@@ -119,3 +119,16 @@
 		$background
 	);
 }
+
+/// Mixes two color variables.
+/// $weight is the percentage of the first color.
+@function mix-vars(
+	$foreground,
+	$background,
+	$weight
+) {
+	@return color-mix(in srgb,
+		var($foreground) $weight,
+		var($background)
+	);
+}

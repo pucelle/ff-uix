@@ -6,7 +6,7 @@
   --primary-color: ActiveText;
   --text-color: light-dark(#111, #eee);
   --heading-color: light-dark(#111, #eee);
-  --border-color: light-dark(#808080, #888);
+  --border-color: light-dark(#bbb, #555);
   --background: light-dark(white, #333);
   --foreground: light-dark(black, white);
   --input-background: light-dark(#e7e7e7, #444);
@@ -38,7 +38,6 @@
   --border-color-bold: color-mix(in srgb, var(--border-color) 50%, var(--text-color));
   --border-color-light: color-mix(in srgb, var(--border-color) 50%, var(--background));
   --border-color-lighter: color-mix(in srgb, var(--border-color) 25%, var(--background));
-  --border-color-lightest: color-mix(in srgb, var(--border-color) 12.5%, var(--background));
   --border-color-selected: color-mix(in srgb, var(--primary-color) 50%, var(--border-color));
   --primary-hover: color-mix(in srgb, var(--primary-color) 90%, var(--foreground));
   --primary-selected: color-mix(in srgb, var(--primary-color) 80%, var(--foreground));

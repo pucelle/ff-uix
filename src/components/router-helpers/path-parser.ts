@@ -21,12 +21,12 @@ export class HrefParser {
 
 	/** Parse to path, search, hash parts. */
 	private parseHref(href: string) {
-		let match = href.match(/(.+?)(\?.*?)?(#.*)?$/)!
+		let match = href.match(/(.*?)(\?.*?)?(#.*)?$/)!
 
 		return {
 			path: match[1],
 			search: match[2] ?? '',
-			hash: match[3] ?? '',
+			hash: match[3] ? match[3].slice(1) : '',
 		}
 	}
 

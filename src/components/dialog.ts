@@ -118,7 +118,8 @@ export class Dialog<E = {}> extends Component<E> {
 			display: flex;
 			font-size: calc(1em - 1px);
 			padding-bottom: 0.4em;
-			border-bottom: 1px solid var(--border-color-bold);
+			/* --border-color-bold */
+			border-bottom: 1px solid color-mix(in srgb, var(--border-color) 50%, var(--text-color));;
 			color: var(--heading-color);
 		}
 

@@ -154,7 +154,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 	/** 
 	 * If can render popup content, it's the popup path to match popup routes.
-	 * Note `#` get excluded, and not limit to must start with `/`.
+	 * Note `#` get excluded.
 	 */
 	hash: string = ''
 

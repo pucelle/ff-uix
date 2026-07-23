@@ -154,7 +154,8 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			align-items: stretch;
 			font-size: calc(1em - 1px);
 			padding: 0.2em 0.6em;
-			border-bottom: 1px solid var(--border-color-light);
+			/* --border-color-light */
+			border-bottom: 1px solid color-mix(in srgb, var(--border-color) 50%, var(--background));
 
 			&:last-child{
 				flex: 1;
@@ -221,12 +222,14 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 				top: 6px;
 				bottom: 6px;
 				width: 1px;
-				background: var(--border-color);
+				/* --border-color-light */
+				background: color-mix(in srgb, var(--border-color) 50%, var(--background));
 			}
 
 			&:hover, &.active{
 				&::before{
-					background: var(--border-color-bolder);
+					/* --border-color-bolder */
+					background: 1px solid color-mix(in srgb, var(--border-color) 75%, var(--text-color));
 				}
 			}
 		}
@@ -236,7 +239,8 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			overflow-y: scroll;
 			overflow-x: hidden;
 			position: relative;
-			border-bottom: 1px solid var(--border-color-lighter);
+			/* --border-color-lighter */
+			border-bottom: 1px solid color-mix(in srgb, var(--border-color) 25%, var(--background));
 		}
 
 		.table-table{
@@ -266,7 +270,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		.table-cell{
 			vertical-align: middle;
 			padding: 0.4em 0.6em;
-			border-bottom: 1px solid var(--border-color-lightest);
+			border-bottom: 1px solid color-mix(in srgb, var(--border-color) 25%, var(--background));
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;

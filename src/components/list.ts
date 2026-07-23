@@ -105,7 +105,8 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 
 		.list-splitter{
 			height: 1px;
-			background: var(--border-color-light);
+			/* --border-color-light */
+			background: color-mix(in srgb, var(--border-color) 50%, var(--background));
 			margin: 2px 0;
 		}
 
