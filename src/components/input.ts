@@ -87,7 +87,8 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 			position: absolute;
 			left: 0;
 			top: 100%;
-			line-height: 2;
+			line-height: 1.2;
+			padding-block: 0.2em;
 			font-size: calc(1em - 1px);
 			color: var(--error-color);
 		}

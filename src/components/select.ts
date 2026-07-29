@@ -4,7 +4,7 @@ import {ListItem, List} from './list'
 import {Popup} from './popup'
 import {Icon} from './icon'
 import {popup} from '../bindings/popup'
-import {ScrollUtils} from 'ff-kit'
+import {AnchorPosition, ScrollUtils} from 'ff-kit'
 import {IconClose, IconDown} from '../icons'
 import {DOMScroll} from '../tools'
 
@@ -104,6 +104,7 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 
 
 	override trigger: 'click' | 'contextmenu' | undefined = 'click'
+	override position: AnchorPosition | undefined = 'bl'
 	override showDelay: number | undefined = 0
 	override hideDelay: number | undefined = 0
 	override gaps: number | number[] | undefined = 0

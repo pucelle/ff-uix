@@ -182,11 +182,12 @@ export class Dialog<E = {}> extends Component<E> {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
+			margin-bottom: 2em;
 		}
 
 		.dialog-input-label{
-			margin-right: 2em;
-			max-width: calc(50% - 2em);
+			margin-right: 1em;
+			max-width: calc(50% - 1em);
 		}
 
 		.dialog-input{

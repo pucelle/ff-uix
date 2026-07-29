@@ -16,7 +16,9 @@
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitAny": true,
 		"noImplicitThis": true,
-		"skipLibCheck": true,
 		"allowUnusedLabels": true,
+		"preserveSymlinks": true,
+		"skipLibCheck": true,
+		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo"
 	}
 }
