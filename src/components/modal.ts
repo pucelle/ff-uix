@@ -106,30 +106,30 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			}
 		}
 
-		.modal-actions{
-			margin-left: 1.2em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-		}
-
-		.modal-action{
-			margin-left: 0.6em;
-			font-size: calc(1em - 1px);
-		}
-
-		.modal-third{
-			margin-left: 0;
-			margin-right: auto;
-		}
-
 		.modal-content{
 			flex: 1;
 			min-height: 0;
 			display: flex;
 			flex-direction: column;
 			overflow-y: auto;
-			padding: 0.6em 1.2em;
+			padding: 1.2em;
+		}
+		
+		.modal-actions{
+			display: flex;
+			flex-direction: row;
+			justify-content: end;
+			align-items: center;
+			padding: 0 1.2em 1.2em;
+			gap: 0.6em;
+		}
+
+		.modal-action{
+			font-size: calc(1em - 1px);
+		}
+
+		.modal-third{
+			margin-right: auto;
 		}
 	`
 
@@ -192,6 +192,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			>
 				${this.renderHeader()}
 				${this.renderContent()}
+				${this.renderActions()}
 			</div>
 		`
 	}
@@ -200,27 +201,40 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 		return html`
 			<div class="modal-header">
 				<div class="modal-title">${this.title}</div>
+				<Icon class="modal-close"
+					.code=${IconClose}
+					@click=${this.hide}
+					@mousedown.stop=${() => {}}
+				/>
+			</div>
+		`
+	}
 
-				<lu:if ${this.actions && this.actions.length > 0}>
-					${this.renderActions()}
-				</lu:if>
-				<lu:else>
-					<Icon class="modal-close"
-						.code=${IconClose}
-						@click=${this.hide}
-						@mousedown.stop=${() => {}}
-					/>
-				</lu:else>
+	protected onClickMask() {
+		if (this.quickHidden) {
+			this.hide()
+		}
+	}
+
+	/** Can be overwritten. */
+	protected renderContent(): RenderResult {
+		return html`
+			<div class="modal-content">
+				<slot />
 			</div>
 		`
 	}
 
 	/** Render action buttons, can be overwritten. */
 	protected renderActions(): RenderResult {
+		if (!this.actions) {
+			return null
+		}
+
 		return html`
 			<div class="modal-actions">
 			${
-				this.actions!.map(action => html`
+				this.actions.map(action => html`
 					<Button class="modal-action"
 						.primary=${!!action.primary}
 						:class.modal-third=${action.third}
@@ -233,12 +247,6 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			}
 			</div>
 		`
-	}
-
-	protected onClickMask() {
-		if (this.quickHidden) {
-			this.hide()
-		}
 	}
 
 	protected async onClickActionButton(action: ModelAction) {
@@ -257,15 +265,6 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 		}
 
 		this.hide()
-	}
-
-	/** Can be overwritten. */
-	protected renderContent(): RenderResult {
-		return html`
-			<div class="modal-content">
-				<slot />
-			</div>
-		`
 	}
 
 	protected override onReady() {
@@ -306,6 +305,10 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 	}
 
 	protected toCenter() {
+		if (!this.modalEl) {
+			return
+		}
+
 		new AnchorAligner(this.modalEl, {position: 'c'}).alignTo(document.documentElement)
 	}
 

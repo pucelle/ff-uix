@@ -167,11 +167,10 @@ export class Dialog<E = {}> extends Component<E> {
 			display: flex;
 			justify-content: flex-end;
 			margin-top: 1.2em;
+			gap: 0.6em;
 		}
 
-		.dialog-action{
-			margin-left: 0.6em;
-		}
+		.dialog-action{}
 
 		.dialog-third{
 			margin-left: 0;
@@ -358,6 +357,10 @@ export class Dialog<E = {}> extends Component<E> {
 	}
 
 	protected toCenter() {
+		if (!this.dialogEl) {
+			return
+		}
+		
 		new AnchorAligner(this.dialogEl, {position: 'c'}).alignTo(document.documentElement)
 	}
 

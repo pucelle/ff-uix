@@ -16,6 +16,10 @@ export class Textarea extends Input {
 			.input-field{
 				height: auto;
 			}
+
+			.input-valid-icon{
+				display: none;
+			}
 		}
 	`
 
@@ -49,7 +53,7 @@ export class Textarea extends Input {
 				.value=${this.value}
 				.rows=${this.rows}
 				.cols=${this.cols}
-				@focus=${this.onBlur}
+				@blur=${this.onBlur}
 				@input=${this.onInput}
 				@change=${this.onChange}
 			/>

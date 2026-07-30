@@ -112,7 +112,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 
 	/** 
 	 * Whether input has been touched, error messages only appears after touched.
-	 * Set it from `false` to `true` will cause validate immediately.
+	 * Set it to `true` will cause validate immediately.
 	 */
 	touched: boolean = false
 
@@ -168,7 +168,10 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 
 			// If within a popup, it may be postpone for several microtask ticks.
 			await sleep(0)
-			this.fieldRef.focus()
+
+			if (this.autoFocus && this.connected && document.activeElement !== this.fieldRef) {
+				this.fieldRef.focus()
+			}
 		}
 	}
 
