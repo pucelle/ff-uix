@@ -66,7 +66,7 @@ export class Textarea extends Input {
 
 	protected override onBlur() {
 		this.focusGot = false
-		this.touched = true
+		this.touched = this.inputted
 		this.validate()
 	}
 }

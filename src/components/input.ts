@@ -159,6 +159,9 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	/** Whether haven got focus already. */
 	protected focusGot: boolean = false
 
+	/** Whether had inputted, only after inputted can become `touched`. */
+	protected inputted: boolean = false
+
 	protected override async onConnected() {
 		super.onConnected()
 		
@@ -254,7 +257,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 		DOMModifiableEvents.off(document, 'keydown', this.onEnter, this)
 		
 		this.focusGot = false
-		this.touched = true
+		this.touched = this.inputted
 
 		// Validate after only change event is not enough.
 		// Since we clear error message after input,
@@ -267,6 +270,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 			return
 		}
 
+		this.inputted = true
 		this.handleInput()
 	}
 

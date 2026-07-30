@@ -66,14 +66,22 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 			min-width: 0;
 			padding: 0 0 0 0.6em;
 			height: 100%;
+			line-height: 100%;
 			border: none;
 			background: transparent;
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			box-shadow: none;
+		}
 
-			/** Ensure to inherit <Input> element. */
+		.select-display{
+			display: flex;
+			align-items: center;
+		}
+		
+		/** Ensure to inherit <Input> element. */
+		.select-input{
 			color: inherit;
 			font-family: inherit;
 			font-size: inherit;
