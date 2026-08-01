@@ -16,7 +16,6 @@ export class Progress<E = {}> extends Component<E> {
 		.progress-groove{
 			width: 100%;
 			height: 1px;
-			/** Dynamic --selected-background-bold */
 			background: color-mix(in srgb, var(--primary-color) 16%, var(--background));
 		}
 

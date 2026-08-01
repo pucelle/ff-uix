@@ -8,7 +8,6 @@
   --heading-color: light-dark(#111, #eee);
   --border-color: light-dark(#bbb, #555);
   --background: light-dark(white, #333);
-  --foreground: light-dark(black, white);
   --input-background: light-dark(#e7e7e7, #444);
   --switch-background: light-dark(#ddd, #444);
   --switch-width: 2em;
@@ -22,8 +21,8 @@
   --popup-shadow-color: light-dark(rgba(0, 0, 0, 0.5), black);
   --popup-shadow-blur-radius: 6px;
   --info-color: light-dark(#3369fa, #648bf3);
-  --success-color: light-dark(#29bc04, #3eee12);
-  --error-color: light-dark(#e10000, #f42626);
+  --success-color: light-dark(#29bc04, #36d00f);
+  --error-color: light-dark(#e13333, #e06363);
   --warning-color: light-dark(#f3b907, #efc43f);
   --info-background: color-mix(in srgb, var(--info-color) 5%, var(--background));
   --success-background: color-mix(in srgb, var(--success-color) 5%, var(--background));
@@ -31,22 +30,20 @@
   --warning-background: color-mix(in srgb, var(--warning-color) 5%, var(--background));
   --switch-background-selected: color-mix(in srgb, var(--switch-background) 50%, var(--primary-color));
   --rect-selection-background: color-mix(in srgb, var(--primary-color) 10%, transparent);
-  --text-color-muted: color-mix(in srgb, var(--text-color) 90%, var(--background));
-  --text-color-subtle: color-mix(in srgb, var(--text-color) 80%, var(--background));
-  --text-color-faint: color-mix(in srgb, var(--text-color) 70%, var(--background));
-  --border-color-bolder: color-mix(in srgb, var(--border-color) 75%, var(--text-color));
+  --text-color-muted: color-mix(in srgb, var(--text-color) 87.5%, var(--background));
+  --text-color-subtle: color-mix(in srgb, var(--text-color) 75%, var(--background));
+  --text-color-faint: color-mix(in srgb, var(--text-color) 62.5%, var(--background));
+  --border-color-bolder: color-mix(in srgb, var(--border-color) 25%, var(--text-color));
   --border-color-bold: color-mix(in srgb, var(--border-color) 50%, var(--text-color));
+  --border-color-semibold: color-mix(in srgb, var(--border-color) 75%, var(--text-color));
+  --border-color-semilight: color-mix(in srgb, var(--border-color) 75%, var(--background));
   --border-color-light: color-mix(in srgb, var(--border-color) 50%, var(--background));
   --border-color-lighter: color-mix(in srgb, var(--border-color) 25%, var(--background));
   --border-color-selected: color-mix(in srgb, var(--primary-color) 50%, var(--border-color));
-  --primary-hover: color-mix(in srgb, var(--primary-color) 90%, var(--foreground));
-  --primary-selected: color-mix(in srgb, var(--primary-color) 80%, var(--foreground));
-  --hover-background: color-mix(in srgb, var(--text-color) 5%, var(--background));
-  --hover-background-bold: color-mix(in srgb, var(--text-color) 10%, var(--background));
-  --hover-background-bolder: color-mix(in srgb, var(--text-color) 15%, var(--background));
-  --selected-background-light: color-mix(in srgb, var(--primary-color) 4%, var(--background));
-  --selected-background: color-mix(in srgb, var(--primary-color) 8%, var(--background));
-  --selected-background-bold: color-mix(in srgb, var(--primary-color) 16%, var(--background));
+  --primary-hover: color-mix(in srgb, var(--primary-color) 90%, var(--text-color));
+  --primary-selected: color-mix(in srgb, var(--primary-color) 80%, var(--text-color));
+  --hover-background: color-mix(in srgb, var(--text-color) 5%, transparent);
+  --selected-background: color-mix(in srgb, var(--primary-color) 8%, transparent);
 }
 
 *, *::before, *::after {
@@ -91,6 +88,7 @@ html {
 }
 
 body {
+  overflow-x: hidden;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 

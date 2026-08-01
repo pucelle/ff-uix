@@ -1,5 +1,6 @@
 @use "sass:color";
 @use "sass:math";
+@use "sass:string";
 
 
 /// Under pad width (1024px).
@@ -87,11 +88,11 @@
 @function decimal-to-hex($n) {
 	$hex: "0123456789abcdef";
 
-	$high: math.floor($n / 16);
+	$high: math.floor(math.div($n, 16));
 	$low: $n % 16;
 
-	@return str-slice($hex, $high + 1, $high + 1) +
-			str-slice($hex, $low + 1, $low + 1);
+	@return string.slice($hex, $high + 1, $high + 1) +
+			string.slice($hex, $low + 1, $low + 1);
 }
 
 /// Convert rgb color to hex.
@@ -100,7 +101,7 @@
 	$g: math.round(color.channel($color, "green"));
 	$b: math.round(color.channel($color, "blue"));
 
-	@return unquote(
+	@return string.unquote(
 		"##{decimal-to-hex($r)}#{decimal-to-hex($g)}#{decimal-to-hex($b)}"
 	);
 }

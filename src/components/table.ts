@@ -229,7 +229,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			&:hover, &.active{
 				&::before{
 					/* --border-color-bolder */
-					background: 1px solid color-mix(in srgb, var(--border-color) 75%, var(--text-color));
+					background: 1px solid color-mix(in srgb, var(--border-color) 25%, var(--text-color));
 				}
 			}
 		}
@@ -257,13 +257,11 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			}
 
 			&:hover{
-				/* Dynamic --hover-background */
-				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
+				background: var(--hover-background);
 			}
 
 			&.selected{
-				/** Dynamic --selected-background */
-				background: color-mix(in srgb, var(--primary-color) 8%, var(--background));
+				background: var(--selected-background);
 			}
 		}
 

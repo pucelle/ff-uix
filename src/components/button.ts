@@ -21,13 +21,11 @@ export class Button<E = {}> extends Component<E> {
 			background: var(--background);
 		
 			&:hover, &:focus{
-				/* Dynamic --hover-background */
-				background: color-mix(in srgb, var(--text-color) 5%, var(--background));
+				background: var(--hover-background);
 			}
 
 			&:active{
-				/* Dynamic --hover-background-bold */
-				background: color-mix(in srgb, var(--text-color) 10%, var(--background));
+				background: var(--selected-background);
 			}
 
 			&.primary{
