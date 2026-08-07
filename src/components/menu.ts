@@ -1,6 +1,5 @@
 import {css, html, fade} from 'lupos.html'
 import {Popup} from './popup'
-import {Triangle} from './triangle'
 
 
 
@@ -58,13 +57,7 @@ export class Menu<E = {}> extends Popup<E> {
 			<template class="popup menu" role="menu"
 				:transition=${fade()}
 			>
-				<lu:if ${this.triangle}>
-					<Triangle
-						.direction=${this.triangleDirection}
-						.width=${this.triangleWidth}
-						.height=${this.triangleHeight}
-					/>
-				</lu:if>
+				${this.renderTriangle()}
 				${this.renderHead()}
 				<slot />
 			</template>

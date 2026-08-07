@@ -1,6 +1,5 @@
 import {css, html, fade, RenderResultRenderer, RenderResult} from 'lupos.html'
 import {Popup} from './popup'
-import {Triangle} from './triangle'
 import {Icon} from './icon'
 import {IconClose} from '../icons'
 import {Button} from './button'
@@ -110,9 +109,7 @@ export class Popover<E = {}> extends Popup<E> {
 			<template class="popup popover"
 				:transition=${fade()}
 			>
-				<lu:if ${this.triangle}>
-					<Triangle class="popover-triangle" .direction=${this.triangleDirection} />
-				</lu:if>
+				${this.renderTriangle()}
 				${this.renderHead()}
 				<div class="popover-content"><slot /></div>
 			</template>

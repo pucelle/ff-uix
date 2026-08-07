@@ -1,7 +1,6 @@
 import {css, html, fade} from 'lupos.html'
 import {Popup} from './popup'
 import {Icon} from './icon'
-import {Triangle} from './triangle'
 import {IconClose} from '../icons'
 
 
@@ -81,13 +80,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 			<template class="popup tooltip tooltip-type-${this.type}"
 				:transition=${fade()}
 			>
-				<lu:if ${this.triangle}>
-					<Triangle class="tooltip-triangle"
-						.direction=${this.triangleDirection}
-						.width=${this.triangleWidth}
-						.height=${this.triangleHeight}
-					/>
-				</lu:if>
+				${this.renderTriangle()}
 
 				<div class="tooltip-text">
 					<slot />

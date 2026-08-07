@@ -79,15 +79,23 @@ export class Popup<E = {}> extends Component<E> {
 			<template class="popup" tabindex="0"
 				:transition=${fade()}
 			>
-				<lu:if ${this.triangle}>
-					<Triangle
-						.width=${this.triangleWidth}
-						.height=${this.triangleHeight}
-						.direction=${this.triangleDirection}
-					/>
-				</lu:if>
+				${this.renderTriangle()}
 				<slot />
 			</template>
+		`
+	}
+
+	protected renderTriangle() {
+		if (!this.triangle) {
+			return null
+		}
+
+		return html`
+			<Triangle
+				.width=${this.triangleWidth}
+				.height=${this.triangleHeight}
+				.direction=${this.triangleDirection}
+			/>
 		`
 	}
 
