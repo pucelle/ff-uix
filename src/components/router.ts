@@ -39,6 +39,12 @@ export type RouteRedirects = Record<string, RouteRedirect>
 /** Calls it when router change. */
 type RouterChangeHandler = (type: RouterChangeType, newState: RouterHistoryState, oldState: RouterHistoryState | null) => void
 
+/** Each router after normalized. */
+type NormalizedRoute = {readonly matcher: PathMatcher, readonly handler: RouteHandler}
+
+/** Each redirect after normalized. */
+type NormalizedRedirect = {readonly matcher: PathMatcher, readonly redirect: RouteRedirect}
+
 
 /** 
  * `<Router>` serves as the top-level container for all routable content,
@@ -211,7 +217,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	@computed
-	protected get normalizedRoutes(): {matcher: PathMatcher, handler: RouteHandler}[] {
+	protected get normalizedRoutes(): Readonly<NormalizedRoute[]> {
 		if (!this.routes) {
 			return []
 		}
@@ -220,7 +226,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	@computed
-	protected get normalizedPopupRoutes(): {matcher: PathMatcher, handler: RouteHandler}[] {
+	protected get normalizedPopupRoutes(): Readonly<NormalizedRoute[]> {
 		if (!this.popupRoutes) {
 			return []
 		}
@@ -228,7 +234,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		return this.normalizeAnyRoutes(this.popupRoutes)
 	}
 
-	protected normalizeAnyRoutes(routes: Routes): {matcher: PathMatcher, handler: RouteHandler}[] {
+	protected normalizeAnyRoutes(routes: Routes): NormalizedRoute[] {
 		if (!routes) {
 			return []
 		}
@@ -242,7 +248,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	@computed
-	protected get normalizedRedirects(): {matcher: PathMatcher, redirect: RouteRedirect}[] {
+	protected get normalizedRedirects(): NormalizedRedirect[] {
 		if (!this.redirects) {
 			return []
 		}

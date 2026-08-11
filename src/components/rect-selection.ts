@@ -102,6 +102,12 @@ export class RectSelection extends Component<RectSelectionEvents> {
 		}
 	}
 
+	protected override onWillDisconnect(): void {
+		if (this.scroller) {
+			DOMEvents.off(this.scroller, 'mousedown', this.onMouseDown, this)
+		}
+	}
+
 	protected onMouseDown(e: MouseEvent) {
 		if (this.shouldIgnoreStartEvent(e)) {
 			return
