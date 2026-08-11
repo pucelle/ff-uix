@@ -74,6 +74,15 @@ Here is the [Live Preview](https://pucelle.github.io/ff-uix/docs/).
 	`Store`: caches data items while support ordering and filtering.
 
 
+## Testing
+
+Tests are located in the root `tests` directory and run with Vitest. The current suites cover data loading and router helpers without requiring browser APIs.
+
+```sh
+npm test
+```
+
+
 
 ## License
 
