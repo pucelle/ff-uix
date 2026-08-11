@@ -330,7 +330,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 		}
 	}
 
-	protected validate() {
+	validate() {
 		if (this.validator) {
 			let value = this.value
 			let error = this.validator(this.value)

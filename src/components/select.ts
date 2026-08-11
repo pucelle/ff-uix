@@ -302,7 +302,7 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 			let filteredData: ListItem<T>[] = []
 
 			for (let item of this.data) {
-				let searchText = item.text
+				let searchText = item.text?.toLowerCase()
 				if (searchText?.includes(lowerSearchWord)) {
 					filteredData.push(item)
 				}

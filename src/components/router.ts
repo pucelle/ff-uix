@@ -95,6 +95,8 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			if (depth >= searchDepth) {
 				break
 			}
+
+			depth++
 		}
 
 		return null
@@ -448,6 +450,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		}
 		else {
 			history.pushState(state, '', uri)
+			this.latestStateIndex = state.index
 		}
 
 		// SSR env location is not mutable.

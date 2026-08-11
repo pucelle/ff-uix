@@ -166,19 +166,19 @@ export class PageDataLoader<T> {
 			return
 		}
 
-		let promise = this.dataGetter(startIndex, endIndex)
-		if (promise instanceof Promise) {
-			this.requests.set(pageIndex, promise)
+		let request = Promise.resolve(this.dataGetter(startIndex, endIndex))
+		this.requests.set(pageIndex, request)
 
-			let data = await promise
+		try {
+			let data = await request
 			if (data) {
 				this.cacheMap.set(pageIndex, [...data])
 			}
-
-			this.requests.delete(pageIndex)
 		}
-		else {
-			this.cacheMap.set(pageIndex, [...promise])
+		finally {
+			if (this.requests.get(pageIndex) === request) {
+				this.requests.delete(pageIndex)
+			}
 		}
 	}
 
@@ -216,7 +216,7 @@ export class PageDataLoader<T> {
 
 		// Move forward
 		else {
-			for (let i = index; i < totalCount; i++) {
+			for (let i = index - moveCount; i < totalCount; i++) {
 				this.moveDataItem(i, i + moveCount)
 			}
 		}

@@ -26,7 +26,10 @@ export class Form<E = {}> extends Component<E> {
 	validate() {
 		for (let input of this.inputs) {
 			input.touched = true
+			input.validate()
 		}
+
+		this.valid = this.inputs.every(input => input.valid !== false)
 	}
 
 	/** Reset valid state to initial for all child inputs and textareas. */
@@ -34,5 +37,7 @@ export class Form<E = {}> extends Component<E> {
 		for (let input of this.inputs) {
 			input.touched = false
 		}
+
+		this.valid = true
 	}
 }

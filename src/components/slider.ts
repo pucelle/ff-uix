@@ -318,7 +318,7 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 		this.onBlur()
 		
 		DOMEvents.on(document, 'keydown', this.onKeyDown, this)
-		DOMEvents.on(document, 'wheel', this.onWheel, this, {passive: true})
+		DOMEvents.on(document, 'wheel', this.onWheel, this)
 	}
 
 	protected onKeyDown(this: Slider, e: KeyboardEvent) {

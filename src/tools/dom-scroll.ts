@@ -223,7 +223,7 @@ export function scrollToTop(el: HTMLElement, gap: number = 0, duration: number =
  * Returns a promise which will be resolved by whether scrolled.
  */
 export function scrollToLeft(el: HTMLElement, gap: number = 0, duration: number = 0, easing: PerFrameTransitionEasingName = 'ease-out'): Promise<boolean> {
-	return scrollToStart(el, 'vertical', gap, duration, easing)
+	return scrollToStart(el, 'horizontal', gap, duration, easing)
 }
 
 
