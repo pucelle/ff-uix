@@ -5,6 +5,7 @@ import {contextmenu} from '../bindings/contextmenu'
 import {PopupOptions} from '../bindings/popup'
 import {CSSUtils} from 'ff-kit'
 import {UpdateQueue} from 'lupos'
+import {IN_SSR} from 'lupos.html'
 
 
 export interface NavigationSticky {
@@ -83,17 +84,21 @@ export class Navigation<T> extends List<T> {
 		if (this.autoScrolled === 'always') {
 			this.expandDeeply(firstSelected)
 
-			await UpdateQueue.untilComplete()
-			let gaps = this.computeTopScrollGaps()
-			this.scrollSelectedToView(gaps, 200)
+			if (!IN_SSR) {
+				await UpdateQueue.untilComplete()
+				let gaps = this.computeTopScrollGaps()
+				this.scrollSelectedToView(gaps, 200)
+			}
 		}
 		else if (this.autoScrolled === 'once') {
 			this.expandDeeply(firstSelected)
 
-			await UpdateQueue.untilComplete()
-			let gaps = this.computeTopScrollGaps()
-			this.scrollSelectedToView(gaps, 200)
-			this.autoScrolled = 'none'
+			if (!IN_SSR) {
+				await UpdateQueue.untilComplete()
+				let gaps = this.computeTopScrollGaps()
+				this.scrollSelectedToView(gaps, 200)
+				this.autoScrolled = 'none'
+			}
 		}
 		else {
 			super.onSingleSelectedChanged(firstSelected)
