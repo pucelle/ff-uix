@@ -19,6 +19,10 @@ export class Button<E = {}> extends Component<E> {
 			overflow: hidden;
 			text-overflow: ellipsis;
 			background: var(--background);
+
+			&:hover{
+				text-decoration: none;
+			}
 		
 			&:hover, &:focus{
 				background: var(--hover-background);

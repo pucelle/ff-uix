@@ -228,8 +228,8 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 			&:hover, &.active{
 				&::before{
-					/* --border-color-bolder */
-					background: 1px solid color-mix(in srgb, var(--border-color) 25%, var(--text-color));
+					/* --border-color */
+					background: 1px solid var(--border-color);
 				}
 			}
 		}
@@ -283,6 +283,35 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			top: 0;
 			bottom: 0;
 			cursor: ew-resize;
+		}
+
+		@media (max-width: 768px) {
+			.grid-on-phone{
+				.table-head, .table-resizer, colgroup{
+					display: none;
+				}
+				
+				.table-table{
+					display: block;
+				}
+
+				tbody{
+					display: block;
+				}
+
+				.table-row{
+					display: grid;
+					align-items: center;
+					margin-block: 0.6em;
+					padding: 0.4em;
+					border-radius: 3px;
+					background: color-mix(in srgb, var(--text-color) 5%, transparent);
+				}
+
+				.table-cell{
+					border-bottom: none;
+				}
+			}
 		}
 	`
 
@@ -372,6 +401,13 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	 */
 	selections: Selections<T> | null = null
 
+	/** If provided, will save and restore the state by this option. */
+	stateControl: ((this: this) => TableStateControl | TableStateControl[] | null)
+		| TableStateControl[] | TableStateControl | null = null
+
+	/** If true, toggle to grid layout when phone width. */
+	gridOnPhone: boolean = false
+
 	/** 
 	 * Help to resize column widths when `resizable` is `true`.
 	 * Get updated of columns config get changed.
@@ -396,9 +432,6 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 	/** To cache and restore table state. */
 	protected stateCacher: TableStateCacher | null = null
-
-	/** If provided, will save and restore the state by this option. */
-	stateControl: ((this: this) => TableStateControl | TableStateControl[] | null) | TableStateControl[] | TableStateControl | null = null
 
 	/** Initialize selections if needed. */
 	@effect
@@ -606,6 +639,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	protected override render(): TemplateResult {
 		return html`
 			<template class="table"
+				:class.grid-on-phone=${this.gridOnPhone}
 				:watchWidth=${this.onWidthChange}
 				@mousedown=${this.onMouseDown}
 			>

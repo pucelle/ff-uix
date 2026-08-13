@@ -14,7 +14,9 @@
 	--heading-color: light-dark(#111, #eee);
 	--border-color: light-dark(#bbb, #555);
 
-	--background: light-dark(white, #333);
+	--root-background: light-dark(white, #333);
+	--background: var(--root-background);
+	--deep-background: light-dark(white, #000);
 	--input-background: light-dark(#e7e7e7, #444);
 
 	--switch-background: light-dark(#ddd, #444);

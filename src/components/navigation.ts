@@ -36,6 +36,10 @@ export class Navigation<T> extends List<T> {
 			overflow-y: auto;
 			overflow-anchor: none;
 
+			/* Avoid stick element becomes transparent. */
+			--hover-background: color-mix(in srgb, var(--text-color) 5%, var(--background));
+			--selected-background: color-mix(in srgb, var(--primary-color) 5%, var(--background));
+
 			.list-item.selected{
 				color: var(--primary-color);
 			}
