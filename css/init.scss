@@ -14,9 +14,9 @@ html{
 	--heading-color: light-dark(#111, #eee);
 	--border-color: light-dark(#bbb, #555);
 
-	--root-background: light-dark(white, #333);
+	--root-background: light-dark(#fff, #333);
 	--background: var(--root-background);
-	--deep-background: light-dark(white, #000);
+	--deep-background: light-dark(#fff, #000);
 	--input-background: light-dark(#e7e7e7, #444);
 
 	--switch-background: light-dark(#ddd, #444);
@@ -27,7 +27,7 @@ html{
 	--slider-groove-size: 1px;
 	--slider-ball-size: 15px;
 
-	--popup-background: light-dark(white, #333);
+	--popup-background: light-dark(#fff, #333);
 	--popup-border-radius: 4px;
 	--popup-border-width: 0;
 	--popup-shadow-color: light-dark(rgba(0, 0, 0, 0.5), black);
