@@ -179,7 +179,13 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 
 		.list-partial-repeat{}
 		.list-subsection{}
-	`
+
+		@media (prefers-reduced-motion: reduce) {
+			.list-toggle-icon{
+				transition: none;
+			}
+		}
+`
 
 
 	/** 
