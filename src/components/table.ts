@@ -285,6 +285,16 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			cursor: ew-resize;
 		}
 
+		/* Set this class name for draggingClassName of :orderable. */
+		.table-dragging{
+			position: relative;
+			display: table;
+
+			.table-cell{
+				background: var(--selected-background);
+			}
+		}
+
 		@media (max-width: 768px) {
 			.grid-on-phone{
 				.table-head, .table-resizer, colgroup{
@@ -818,7 +828,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	}
 
 	/** Render all cells within a row. */
-	protected renderCells(item: T, index: number) {
+	protected renderCells(item: T, index: number): RenderResult {
 		index += this.startIndex
 		let cells = this.columns.map(column => this.renderCell(item, index, column))
 		return cells
