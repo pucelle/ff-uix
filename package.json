@@ -26,8 +26,8 @@
 	},
 	"dependencies": {
 		"ff-kit": "^2.0.1",
-		"lupos": "^0.1.0",
-		"lupos.html": "^0.1.1"
+		"lupos": "^0.2.0",
+		"lupos.html": "^0.2.1"
 	},
 	"devDependencies": {
 		"typescript": "^5.9.3",
