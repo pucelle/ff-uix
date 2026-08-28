@@ -8,7 +8,7 @@ export class Menu<E = {}> extends Popup<E> {
 
 	static override style = css`
 		.menu{
-			max-width: min(30em, calc(100dvw - 20px));
+			max-width: min(30em, calc(100dvw - 2rem));
 			padding: 0.6em;
 			
 			.triangle{
