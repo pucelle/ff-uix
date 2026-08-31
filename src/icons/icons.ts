@@ -1,3 +1,4 @@
+export {default as IconAdd} from '../../icons/add.svg'
 export {default as IconCheckboxChecked} from '../../icons/checkbox-checked.svg'
 export {default as IconCheckboxIndeterminate} from '../../icons/checkbox-indeterminate.svg'
 export {default as IconCheckboxUnchecked} from '../../icons/checkbox-unchecked.svg'
