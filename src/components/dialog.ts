@@ -101,6 +101,7 @@ export class Dialog<E = {}> extends Component<E> {
 			max-width: 95%;
 			max-height: 95%;
 			padding: 0.6em 1.2em 1.2em;
+			border: var(--popup-border-width) solid var(--border-color);
 			--background: var(--popup-background);
 		}
 
@@ -118,8 +119,7 @@ export class Dialog<E = {}> extends Component<E> {
 			display: flex;
 			font-size: calc(1em - 1px);
 			padding-bottom: 0.4em;
-			/* --border-color-bold */
-			border-bottom: 1px solid color-mix(in srgb, var(--border-color) 50%, var(--text-color));;
+			border-bottom: 1px solid var(--border-color);
 			color: var(--heading-color);
 		}
 
