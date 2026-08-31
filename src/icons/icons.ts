@@ -5,6 +5,7 @@ export {default as IconCheckboxUnchecked} from '../../icons/checkbox-unchecked.s
 export {default as IconChecked} from '../../icons/checked.svg'
 export {default as IconClose} from '../../icons/close.svg'
 export {default as IconConfirm} from '../../icons/confirm.svg'
+export {default as IconDelete} from '../../icons/delete.svg'
 export {default as IconDown} from '../../icons/down.svg'
 export {default as IconError} from '../../icons/error.svg'
 export {default as IconInfo} from '../../icons/info.svg'
