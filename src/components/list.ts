@@ -1,4 +1,4 @@
-import {css, Component, html, RenderResult, RenderResultRenderer, fold, PerFrameTransitionEasingName, TransitionResult, FoldTransitionOptions} from 'lupos.html'
+import {css, Component, html, RenderResult, RenderResultRenderer, fold, PerFrameTransitionEasingName, TransitionResult, FoldTransitionOptions, TemplateResult} from 'lupos.html'
 import {DOMEvents, EventKeys, Observed, UpdateQueue, effect, watch} from 'lupos'
 import {ListDataNavigator} from './list-helpers/list-data-navigator'
 import {Icon} from './icon'
@@ -287,7 +287,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		`
 	}
 
-	protected renderItems(items: ListItem<T>[], depth: number): RenderResult {
+	protected renderItems(items: ListItem<T>[], depth: number): TemplateResult {
 		if (this.shouldRenderPartialRepeat(items)) {
 			return html`
 				<PartialRepeat class="list-partial-repeat"
@@ -312,7 +312,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		return this.partialRenderingScrollerSelector && items.length > 50
 	}
 
-	protected renderItemOrSplitter(item: ListItem<T>, depth: number): RenderResult {
+	protected renderItemOrSplitter(item: ListItem<T>, depth: number): TemplateResult {
 		if (item.value === undefined && !item.text && !item.content) {
 			return html`<div class="list-splitter"></div>`
 		}
@@ -321,7 +321,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		}
 	}
 
-	protected renderItem(item: ListItem<T>, depth: number): RenderResult {
+	protected renderItem(item: ListItem<T>, depth: number): TemplateResult {
 		let expanded = this.hasExpanded(item.value!)
 		let itemTooltip = this.renderTooltip(item)
 		let itemContextmenu = this.renderContextmenu(item)

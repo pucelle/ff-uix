@@ -1,4 +1,4 @@
-import {css, html, Component, fade, RenderResultRenderer, RenderResult} from 'lupos.html'
+import {css, html, Component, fade, RenderResultRenderer} from 'lupos.html'
 import {AnchorAligner, t, translations} from 'ff-kit'
 import {DOMEvents, EventKeys, UpdateQueue} from 'lupos'
 import {Input} from './input'
@@ -219,7 +219,7 @@ export class Dialog<E = {}> extends Component<E> {
 		super(el)
 	}
 
-	protected override render(): RenderResult {
+	protected override render() {
 		if (!this.options) {
 			return null
 		}

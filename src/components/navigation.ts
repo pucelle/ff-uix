@@ -1,4 +1,4 @@
-import {css, html, RenderResult} from 'lupos.html'
+import {css, html, TemplateResult} from 'lupos.html'
 import {List, ListItem} from './list'
 import {tooltip} from '../bindings/tooltip'
 import {contextmenu} from '../bindings/contextmenu'
@@ -154,7 +154,7 @@ export class Navigation<T> extends List<T> {
 		return null
 	}
 
-	protected override renderItem(item: ListItem<T>, depth: number): RenderResult {
+	protected override renderItem(item: ListItem<T>, depth: number): TemplateResult {
 		let expanded = this.hasExpanded(item.value!)
 		let itemTooltip = this.renderTooltip(item)
 		let itemContextmenu = this.renderContextmenu(item)

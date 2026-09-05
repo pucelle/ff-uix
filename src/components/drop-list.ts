@@ -1,4 +1,4 @@
-import {css, html, RenderResult, fade} from 'lupos.html'
+import {css, html, fade} from 'lupos.html'
 import {List, ListItem} from './list'
 import {popup, PopupOptions} from '../bindings/popup'
 import {Popup} from './popup'
@@ -49,7 +49,7 @@ export class DropList<T> extends List<T> {
 		`
 	}
 
-	protected override renderItem(item: ListItem<T>, depth: number): RenderResult {
+	protected override renderItem(item: ListItem<T>, depth: number) {
 		let children = item.children
 		let itemTooltip = this.renderTooltip(item)
 		let itemContextmenu = this.renderContextmenu(item)

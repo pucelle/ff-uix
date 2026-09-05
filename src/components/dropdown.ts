@@ -1,4 +1,4 @@
-import {css, html, Component, RenderResultRenderer, RenderResult} from 'lupos.html'
+import {css, html, Component, RenderResultRenderer} from 'lupos.html'
 import {popup, PopupOptions, TriggerType} from '../bindings/popup'
 import {Icon} from './icon'
 import {Popup} from './popup'
@@ -133,7 +133,7 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 	 * You may choose to specify `popupRenderer` property
 	 * if you don't want to implement a new component.
 	 */
-	protected renderPopup(): RenderResult {
+	protected renderPopup() {
 		if (typeof this.popupRenderer === 'function') {
 			return this.popupRenderer()
 		}
