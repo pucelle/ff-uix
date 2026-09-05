@@ -225,10 +225,8 @@ export class Dialog<E = {}> extends Component<E> {
 		}
 
 		return html`
-			<template>
-				${this.renderMask()}
-				${this.renderDialog()}
-			</template>
+			${this.renderMask()}
+			${this.renderDialog()}
 		`
 	}
 

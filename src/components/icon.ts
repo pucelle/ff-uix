@@ -32,6 +32,14 @@ export class Icon<Events = any> extends Component<Events> {
 	code: string = ''
 	
 	protected override render() {
+		return html`
+			<template class="icon">
+				${this.renderSVG()}
+			</template>
+		`
+	}
+
+	protected renderSVG() {
 		let parsed = parseSVGCode(this.code)
 		if (!parsed) {
 			return null
@@ -58,14 +66,12 @@ export class Icon<Events = any> extends Component<Events> {
 		let renderHeight = this.height ?? parsed.size.height ?? box.height
 
 		return html`
-			<template class="icon">
-				<svg
-					viewBox=${[x, y, viewWidth, viewHeight].join(' ')}
-					width=${renderWidth}
-					height=${renderHeight}
-					:html=${inner}
-				></svg>
-			</template>
+			<svg
+				viewBox=${[x, y, viewWidth, viewHeight].join(' ')}
+				width=${renderWidth}
+				height=${renderHeight}
+				:html=${inner}
+			></svg>
 		`
 	}
 }

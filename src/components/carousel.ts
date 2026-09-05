@@ -109,7 +109,7 @@ export class Carousel extends Component {
 			>
 				<div class="carousel-inner"
 					:style.transform="translateX(${translateX}px)"
-					:watchWidth=${(width: number, inner: HTMLElement) => {
+					:watchWidth=${(width: number, inner: Element) => {
 						this.count = inner.firstElementChild!.children.length
 						this.currentContentWidth = this.count > 0 ? width / this.count : 0
 					}}

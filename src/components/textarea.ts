@@ -51,8 +51,8 @@ export class Textarea extends Input {
 				:class.invalid=${this.touched && this.valid === false}
 				:style.resize=${this.resize}
 				.value=${this.value}
-				.rows=${this.rows}
-				.cols=${this.cols}
+				rows=${this.rows ?? null}
+				cols=${this.cols ?? null}
 				@blur=${this.onBlur}
 				@input=${this.onInput}
 				@change=${this.onChange}

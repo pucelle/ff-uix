@@ -301,9 +301,9 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 		}
 		else {
 			return html`
-				<lu:for ${items}>${(item: ListItem<T>) => {
-					return this.renderItemOrSplitter(item, depth)
-				}}</lu:for>
+				<lu:for ${item} of ${items}>
+					${this.renderItemOrSplitter(item, depth)}
+				</lu:for>
 			`
 		}
 	}

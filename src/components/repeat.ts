@@ -55,7 +55,11 @@ export class Repeat<T = any, E = {}> extends Component<E> {
 	}
 
 	protected override render() {
-		return html`<lu:for ${this.data}>${this.renderFn}</lu:for>`
+		return html`
+			<lu:for ${this.data}>
+				${this.renderFn}
+			</lu:for>
+		`
 	}
 
 	/** 

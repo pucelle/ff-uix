@@ -154,7 +154,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	icon: string | null = null
 
 	/** Input field element reference. */
-	readonly fieldRef!: HTMLInputElement | HTMLTextAreaElement
+	fieldRef!: HTMLInputElement | HTMLTextAreaElement
 
 	/** Whether haven got focus already. */
 	protected focusGot: boolean = false
@@ -265,7 +265,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 		this.validate()
 	}
 
-	protected onInput(e: KeyboardEvent) {
+	protected onInput(e: InputEvent) {
 		if (e.isComposing) {
 			return
 		}
@@ -274,7 +274,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 		this.handleInput()
 	}
 
-	protected onCompositionEnd(_e: KeyboardEvent) {
+	protected onCompositionEnd(_e: CompositionEvent) {
 		this.handleInput()
 	}
 

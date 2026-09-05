@@ -1,4 +1,4 @@
-import {css, html, Component, RenderResultRenderer, fold, fade} from 'lupos.html'
+import {css, html, Component, RenderResultRenderer, fold, fade, TransitionResult, FoldTransitionOptions} from 'lupos.html'
 import {Timeout} from 'ff-kit'
 import {Icon} from './icon'
 import {Button} from './button'
@@ -207,14 +207,14 @@ export class Notification<E = {}> extends Component<E> {
 	protected override render() {
 		return html`
 		<template class="notification">
-			<lu:for ${this.items}>${(item: NotificationItem) => html`
+			<lu:for ${item} of ${this.items}>
 				<div class="notification-item notification-type-${item.type}"
 					role=${item.type === 'error' || item.type === 'warning' ? 'alert' : 'status'}
 					@mouseenter=${() => this.onMouseEnter(item)}
 					@mouseleave=${() => this.onMouseLeave(item)}
 					@transition-leave-ended=${this.onLeaveTransitionEnded}
 					:transition=${fade()}
-					:transition.leave=${fold()}
+					:transition.leave=${fold() as TransitionResult<Element, FoldTransitionOptions>}
 				>
 					<div class="notification-stripe" />
 
@@ -241,8 +241,8 @@ export class Notification<E = {}> extends Component<E> {
 					<div class="notification-close" @click=${() => this.onClickClose(item)}>
 						<Icon .code=${IconClose} />
 					</div>
-				</div>`
-			}</lu:for>
+				</div>
+			</lu:for>
 		</template>
 		`
 	}

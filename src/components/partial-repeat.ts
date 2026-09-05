@@ -158,7 +158,11 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	}
 
 	protected override render() {
-		return html`<lu:for ${this.liveData}>${this.renderLiveFn.bind(this)}</lu:for>`
+		return html`
+			<lu:for ${this.liveData}>
+				${this.renderLiveFn.bind(this)}
+			</lu:for>
+		`
 	}
 
 	/** Replace local index to live index. */

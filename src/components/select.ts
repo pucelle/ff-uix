@@ -254,13 +254,25 @@ export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown
 					.selectable
 					.data=${data}
 					.contentRenderer=${this.contentRenderer}
-					.selected=${(this.multiple ? this.value : this.value === null ? [] : [this.value])}
+					.selected=${this.getSelected()}
 					.multipleSelect=${this.multiple}
 					.keyComeFrom=${this.inputRef}
 					@select=${this.onSelected}
 				/>
 			</>
 		`
+	}
+
+	/** Get selected list. */
+	protected getSelected(): T[] {
+		if (this.multiple) {
+			return this.value as T[] ?? []
+		}
+		else {
+			return this.value === null
+				? []
+				: [this.value as T]
+			}
 	}
 
 	/** Render text display to represent currently selected. */
