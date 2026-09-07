@@ -1,4 +1,4 @@
-import {css, Component, html, RenderResult, RenderResultRenderer, fold, PerFrameTransitionEasingName, TransitionResult, FoldTransitionOptions, TemplateResult} from 'lupos.html'
+import {css, Component, html, RenderResult, RenderResultRenderer, fold, PerFrameTransitionEasingName, TemplateResult} from 'lupos.html'
 import {DOMEvents, EventKeys, Observed, UpdateQueue, effect, watch} from 'lupos'
 import {ListDataNavigator} from './list-helpers/list-data-navigator'
 import {Icon} from './icon'
@@ -447,7 +447,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
 			<div class="list-subsection"
 				:transition=${
 					() => item.value === this.latestExpandedOrCollapsed
-						? fold() as TransitionResult<Element, FoldTransitionOptions>
+						? fold()
 						: null
 				}
 			>
