@@ -6,7 +6,7 @@
 </style>
 <g>
 	<line class="st0" x1="2.5" y1="4.5" x2="12.5" y2="4.5"/>
-	<path class="st0" d="M4,4.5l0.7,8h5.6l0.7-8"/>
+	<path class="st0" d="M4 4.5l 0 8h 7l0 -8"/>
 	<path class="st0" d="M5.5,4.5v-2h4v2"/>
 	<line class="st0" x1="6.5" y1="6.5" x2="6.5" y2="10.5"/>
 	<line class="st0" x1="8.5" y1="6.5" x2="8.5" y2="10.5"/>

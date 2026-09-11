@@ -9,13 +9,13 @@ import {IconClose, IconDown} from '../icons'
 import {DOMScroll} from '../tools'
 
 
-interface SelectEvents<T, M extends boolean> {
+interface SelectEvents<T> {
 
 	/** 
 	 * Fire after selected value changed.
 	 * Only user interaction can cause `change` event get triggered.
 	 */
-	change: (value: M extends true ? T[] : T) => void
+	change: ((value: T) => void) | ((value: T[]) => void)
 }
 
 
@@ -27,7 +27,7 @@ interface SelectEvents<T, M extends boolean> {
  * 
  * `<Select>` doesn't support custom item renderer, you may extend it to a new class to implement.
  */
-export class Select<T = any, M extends boolean = false, E = {}> extends Dropdown<E & SelectEvents<T, M>> {
+export class Select<T = any, M extends boolean = boolean, E = {}> extends Dropdown<E & SelectEvents<T>> {
 	
 	static override style = css`
 		.select{
