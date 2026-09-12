@@ -6,7 +6,7 @@ const DefaultContextMenuOptions: Partial<PopupOptions> = {
 	key: 'contextmenu',
 	followEvents: true,
 	trigger: 'contextmenu',
-	position: 'br',
+	position: 'tl-br',
 	showDelay: 0,
 	hideDelay: 100,
 }

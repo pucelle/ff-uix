@@ -226,8 +226,11 @@ export class PopupTriggerBinder {
 	private onDocMouseDownOrTouchStart(e: Event) {
 		let target = e.target as Element
 
-		// Ignores contextmenu mousedown.
-		if (e.type === 'mousedown' && (e as MouseEvent).button === 2) {
+		// Ignores contextmenu mousedown if current is not.
+		if (e.type === 'mousedown'
+			&& (e as MouseEvent).button === 2
+			&& this.trigger !== 'contextmenu'
+		) {
 			return
 		}
 

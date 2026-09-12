@@ -542,7 +542,7 @@ export class QuickDialog {
 		input.focus()
 		input.select()
 
-		input.on('change', () => {
+		input.on('submit', () => {
 			this.dialog.triggerAction('ok')
 		})
 

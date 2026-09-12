@@ -23,6 +23,9 @@ interface InputEvents {
 	 * Calls `refocus` can cause input field get focus.
 	 */
 	change: (value: string, valid: boolean | null, refocus: () => void) => void
+
+	/** Triggers after press Enter key. */
+	submit: (value: string) => void
 }
 
 
@@ -39,20 +42,19 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 			position: relative;
 			width: 15em;
 			height: 2em;
-			padding: 0.2em 0.6em;
 			background: var(--input-background);
 			box-shadow: inset 0 -1px 0 0 var(--border-color);
 			
 			&.focused{
-				box-shadow: inset 0 -1px 0 0 var(--primary-color);
+				box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--primary-color) 50%, var(--input-background));
 			}
 
 			&.valid{
-				box-shadow: inset 0 -1px 0 0 var(--success-color);
+				box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--success-color) 50%, var(--input-background));
 			}
 
 			&.invalid{
-				box-shadow: inset 0 -1px 0 0 var(--error-color);
+				box-shadow: inset 0 -1px 0 0 color-mix(in srgb, var(--error-color) 50%, var(--input-background));
 			}
 		}
 
@@ -62,6 +64,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 		}
 
 		.input-field{
+			padding: 0.2em 0.6em;
 			flex: 1;
 			min-width: 0;
 			border: none;
@@ -248,9 +251,13 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 		DOMModifiableEvents.on(document, 'keydown', ['Enter'], this.onEnter, this)
 	}
 
-	protected onEnter(e: Event) {
+	protected onEnter(this: Input<{}>, e: Event) {
 		e.stopPropagation()
 		this.onChange()
+
+		if (this.valid) {
+			this.fire('submit', this.value)
+		}
 	}
 
 	protected onBlur() {
