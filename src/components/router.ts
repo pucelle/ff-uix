@@ -323,18 +323,10 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 			return
 		}
 		
-		let parsed = this.hrefParser.parsePrefixed(href)
-		if (!parsed) {
-			return
-		}
-
-		let routes = this.normalizedRoutes
-		let routeMatch = parsed.path === '' || routes.find(r => r.matcher.test(parsed.path))
-		let prefix = parsed.path === '' ? this.prefix : parsed.prefix
-
-		if (routeMatch) {
+		let match = this.matchRouter(href)
+		if (match) {
 			e.preventDefault()
-			this.goto(this.hrefParser.buildUnprefixed(parsed), prefix)
+			this.goto(match.href, match.prefix)
 		}
 	}
 
@@ -358,9 +350,50 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 		}
 	}
 
+	/** Match existing router to get href and prefix. */
+	protected matchRouter(href: string) :{
+		href: string
+		prefix: string
+	} | null {
+		let parsed = this.hrefParser.parsePrefixed(href)
+		if (!parsed) {
+			return null
+		}
+
+		let routes = this.normalizedRoutes
+		let routeMatch = parsed.path === '' || routes.find(r => r.matcher.test(parsed.path))
+		let prefix = parsed.path === '' ? this.prefix : parsed.prefix
+
+		if (routeMatch) {
+			return {
+				href: this.hrefParser.buildUnprefixed(parsed),
+				prefix,
+			}
+		}
+		else {
+			return null
+		}
+	}
+
+	/** 
+	 * Simulate clicking link, target to self.
+	 * It either navigate to target href by current routing,
+	 * or reset `location.href` to it.
+	 * The href is the full href includes prefix.
+	 */
+	clickLink(href: string, isRedirection: boolean = false) {
+		let match = this.matchRouter(href)
+		if (match) {
+			this.navigateTo(match.href, match.prefix, isRedirection)
+		}
+		else {
+			location.href = href
+		}
+	}
+
 	/** 
 	 * Goto a new path and update render result, add a history state.
-	 * Note `goto` href parameter ignores prefix.
+	 * Note `goto` href parameter ignores prefix, and may include hash `#xxx`.
 	 */
 	goto(href: string, prefix?: string): boolean {
 		return this.navigateTo(href, prefix, false)
@@ -368,7 +401,7 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 
 	/** 
 	 * Redirect to a new path and update render result, replace current history state.
-	 * Note `redirectTo` href parameter ignores prefix.
+	 * Note `redirectTo` href parameter ignores prefix, and may include hash `#xxx`.
 	 */
 	redirectTo(href: string, prefix?: string): boolean {
 		return this.navigateTo(href, prefix, true)
