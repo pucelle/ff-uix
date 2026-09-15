@@ -73,6 +73,7 @@ export class Progress<E = {}> extends Component<E> {
 		if (this.decimalCount !== null) {
 			tipText = tipValue.toFixed(this.decimalCount)
 		}
+		
 		tipText += '%'
 
 		return html`<span class="progress-tooltip" role="status">${tipText}</span>`
