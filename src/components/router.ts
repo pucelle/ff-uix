@@ -404,6 +404,12 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 * Note `redirectTo` href parameter ignores prefix, and may include hash `#xxx`.
 	 */
 	redirectTo(href: string, prefix?: string): boolean {
+		
+		// When doing SSR and redirected, attach search part.
+		if (IN_SSR && this.search && !href.includes('?')) {
+			href += this.search
+		}
+
 		return this.navigateTo(href, prefix, true)
 	}
 
