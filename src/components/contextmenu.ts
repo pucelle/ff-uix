@@ -1,4 +1,4 @@
-import {css, html, fade} from 'lupos.html'
+import {css, html, fade, RenderResult} from 'lupos.html'
 import {Popup} from './popup'
 
 
@@ -18,7 +18,7 @@ export class ContextMenu<E = {}> extends Popup<E> {
 	
 	override readonly triangle: boolean = false
 
-	protected override render() {
+	protected override render(): RenderResult {
 		return html`
 			<template class="popup contextmenu" tabindex="0" role="menu"
 				:transition=${fade()}

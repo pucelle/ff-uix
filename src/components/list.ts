@@ -60,16 +60,16 @@ export interface ListItem<T = any> extends Observed {
 	children?: ListItem<T>[]
 }
 
-export interface ListEvents<T> {
+export interface ListEvents {
 
 	/** 
 	 * Fires after selected items changed.
 	 * Only user interaction can cause `select` event get triggered.
 	 */
-	'select': (selected: ReadonlyArray<T>) => void
+	'select': (selected: ReadonlyArray<any>) => void
 
 	/** Fires after clicked a list item. */
-	'click-item': (clicked: T) => void
+	'click-item': (clicked: any) => void
 }
 
 
@@ -83,7 +83,7 @@ export interface ListEvents<T> {
  * `<List .data=${[{text, icon?, tip?}]}>` or
  * `<List .data=${[...]} .itemRenderer=${(item) => html`...`}>`
  */
-export class List<T = any, E = {}> extends Component<E & ListEvents<T>> {
+export class List<T = any, E = {}> extends Component<E & ListEvents> {
 
 	/** Walk item and all descendant items recursively. */
 	static *walkItems<T>(item: ListItem<T>): Iterable<ListItem<T>> {
