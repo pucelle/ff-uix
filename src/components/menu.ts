@@ -59,7 +59,9 @@ export class Menu<E = {}> extends Popup<E> {
 			>
 				${this.renderTriangle()}
 				${this.renderHead()}
-				<slot />
+				<div class="popup-inner">
+					<slot />
+				</div>
 			</template>
 		`
 	}

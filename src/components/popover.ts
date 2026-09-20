@@ -111,7 +111,9 @@ export class Popover<E = {}> extends Popup<E> {
 			>
 				${this.renderTriangle()}
 				${this.renderHead()}
-				<div class="popover-content"><slot /></div>
+				<div class="popup-inner popover-content">
+					<slot />
+				</div>
 			</template>
 		`
 	}

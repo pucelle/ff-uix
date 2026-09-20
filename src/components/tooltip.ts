@@ -82,7 +82,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 			>
 				${this.renderTriangle()}
 
-				<div class="tooltip-text">
+				<div class="popup-inner tooltip-text">
 					<slot />
 				</div>
 

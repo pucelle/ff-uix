@@ -39,7 +39,13 @@ export class Popup<E = {}> extends Component<E> {
 			/** Fix background mix color. */
 			--background: var(--popup-background);
 		}
-	`
+
+		/** Can omit of not contain triangle. */
+		.popup-inner{
+			max-height: 100%;
+			overflow-y: auto;
+		}
+`
 
 	/** Default triangle width, the size of bottom side of the triangle. */
 	static triangleWidth: number = 12
@@ -80,7 +86,9 @@ export class Popup<E = {}> extends Component<E> {
 				:transition=${fade()}
 			>
 				${this.renderTriangle()}
-				<slot />
+				<div class="popup-inner">
+					<slot />
+				</div>
 			</template>
 		`
 	}

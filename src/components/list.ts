@@ -160,7 +160,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents> {
 			align-items: center;
 		}
 
-		.list-content{
+		.list-row{
 			flex: 1;
 			min-width: 0;
 			display: flex;
@@ -339,7 +339,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents> {
 					${this.renderIndents(depth)}
 					${this.renderItemPlaceholder(item, expanded)}
 					${this.renderItemIcon(item)}
-					${this.renderListContent(item)}
+					${this.renderListRow(item)}
 					${this.renderSelectedIcon(item)}
 				</div>
 
@@ -411,12 +411,12 @@ export class List<T = any, E = {}> extends Component<E & ListEvents> {
 	}
 
 	/** 
-	 * Render list content, can be overwritten for sub classes
+	 * Render item row, can be overwritten for sub classes
 	 * who know about more details about data items.
 	 */
-	protected renderListContent(item: ListItem<T>): RenderResult {
+	protected renderListRow(item: ListItem<T>): RenderResult {
 		return html`
-			<div class="list-content">
+			<div class="list-row">
 				${this.renderItemContent(item)}
 			</div>
 		`

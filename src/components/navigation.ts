@@ -175,7 +175,7 @@ export class Navigation<T> extends List<T> {
 					${this.renderIndents(depth)}
 					${this.renderItemPlaceholder(item, expanded)}
 					${this.renderItemIcon(item)}
-					${this.renderListContent(item)}
+					${this.renderListRow(item)}
 					${this.renderSelectedIcon(item)}
 				</div>
 
