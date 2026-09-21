@@ -14,12 +14,13 @@ export class Popup<E = {}> extends Component<E> {
 
 			/* Recently, until chrome 133, fixed layout with anchor positioning is not work when page can scroll. */
 			position: absolute;
-
 			left: 0;
 			top: 0;
 			background: var(--background);
 			border-radius: var(--popup-border-radius);
 			border: var(--popup-border-width) solid var(--border-color);
+			display: flex;
+			flex-direction: column;
 
 			/** Avoid becoming narrower after alignment when touches page edges. */
 			width: max-content;
