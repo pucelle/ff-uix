@@ -156,12 +156,19 @@ export class LiveRenderer extends RendererBase {
 		}
 		
 		// Calc back size by last time rendering result.
-		let oldBackSize = this.measurement.placeholderSize - this.measurement.sliderPositions.endPosition
+		let oldBackSize = Math.max(0, this.measurement.placeholderSize - this.measurement.sliderPositions.endPosition)
 		let fixedBackSize = this.measurement.fixBackPlaceholderSize(oldBackSize, this.measurement.indices.endIndex, this.dataCount)
 
 		// Update back size only when have much rate of difference.
 		if (fixedBackSize !== oldBackSize) {
-			await this.setPlaceholderSize(this.measurement.sliderPositions.endPosition + fixedBackSize)
+
+			// When reach end, render placeholder only to start to avoid content shrink causing.
+			if (fixedBackSize === 0) {
+				await this.setPlaceholderSize(this.measurement.sliderPositions.startPosition)
+			}
+			else {
+				await this.setPlaceholderSize(this.measurement.sliderPositions.endPosition + fixedBackSize)
+			}
 		}
 	}
 
@@ -212,16 +219,9 @@ export class LiveRenderer extends RendererBase {
 			}
 		}
 
-		// When reach end index but not scroll end.
-		if (this.endIndex === this.dataCount) {
-
-			// Placeholder size should be keep consistent with end position.
-			await this.setPlaceholderSize(this.measurement.sliderPositions.endPosition)
-		}
-
 		// When scrolling down, and reach scroll end but not end index.
 		// This is very rare because we have updated placeholder size using previously measured.
-		else if (this.alignDirection === 'start') {
+		else if (this.alignDirection === 'start' && this.endIndex < this.dataCount) {
 			let oldBackSize = this.measurement.placeholderSize - this.measurement.sliderPositions.endPosition
 			if (oldBackSize < 0) {
 				await this.updateRestSize()

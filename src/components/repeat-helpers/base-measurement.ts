@@ -317,11 +317,6 @@ export abstract class MeasurementBase {
 	fixBackPlaceholderSize(backSize: number, endIndex: number, dataCount: number): number {
 		let normalSize = this.getNormalBackPlaceholderSize(endIndex, dataCount)
 
-		// Avoid item size shrink much cause placeholder too high.
-		if (endIndex === dataCount) {
-			backSize = 0
-		}
-
 		// Limit by normal size if changed much.
 		if (getChangeRate(backSize, normalSize) > 0.5) {
 			backSize = normalSize
