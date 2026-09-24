@@ -85,12 +85,13 @@ export class PartialRenderer extends RendererBase {
 		}
 	}
 
-	protected async setRestSize() {
+	protected async updateRestSize() {
 		if (!this.backPlaceholder) {
 			return
 		}
 
 		let backSize = this.measurement.getNormalBackPlaceholderSize(this.endIndex, this.dataCount)
+		let fixedBackSize = this.measurement.fixBackPlaceholderSize(backSize, this.measurement.indices.endIndex, this.dataCount)
 
 		// Update back size only when have at least 50% difference.
 		await barrierDOMWriting()
@@ -99,8 +100,8 @@ export class PartialRenderer extends RendererBase {
 			return
 		}
 
-		this.doa.setSize(this.backPlaceholder, backSize)
-		this.measurement.setBackPlaceholderSize(backSize)
+		this.doa.setSize(this.backPlaceholder, fixedBackSize)
+		this.measurement.setBackPlaceholderSize(fixedBackSize)
 	}
 
 	protected override async afterMeasured() {

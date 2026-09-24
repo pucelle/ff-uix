@@ -324,6 +324,12 @@ export abstract class RendererBase {
 			}
 		}
 
+		this.throttlingSliderSizeUpdate = true
+
+		sleep(0).then(() => {
+			this.throttlingSliderSizeUpdate = false
+		})
+
 		this.updateCallback()
 	}
 
@@ -403,7 +409,7 @@ export abstract class RendererBase {
 			return
 		}
 		
-		await this.setRestSize()
+		await this.updateRestSize()
 		await this.measurement.measureAfterRendered(this.startIndex, this.endIndex)
 		await this.afterMeasured()
 	}
@@ -485,7 +491,7 @@ export abstract class RendererBase {
 			return
 		}
 
-		await this.setRestSize()
+		await this.updateRestSize()
 		await this.measurement.measureAfterRendered(this.startIndex, this.endIndex)
 		await this.afterMeasured()
 	}
@@ -548,7 +554,7 @@ export abstract class RendererBase {
 	protected abstract setPosition(position: number): Promise<void>
 
 	/** Update size of placeholder after dynamic content progressively. */
-	protected abstract setRestSize(): Promise<void>
+	protected abstract updateRestSize(): Promise<void>
 
 	/** After update complete, and after `measureAfterRendered`, do more check or do element alignment. */
 	protected afterMeasured(): Promise<void> | void {
@@ -639,7 +645,7 @@ export abstract class RendererBase {
 			return
 		}
 
-		await this.setRestSize()
+		await this.updateRestSize()
 		await this.measurement.measureAfterRendered(this.startIndex, this.endIndex)
 		await this.afterMeasured()
 	}

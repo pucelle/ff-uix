@@ -145,7 +145,7 @@ export class LiveRenderer extends RendererBase {
 		}
 	}
 
-	protected override async setRestSize() {
+	protected override async updateRestSize() {
 		if (!this.placeholder) {
 			return
 		}
@@ -224,7 +224,7 @@ export class LiveRenderer extends RendererBase {
 		else if (this.alignDirection === 'start') {
 			let oldBackSize = this.measurement.placeholderSize - this.measurement.sliderPositions.endPosition
 			if (oldBackSize < 0) {
-				await this.setRestSize()
+				await this.updateRestSize()
 			}
 		}
 
