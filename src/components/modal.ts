@@ -5,6 +5,7 @@ import {Icon} from './icon'
 import {IconClose} from '../icons'
 import {Button} from './button'
 import {tooltip} from '../bindings/tooltip'
+import {Router} from './router'
 
 
 export interface ModelAction {
@@ -155,6 +156,9 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 	/** Model actions. */
 	actions: ModelAction[] | null = null
 
+	/** If specified as `true`, means should exit hash after disconnected. */
+	hashed: boolean = false
+
 	protected modalEl!: HTMLElement
 
 	constructor(el: HTMLElement = document.createElement('slot')) {
@@ -294,6 +298,8 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 	}
 
 	protected override onWillDisconnect() {
+		super.onWillDisconnect()
+		
 		if (this.opened) {
 			this.opened = false
 			this.doHide()
@@ -301,6 +307,10 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 
 		if (this.quickHidden) {
 			DOMModifiableEvents.off(document, 'keydown', this.hide, this)
+		}
+
+		if (this.hashed) {
+			Router.current?.redirectTo('#')
 		}
 	}
 
