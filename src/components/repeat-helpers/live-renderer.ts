@@ -157,7 +157,7 @@ export class LiveRenderer extends RendererBase {
 		
 		// Calc back size by last time rendering result.
 		let oldBackSize = Math.max(0, this.measurement.placeholderSize - this.measurement.sliderPositions.endPosition)
-		let fixedBackSize = this.measurement.fixBackPlaceholderSize(oldBackSize, this.measurement.indices.endIndex, this.dataCount)
+		let fixedBackSize = this.measurement.fixBackPlaceholderSize(oldBackSize, this.endIndex, this.dataCount)
 
 		// Update back size only when have much rate of difference.
 		if (fixedBackSize !== oldBackSize) {

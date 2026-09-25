@@ -1010,9 +1010,16 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			throw new Error(`"setStartVisibleIndex(...)" only works in "live" mode.`)
 		}
 
-		this.whenUpdated(() => {
+		// If self never updated, the repeatRef is not exist.
+		// Must update immediately because may call this in watcher update.
+		if (this.repeatRef) {
 			(this.repeatRef as LiveRepeat)?.setStartVisibleIndex(startIndex)
-		})
+		}
+		else {
+			this.whenUpdated(() => {
+				(this.repeatRef as LiveRepeat)?.setStartVisibleIndex(startIndex)
+			})
+		}
 	}
 
 	/** 
