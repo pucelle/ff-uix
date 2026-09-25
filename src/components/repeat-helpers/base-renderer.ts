@@ -302,6 +302,7 @@ export abstract class RendererBase {
 
 			// Re-measure item size.
 			await this.measurement.measureAfterRendered(this.startIndex, this.endIndex)
+			await this.afterMeasured()
 
 			// Finally check coverage.
 			this.willCheckCoverage()

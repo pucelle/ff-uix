@@ -161,14 +161,8 @@ export class LiveRenderer extends RendererBase {
 
 		// Update back size only when have much rate of difference.
 		if (fixedBackSize !== oldBackSize) {
-
-			// When reach end, render placeholder only to start to avoid content shrink causing.
-			if (fixedBackSize === 0) {
-				await this.setPlaceholderSize(this.measurement.sliderPositions.startPosition)
-			}
-			else {
-				await this.setPlaceholderSize(this.measurement.sliderPositions.endPosition + fixedBackSize)
-			}
+			let placeholderSize = this.measurement.sliderPositions.endPosition + fixedBackSize
+			await this.setPlaceholderSize(placeholderSize)
 		}
 	}
 
@@ -180,7 +174,6 @@ export class LiveRenderer extends RendererBase {
 		
 		await barrierDOMWriting()
 		this.doa.setSize(this.placeholder, size)
-		this.measurement.setPlaceholderSize(size)
 	}
 
 	protected override async afterMeasured() {
@@ -217,6 +210,12 @@ export class LiveRenderer extends RendererBase {
 
 				await this.alignByResettingScroll()
 			}
+		}
+
+		// When reach end index but not scroll end.
+		// Placeholder size should be keep consistent with end position.
+		if (this.endIndex === this.dataCount) {
+			await this.setPlaceholderSize(this.measurement.sliderPositions.endPosition)
 		}
 
 		// When scrolling down, and reach scroll end but not end index.
