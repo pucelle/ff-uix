@@ -13,12 +13,15 @@ export class DropList<T> extends List<T> {
 
 	static override style = css`
 		.drop-list{
-			padding: 0.5em 0;
 			border-bottom: none;
-			overflow-y: auto;
 
-			.list-item{
-				padding-inline: 0.8em;
+			&.popup{
+				padding: 0.5em 0;
+				overflow-y: auto;
+
+				.list-item{
+					padding-inline: 0.8em;
+				}
 			}
 		}
 
