@@ -106,12 +106,8 @@ export interface PopupOptions extends AnchorAlignerOptions {
 	/** When popup is active, will apply this class name to trigger element. */
 	activeClassName?: string
 
-	/** 
-	 * The selector to Select element to put `activeClassName`.
-	 * By default will select descendant element,
-	 * you may specify `{parental: ...}` to select ancestral element.
-	 */
-	activeSelector?: string | string[] | {parental: string | string[]}
+	/** The selector to select self or parental element to put `activeClassName`. */
+	activeSelector?: string | string[]
 
 	/** Fire after `opened` state of popup binding changed. */
 	onOpenedChange?: (opened: boolean) => void
@@ -410,12 +406,7 @@ export class popup implements Binding, Part {
 			return this.el
 		}
 
-		if (typeof this.options.activeSelector === 'object' && (this.options.activeSelector as {parental: any}).parental) {
-			return DOMUtils.quickClosest(this.el, (this.options.activeSelector as {parental: string | string[]}).parental)
-		}
-		else {
-			return DOMUtils.quickSelect(this.el, this.options.activeSelector as string | string[])
-		}
+		return DOMUtils.quickClosest(this.el, this.options.activeSelector)
 	}
 
 	/** 
@@ -430,7 +421,12 @@ export class popup implements Binding, Part {
 		let cache = this.options.key ? SharedPopups.findCache(this.options.key) : null
 		if (cache) {
 			insideDOM = cache.connected || cache.disconnecting
-			SharedPopups.reuseCache(cache)
+
+			// Not do reuse action it if already using.
+			if (cache !== this.rendered) {
+				SharedPopups.reuseCache(cache)
+			}
+			
 			rendered = cache
 		}
 		else {
@@ -493,10 +489,6 @@ export class popup implements Binding, Part {
 
 		// Update popup property and related transition.
 		if (popup !== this.popup) {
-
-			// Remove old popup immediately if it's playing leave transition.
-			this.popup?.remove()
-
 			this.popup = popup
 			SharedPopups.setPopupUser(popup, this)
 			popup.on('will-disconnect', this.hidePopup, this)
@@ -593,8 +585,12 @@ export class popup implements Binding, Part {
 
 	/** Do hide popup action. */
 	protected async doHide(immediately: boolean) {
+
+		// Hold placement before close callbacks can hide or remove the trigger.
+		this.aligner?.freeze()
+
 		if (this.options.activeClassName) {
-			this.el.classList.remove(this.options.activeClassName)
+			this.getActiveTarget().classList.remove(this.options.activeClassName)
 		}
 
 		this.options.onClosed?.()
