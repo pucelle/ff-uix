@@ -127,7 +127,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents> {
 				background: var(--selected-background);
 			}
 
-			&.list-menu-active{
+			&.popped{
 				background: var(--hover-background);
 			}
 
@@ -333,7 +333,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents> {
 					:class.selected=${this.hasSelected(item.value!)}
 					:class.arrow-selected=${item === this.keyNavigator.current}
 					?:tooltip=${itemTooltip, itemTooltip!, this.tooltipOptions}
-					?:contextmenu=${itemContextmenu, itemContextmenu!, {matchSelector: '.list-item', activeClassName: 'list-menu-active'} as PopupOptions}
+					?:contextmenu=${itemContextmenu, itemContextmenu!, {matchSelector: '.list-item', activeClassName: 'popped'} as PopupOptions}
 					@click.prevent=${() => this.onClickItem(item)}
 				>
 					${this.renderIndents(depth)}

@@ -169,7 +169,7 @@ export class Navigation<T> extends List<T> {
 					:class.list-item-sticky=${stickyStyle}
 					:style=${stickyStyle ?? {}}
 					?:tooltip=${itemTooltip, itemTooltip!, this.tooltipOptions}
-					?:contextmenu=${itemContextmenu, itemContextmenu!, {matchSelector: '.list-item', activeClassName: 'list-menu-active'} as PopupOptions}
+					?:contextmenu=${itemContextmenu, itemContextmenu!, {matchSelector: '.list-item', activeClassName: 'popped'} as PopupOptions}
 					@click.prevent=${() => this.onClickItem(item)}
 				>
 					${this.renderIndents(depth)}

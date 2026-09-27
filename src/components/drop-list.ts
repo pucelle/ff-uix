@@ -14,14 +14,11 @@ export class DropList<T> extends List<T> {
 	static override style = css`
 		.drop-list{
 			border-bottom: none;
+			padding: 0.5em 0;
+			overflow-y: auto;
 
-			&.popup{
-				padding: 0.5em 0;
-				overflow-y: auto;
-
-				.list-item{
-					padding-inline: 0.8em;
-				}
+			.list-item{
+				padding-inline: 0.8em;
 			}
 		}
 
@@ -60,7 +57,7 @@ export class DropList<T> extends List<T> {
 		return html`
 			<div
 				class="list-item"
-				:class.selected=${this.hasSelected(item.value!) || this.hasExpanded(item.value!)}
+				:class.selected=${this.hasSelected(item.value!)}
 				:class.arrow-selected=${item === this.keyNavigator.current}
 				?:tooltip=${itemTooltip, itemTooltip!}
 				?:contextmenu=${itemContextmenu, itemContextmenu!}
@@ -68,10 +65,11 @@ export class DropList<T> extends List<T> {
 					() => this.renderItemPopupContent(item, depth),
 					{
 						key: 'drop-list',
-						position: 'tl-tr',
+						position: 'r',
 						hideDelay: 100,
-						targetSelector: '.list-item',
-						activeClassName: 'list-menu-active',
+						reTarget: '.list-item',
+						activeClassName: 'popped',
+						gaps: -1,
 						onOpenedChange: (opened: boolean) => {
 							this.onPopupOpenedChange(item, opened)
 						},

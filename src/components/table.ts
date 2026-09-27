@@ -261,7 +261,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			}
 
 			&.selected{
-				background: var(--selected-background);
+				background: var(--select-background);
 			}
 		}
 
