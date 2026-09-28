@@ -1,7 +1,17 @@
-import {DOMUtils, ListUtils, NumberUtils, ValueListUtils} from 'ff-kit'
+import {DOMUtils, ValueListUtils} from 'ff-kit'
 import type {TableColumn} from '../table'
 import {html, IN_SSR, render} from 'lupos.html'
 import {DOMEvents, barrierDOMReading, barrierDOMWriting} from 'lupos'
+
+
+/** Basis, grow, shrink, minimum, and maximum for one column. */
+type ColumnWidthConfig = {
+	baseWidth: number
+	extendFlex: number
+	shrinkFlex: number
+	minWidth: number
+	maxWidth: number
+}
 
 
 /** For `<f-table>` to resize column widths. */
@@ -77,12 +87,17 @@ export class ColumnWidthResizer {
 	private async updateColumnWidthsByAvailable(availableWidth: number) {
 		await barrierDOMWriting()
 
-		let widthAndFlexArray = this.columns.map((column: TableColumn, index) => {
+		let configs = this.columns.map((column: TableColumn, index) => {
 			let {flex, width} = column
-			let baseWidthInColumnConfig = Math.max(width || 0, this.minColumnWidth)
+			let minWidth = this.getMinWidth(column)
+			let maxWidth = this.getMaxWidth(column)
+			let baseWidthInColumnConfig = Math.min(Math.max(width ?? 0, minWidth), maxWidth)
 
 			// If column resized, we use the column width percentage to calculate new column width.
-			let baseWidth = this.columnResized ? this.columnWidths![index] : baseWidthInColumnConfig
+			let baseWidth = this.columnResized
+				? Math.min(Math.max(this.columnWidths![index], minWidth), maxWidth)
+				: baseWidthInColumnConfig
+
 			let extendFlex = 0
 			let shrinkFlex = 0
 
@@ -94,114 +109,93 @@ export class ColumnWidthResizer {
 				extendFlex = shrinkFlex = flex ?? 0
 			}
 
-			return [baseWidth, extendFlex, shrinkFlex]
-		}) as [number, number, number][]
+			return {baseWidth, extendFlex, shrinkFlex, minWidth, maxWidth}
+		})
 		
-		let widths = this.calcColumnWidths(widthAndFlexArray, availableWidth, this.minColumnWidth)
+		let widths = this.calcColumnWidths(configs, availableWidth)
 		this.columnWidths = widths
 		this.setColumnWidths(widths)
 	}
 
+	/** Get the effective minimum width of a column. */
+	private getMinWidth(column: TableColumn): number {
+		return column.minWidth ?? this.minColumnWidth
+	}
+
+	/** Get the effective maximum width of a column. */
+	private getMaxWidth(column: TableColumn): number {
+		return Math.max(column.maxWidth ?? Infinity, this.getMinWidth(column))
+	}
+
 	/**
-	 * Calculate column widths from `[baseWidth, extendFlex, shrinkFlex]` values in column config.
-	 * The algorithm is nearly same with the flex layout,
-	 * except that the total column widths will always equal the available client width,
-	 * and no column width should less than `minColumnWidth`.
+	 * Distribute available width according to flex values while respecting each column's bounds.
+	 * When the bounds make the available width impossible to fill, keep the bounded widths.
 	 */
-	private calcColumnWidths(widthAndFlexArray: [number, number, number][], clientWidth: number, minColumnWidth: number): number[] {
+	private calcColumnWidths(configs: ColumnWidthConfig[], clientWidth: number): number[] {
+		let widths = configs.map(config => config.baseWidth)
+		let remaining = clientWidth - ValueListUtils.sum(widths)
+		let growing = remaining > 0
+		let flexKey: 'extendFlex' | 'shrinkFlex' = growing ? 'extendFlex' : 'shrinkFlex'
+		let fallbackFlex = configs.every(config => config[flexKey] === 0)
 
-		// Not enough space for even `minColumnWidth`, then average `clientWidth` to each column.
-		if (clientWidth < minColumnWidth * widthAndFlexArray.length) {
-			return ListUtils.repeatForTimes(clientWidth / widthAndFlexArray.length, widthAndFlexArray.length)
-		}
+		// It allocates remaining pixels by rest flexes each time.
+		while (Math.abs(remaining) > 0.001) {
+			let candidates = configs
+				.map((_, index) => index)
+				.filter(index => {
+					let config = configs[index]
+					let flex = fallbackFlex ? 1 : config[flexKey]
+					return flex > 0
+						&& (growing ? widths[index] < config.maxWidth : widths[index] > config.minWidth)
+				})
 
-		let totalBaseWidth = 0
-		let totalExtendFlex = 0
-		let totalShrinkFlex = 0
-		let widths = ListUtils.repeatForTimes(minColumnWidth, widthAndFlexArray.length)
-		let excludedIndexSet: Set<number> = new Set()
-
-		for (let [baseWidth, extendFlex, shrinkFlex] of widthAndFlexArray) {
-			totalBaseWidth += baseWidth
-			totalExtendFlex += extendFlex
-			totalShrinkFlex += shrinkFlex
-		}
-
-		// If no `flex` set for any column, set `flex` to `1` for all the columns.
-		if (totalExtendFlex === 0) {
-			totalExtendFlex = widthAndFlexArray.length
-			widthAndFlexArray.forEach(a => a[1] = 1)
-		}
-
-		if (totalShrinkFlex === 0) {
-			totalShrinkFlex = widthAndFlexArray.length
-			widthAndFlexArray.forEach(a => a[2] = 1)
-		}
-
-		// May need to be adjusted for multiple times because of the existing of minimum column width.
-		while (true) {
-			let totalFlex = clientWidth >= totalBaseWidth ? totalExtendFlex : totalShrinkFlex
-			let widthPerFlex = (clientWidth - totalBaseWidth) / totalFlex
-			let moreColumnExcluded = false
-
-			for (let index = 0; index < widthAndFlexArray.length; index++) {
-				if (excludedIndexSet.has(index)) {
-					continue
-				}
-
-				let [baseWidth, extendFlex, shrinkFlex] = widthAndFlexArray[index]
-				let flex = widthPerFlex >= 0 ? extendFlex : shrinkFlex
-				let width = flex * widthPerFlex + baseWidth
-
-				if (width < minColumnWidth) {
-					clientWidth -= minColumnWidth
-					totalBaseWidth -= minColumnWidth
-					totalExtendFlex -= flex
-					excludedIndexSet.add(index)
-					moreColumnExcluded = true
-				}
-				else {
-					widths[index] = width
-				}
-			}
-
-			if (!moreColumnExcluded) {
+			if (candidates.length === 0) {
 				break
 			}
+
+			let totalFlex = candidates.reduce((sum, index) => {
+				return sum + (fallbackFlex ? 1 : configs[index][flexKey])
+			}, 0)
+
+			let distributed = 0
+
+			for (let index of candidates) {
+				let flex = fallbackFlex ? 1 : configs[index][flexKey]
+				let share = remaining * flex / totalFlex
+				let bound = growing ? configs[index].maxWidth : configs[index].minWidth
+
+				let width = growing
+					? Math.min(widths[index] + share, bound)
+					: Math.max(widths[index] + share, bound)
+
+				distributed += width - widths[index]
+				widths[index] = width
+			}
+
+			if (Math.abs(distributed) < 0.001) {
+				break
+			}
+
+			remaining -= distributed
 		}
-
-		let diff = 0
-		
-		for (let i = 0; i < widths.length - 1; i++) {
-			let width = widths[i]
-			let roundedWidth = Math.round(width)
-
-			widths[i] = roundedWidth
-			diff += roundedWidth - width
-		}
-
-		widths[widths.length - 1] -= diff
 
 		return widths
 	}
 
+	/** Apply calculated widths to the header and body columns. */
 	private setColumnWidths(widths: number[]) {
 		let totalWidth = ValueListUtils.sum(widths)
-		
-		// Leave last column not set width.
+		let table = this.colgroup.parentElement as HTMLTableElement
+		table.style.width = totalWidth + 'px'
+
 		for (let i = 0; i < widths.length; i++) {
 			let width = widths[i]
-			let percent = width / totalWidth
 			let col = this.colgroup.children[i] as HTMLElement
 			let headCol = this.columnContainer.children[i] as HTMLElement
 
-			let cssWidth = i === widths.length - 1
-				? ''
-				: this.columns[i].flex
-				? NumberUtils.toDecimal(percent * 100, 2) + '%'
-				: width + 'px'
-
-			headCol.style.width = col.style.width = cssWidth
+			headCol.style.flex = 'none'
+			headCol.style.boxSizing = 'border-box'
+			headCol.style.width = col.style.width = width + 'px'
 		}
 	}
 
@@ -235,10 +229,15 @@ export class ColumnWidthResizer {
 
 	private resizeColumnByMovementX(movementX: number, index: number) {
 		let widths = [...this.columnWidths!]
-		let needShrink = Math.abs(movementX)
 		let moveLeft = movementX < 0
 		let expandIndex = moveLeft ? index + 1 : index
 		let firstShrinkIndex = moveLeft ? index : index + 1
+		let maxExpandWidth = this.getMaxWidth(this.columns[expandIndex])
+
+		let needShrink = Math.min(
+			Math.abs(movementX),
+			Math.max(0, maxExpandWidth - widths[expandIndex])
+		)
 
 		// When move to left, we reduce the width of current and previous columns until the `minWidth`,
 		// then we add the reduced width to next column.
@@ -247,14 +246,11 @@ export class ColumnWidthResizer {
 		// then we add the reduced width to current column.
 		for (let i = firstShrinkIndex; (moveLeft ? i >= 0 : i < this.columns.length) && needShrink > 0; moveLeft ? i-- : i++) {
 			let width = widths[i]
-			let shrink = needShrink
-
-			if (width - shrink < this.minColumnWidth) {
-				shrink = width - this.minColumnWidth
-			}
+			let minWidth = this.getMinWidth(this.columns[i])
+			let shrink = Math.min(needShrink, Math.max(0, width - minWidth))
 
 			widths[i] -= shrink
-			widths[expandIndex] += shrink	// index <= column count - 2
+			widths[expandIndex] += shrink
 			needShrink -= shrink
 		}
 
