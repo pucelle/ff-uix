@@ -135,7 +135,6 @@ export class PopupTriggerBinder {
 		}
 
 		e.preventDefault()
-		e.stopPropagation()
 		this.latestTriggerEvent = e as MouseEvent
 		this.config.onToggleShowHide()
 	}
@@ -146,7 +145,6 @@ export class PopupTriggerBinder {
 			return
 		}
 		
-		e.stopPropagation()
 		this.latestTriggerEvent = e as MouseEvent
 		this.config.onWillShow()
 	}
