@@ -41,6 +41,15 @@ export interface TableColumn<T = any> extends Observed {
 	title: RenderResultRenderer
 
 	/** 
+	 * The minimum width of current column.
+	 * If omitted, use `minColumnWidth` defined on `<Table>`.
+	 */
+	minWidth?: number
+
+	/** The maximum width of current column. */
+	maxWidth?: number
+
+	/** 
 	 * Column basis width.
 	 * I omit, 
 	 */

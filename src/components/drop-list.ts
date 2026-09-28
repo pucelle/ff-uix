@@ -41,6 +41,9 @@ export class DropList<T> extends List<T> {
 	/** Additional class name which will apply to popup subsection. */
 	subsectionClassName: string = ''
 
+	/** Tooltip options for list item popped-up drop. */
+	popupOptions: Partial<PopupOptions> = {}
+
 	protected override render() {
 		return html`
 			<template class="list drop-list">
@@ -66,13 +69,13 @@ export class DropList<T> extends List<T> {
 					{
 						key: 'drop-list',
 						position: 'r',
-						hideDelay: 100,
 						reTarget: '.list-item',
 						activeClassName: 'popped',
 						gaps: -1,
 						onOpenedChange: (opened: boolean) => {
 							this.onPopupOpenedChange(item, opened)
 						},
+						...this.popupOptions,
 					} as Partial<PopupOptions>
 				}
 				@click.prevent=${() => this.onClickItem(item)}
