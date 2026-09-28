@@ -58,9 +58,9 @@ html{
 	--border-color-bolder: color-mix(in srgb, var(--border-color) 25%, var(--text-color));
 	--border-color-bold: color-mix(in srgb, var(--border-color) 50%, var(--text-color));
 	--border-color-semibold: color-mix(in srgb, var(--border-color) 75%, var(--text-color));
-	--border-color-semilight: color-mix(in srgb, var(--border-color) 75%, var(--background));
-	--border-color-light: color-mix(in srgb, var(--border-color) 50%, var(--background));
-	--border-color-lighter: color-mix(in srgb, var(--border-color) 25%, var(--background));
+	--border-color-semilight: color-mix(in srgb, var(--border-color) 75%, transparent);
+	--border-color-light: color-mix(in srgb, var(--border-color) 50%, transparent);
+	--border-color-lighter: color-mix(in srgb, var(--border-color) 25%, transparent);
 	--border-color-selected: color-mix(in srgb, var(--primary-color) 50%, var(--border-color));
 
 	--primary-hover: color-mix(in srgb, var(--primary-color) 90%, var(--text-color));

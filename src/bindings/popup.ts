@@ -76,9 +76,10 @@ export interface PopupOptions extends AnchorAlignerOptions {
 	/** 
 	 * Whether the popup element is pointable and can interact with mouse.
 	 * If specifies as `false`, popup element will be applied `pointer-events: none`.
-	 * Default value is `true`, means leave it to be handled by CSS.
+	 * If specifies as `true`, popup element will be applied `pointer-events: auto`.
+	 * Default value is `undefined`, means leave it to be handled by CSS.
 	 */
-	pointable: boolean
+	pointable?: boolean
 
 	/** 
 	 * Whether caches the popup content after it hides,
@@ -136,7 +137,6 @@ export const DefaultPopupOptions: Partial<PopupOptions> = {
 	showImmediately: false,
 	autoFocus: false,
 	autoHide: false,
-	pointable: true,
 	cacheable: false,
 	keepVisible: false,
 }
@@ -483,8 +483,8 @@ export class popup implements Binding, Part {
 		popup.triangleDirection = AnchorAligner.getAnchorFaceDirection(this.options.position).opposite.toBoxOffsetKey()!
 		
 		// Set to none only when `pointable` is `false`.
-		if (this.options.pointable === false) {
-			popup.el.style.pointerEvents = 'none'
+		if (this.options.pointable !== undefined) {
+			popup.el.style.pointerEvents = this.options.pointable ? 'auto' : 'none'
 		}
 
 		// Update popup property and related transition.
