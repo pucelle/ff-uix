@@ -23,7 +23,7 @@ export class ButtonGroup<E = {}> extends Component<E> {
 		
 				&.primary{
 					position: relative;
-					z-index: 1;
+					z-index: 2;
 				}
 
 				&:hover{

@@ -111,7 +111,11 @@ export class DropList<T> extends List<T> {
 		}
 
 		return html`
-			<Icon class="drop-list-selected-icon" .code=${IconRight} />
+			<Icon class="drop-list-selected-icon"
+				.code=${IconRight}
+				.width=${17}
+				.height=${21}
+			/>
 		`
 	}
 
