@@ -32,9 +32,9 @@ html {
   --warning-background: color-mix(in srgb, var(--warning-color) 5%, var(--background));
   --switch-background-selected: color-mix(in srgb, var(--switch-background) 50%, var(--primary-color));
   --rect-selection-background: color-mix(in srgb, var(--primary-color) 10%, transparent);
-  --text-color-muted: color-mix(in srgb, var(--text-color) 87.5%, var(--background));
-  --text-color-subtle: color-mix(in srgb, var(--text-color) 75%, var(--background));
-  --text-color-faint: color-mix(in srgb, var(--text-color) 62.5%, var(--background));
+  --text-color-muted: color-mix(in srgb, var(--text-color) 85%, var(--background));
+  --text-color-subtle: color-mix(in srgb, var(--text-color) 70%, var(--background));
+  --text-color-faint: color-mix(in srgb, var(--text-color) 55%, var(--background));
   --border-color-bolder: color-mix(in srgb, var(--border-color) 33%, var(--text-color));
   --border-color-bold: color-mix(in srgb, var(--border-color) 66%, var(--text-color));
   --border-color-light: color-mix(in srgb, var(--border-color) 66%, transparent);
