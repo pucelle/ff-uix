@@ -1,6 +1,8 @@
 import {LiveRenderer} from './repeat-helpers/live-renderer'
 import {effect} from 'lupos'
 import {PartialRepeat} from './partial-repeat'
+import {URLUtils} from 'ff-kit'
+import {IN_SSR, setSSRPaging} from 'lupos.html'
 
 
 /** 
@@ -10,7 +12,8 @@ import {PartialRepeat} from './partial-repeat'
  * dynamically updates them during user scrolling.
  * 
  * Compared to `<PartialRepeat>`, `<LiveRepeat>` is more efficient but
- * requires it's the only content of whole scroller. So it is more fits for rendering
+ * requires it's the only content of whole scroller, and supports `paging`.
+ * So it is more fits for rendering
  * huge complex contents.
  * 
  * Some restrictions you need to know:
@@ -23,7 +26,7 @@ import {PartialRepeat} from './partial-repeat'
 export class LiveRepeat<T = any, E = {}> extends PartialRepeat<T, E> {
 
 	/** Partial content renderer. */
-	declare protected renderer: LiveRenderer | null
+	declare protected renderer: LiveRenderer
 
 	override reservedPixels: number = 400
 
@@ -44,10 +47,17 @@ export class LiveRepeat<T = any, E = {}> extends PartialRepeat<T, E> {
 	 */
 	preEndPositions: number[] | null = null
 
+	/** 
+	 * When paging becomes true, url part `?page=3` will cause
+	 * scroll to start index as `reservedCount * 2`.
+	 * Note you'd better set `reservedCount` to at least 1.5x item count for each page.
+	 */
+	paging: boolean = false
+
 	/** Apply `preEndPositions` to renderer. */
 	@effect
 	protected applyPreEndPositions() {
-		this.renderer?.setPreEndPositions(this.preEndPositions)
+		this.renderer.setPreEndPositions(this.preEndPositions)
 	}
 
 	protected override initPlaceholders() {
@@ -89,5 +99,38 @@ export class LiveRepeat<T = any, E = {}> extends PartialRepeat<T, E> {
 			this.placeholders?.[0] ?? null,
 			this.asFollower
 		)
+
+		if (this.paging) {
+			this.applyPagingIndex()
+		}
+	}
+	
+	/** Apply ?paging=2 to start visible index. */
+	protected applyPagingIndex() {
+		let page = URLUtils.parseQuery(location.search).page
+		if (page && Number(page) > 1) {
+			let startIndex = this.reservedCount * (Number(page) - 1)
+			this.setStartVisibleIndex(startIndex)
+
+			// The page query will be replaced by router,
+			// so no need to replace page query here.
+		}
+	}
+
+	/** Apply SSR paging state. */
+	protected override onUpdated() {
+		super.onUpdated()
+
+		if (IN_SSR && this.paging && this.data) {
+			let startIndex = this.startIndex
+			let totalPage = Math.ceil(this.data.length / this.reservedCount)
+
+			if (totalPage > 1) {
+				setSSRPaging({
+					current: Math.floor(startIndex / this.reservedCount) + 1,
+					total: totalPage,
+				})
+			}
+		}
 	}
 }

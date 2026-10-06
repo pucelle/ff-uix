@@ -4,6 +4,7 @@ import {DirectionalOverflowAccessor} from './directional-overflow-accessor'
 import {DOMEvents, barrierDOMReading, barrierDOMWriting} from 'lupos'
 import {Component} from 'lupos.html'
 import {MeasurementBase} from './base-measurement'
+import {IN_SSR} from 'lupos.html'
 
 
 export interface NeedToApply {
@@ -116,14 +117,14 @@ export abstract class RendererBase {
 	 */
 	endIndex: number = 0
 
+	/** Indices and align direction that need to apply. */
+	needToApply: NeedToApply | null = null
+
 	/** Whether connected. */
 	protected connected: boolean = false
 
 	/** If slider size updating come from own updating, prevent it. */
 	protected throttlingSliderSizeUpdate: boolean = true
-
-	/** Indices and align direction that need to apply. */
-	protected needToApply: NeedToApply | null = null
 
 	/** Need to check coverage and do update. */
 	protected needToCheckCoverage: boolean = false
@@ -243,10 +244,12 @@ export abstract class RendererBase {
 
 		this.connected = true
 
-		DOMEvents.on(this.scroller, 'scroll', this.onScrollerScroll, this, {passive: true})
-		ResizeWatcher.watch(this.slider, this.onSliderSizeUpdated, this)
+		if (!IN_SSR) {
+			DOMEvents.on(this.scroller, 'scroll', this.onScrollerScroll, this, {passive: true})
+			ResizeWatcher.watch(this.slider, this.onSliderSizeUpdated, this)
 
-		this.initScrollerSize()
+			this.initScrollerSize()
+		}
 	}
 
 	/** After component that use this renderer will get disconnected. */
@@ -340,6 +343,13 @@ export abstract class RendererBase {
 	 * update callback as soon as possible.
 	 */
 	async update() {
+
+		// When in SSR env, update indices and update immediately.
+		if (IN_SSR) {
+			this.setIndices(this.needToApply?.startIndex ?? 0)
+			this.updateRendering(true)
+			return
+		}
 
 		// Must wait for scroller size read.
 		if (this.readScrollerSizePromise) {

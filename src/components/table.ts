@@ -364,6 +364,13 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	resizable: boolean = false
 
 	/** 
+	 * When paging becomes true, url part `?page=3` will cause
+	 * scroll to start index as `reservedCount * 2`.
+	 * Note you'd better set `reservedCount` to at least 1.5x item count for each page.
+	 */
+	paging: boolean = false
+
+	/** 
 	 * Store to cache data.
 	 * Can either be a normal store, or a remote store.
 	 */
@@ -558,7 +565,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		if (newKeyOptionsList) {
 			for (let newKeyOptions of newKeyOptionsList) {
 				let restored = this.restoreState(newKeyOptions.key)
-				if (!restored) {
+				if (!restored && newKeyOptions.options.visibleIndex === true) {
 					this.setStartVisibleIndex(0)
 				}
 			}
@@ -587,7 +594,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	 * Live data, rendering part of all the data.
 	 * If uses remote store, live data items may be `null`.
 	 */
-	get liveData(): (T | null)[] {
+	get liveData(): (T | null)[] | null {
 		if (!this.live) {
 			return this.repeatRef.data as T[]
 		}
@@ -610,10 +617,10 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		let stateKeyOptionsList = this.currentStateKeyOptionsList
 		if (stateKeyOptionsList && !IN_SSR) {
 			for (let keyOptions of stateKeyOptionsList) {
-				let restored = this.restoreState(keyOptions.key)
-				if (!restored) {
-					this.setStartVisibleIndex(0)
-				}
+				this.restoreState(keyOptions.key)
+
+				// Note here not setting start visible index
+				// because conflict with paging handling.
 			}
 		}
 	}
@@ -785,6 +792,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 				<AsyncLiveRepeat tagName="tbody" :ref=${this.repeatRef}
 					.reservedPixels=${this.reservedPixels}
 					.reservedCount=${this.reservedCount}
+					.paging=${this.paging}
 					.renderFn=${this.renderRow.bind(this)}
 					.scrollerSelector=".table-body"
 					.guessedItemSize=${this.guessedItemSize}
@@ -799,6 +807,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 				<LiveRepeat tagName="tbody" :ref=${this.repeatRef}
 					.reservedPixels=${this.reservedPixels}
 					.reservedCount=${this.reservedCount}
+					.paging=${this.paging}
 					.renderFn=${this.renderRow.bind(this)}
 					.scrollerSelector=".table-body"
 					.guessedItemSize=${this.guessedItemSize}
@@ -932,7 +941,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		e.preventDefault()
 
 		if (e.type === 'contextmenu') {
-			let item = (this.store as Store).currentData[index]
+			let item = (this.store as Store).currentData?.[index]
 			if (!item) {
 				return
 			}
@@ -941,10 +950,13 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 				return
 			}
 
-			this.selections!.selectByMouseEvent(index, (this.store as Store).currentData, e)
+			this.selections!.selectByMouseEvent(index, (this.store as Store).currentData!, e)
 		}
 		else {
-			this.selections!.selectByMouseEvent(index, (this.store as Store).currentData, e)
+			let items = (this.store as Store).currentData
+			if (items) {
+				this.selections!.selectByMouseEvent(index, items, e)
+			}
 		}
 	}
 
@@ -972,8 +984,9 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	protected onRectSelectUpdate(endOffset: DOMPoint) {
 		let startRow = this.rectSelectionStartRow
 		let endRow = this.repeatRef.getIndexAtOffset(endOffset.y)
+		let currentData = (this.store as Store).currentData
 
-		if (startRow === null || endRow === null) {
+		if (!startRow || !endRow || !currentData) {
 			return
 		}
 
@@ -982,8 +995,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		}
 
 		let [startRowIndex, endRowIndex] = SelectionUtils.getRange(startRow, endRow)
-		let allData = (this.store as Store).currentData
-		let items = allData.slice(startRowIndex, endRowIndex)
+		let items = currentData.slice(startRowIndex, endRowIndex)
 
 		items.push(...this.rectStartSelections!)
 		this.selections!.selectOnly(...items)

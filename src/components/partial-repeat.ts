@@ -64,23 +64,33 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	protected placeholders: HTMLDivElement[] | null = null
 
 	/** Partial content renderer. */
-	protected renderer: UnObserved<RendererBase> | null = null as any
+	protected renderer!: UnObserved<RendererBase>
 
-	/** The start index of the first item. */
+	/** 
+	 * The start index of the first item.
+	 * Get sync with renderer before updating.
+	 */
 	startIndex: number = 0
 
-	/** The end slicing index of the live data. */
+	/** 
+	 * The end slicing index of the live data.
+	 * Get sync with renderer before updating.
+	 */
 	endIndex: number = 0
 
 	/** Latest align direction. */
 	alignDirection: 'start' | 'end' = 'start'
 
 	/** Live data, rendering part of all the data. */
-	get liveData(): T[] {
+	get liveData(): T[] | null {
 
 		// Here we need to ignore tracking indices, or it will cause additional
 		// enqueuing when doing custom `updateLiveData`.
 		trackGet(this, 'data')
+
+		if (!this.data) {
+			return null
+		}
 
 		return this.data.slice(this.startIndex, this.endIndex)
 	}
@@ -88,7 +98,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	/** Apply `guessedItemSize` property to renderer. */
 	@effect
 	protected applyGuessedItemSize() {
-		this.renderer?.setGuessedItemSize(this.guessedItemSize)
+		this.renderer.setGuessedItemSize(this.guessedItemSize)
 	}
 
 	/** Apply `reservedPixels` property to renderer. */
@@ -111,7 +121,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	@effect
 	protected applyDataCount() {
 		if (this.renderer) {
-			this.renderer.dataCount = this.data.length
+			this.renderer.dataCount = this.data?.length ?? 0
 			this.willUpdate()
 		}
 	}
@@ -125,13 +135,12 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 			return
 		}
 
-		if (IN_SSR) {
-			this.endIndex = Math.min(this.reservedCount, this.data.length)
-			super.update()
+		// Not update before data loaded.
+		if (!this.data) {
 			return
 		}
 
-		await this.renderer?.update()
+		await this.renderer.update()
 	}
 
 	/** 
@@ -149,7 +158,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 			trackGet(this, 'startIndex', 'endIndex', 'alignDirection')
 		}
 		else {
-			this.endIndex = this.data.length
+			this.endIndex = this.data!.length
 			trackGet(this, 'endIndex')
 		}
 
@@ -158,8 +167,13 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	}
 
 	protected override render() {
+		let liveData = this.liveData
+		if (!liveData) {
+			return null
+		}
+
 		return html`
-			<lu:for ${this.liveData}>
+			<lu:for ${liveData}>
 				${this.renderLiveFn.bind(this)}
 			</lu:for>
 		`
@@ -178,11 +192,9 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	protected override onConnected(this: PartialRepeat<any, {}>) {
 		super.onConnected()
 
-		if (!IN_SSR) {
-			this.initPlaceholders()
-			this.initRenderer()
-			this.renderer?.connect()
-		}
+		this.initPlaceholders()
+		this.initRenderer()
+		this.renderer.connect()
 	}
 
 	override beforeDisconnectCallback(param: PartCallbackParameterMask) {
@@ -192,9 +204,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 
 		super.beforeDisconnectCallback(param)
 		
-		if (this.renderer) {
-			this.renderer?.disconnect()
-		}
+		this.renderer.disconnect()
 
 		// If remove current component from parent, remove placeholder also.
 		if ((param & PartCallbackParameterMask.AsDirectNode) > 0) {
@@ -207,6 +217,10 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	}
 
 	protected initPlaceholders() {
+		if (IN_SSR) {
+			return
+		}
+			
 		if (this.placeholders) {
 			return
 		}
@@ -236,8 +250,8 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 			this.doa,
 			this.updateLiveData.bind(this),
 			this.onAfterMeasured.bind(this),
-			this.placeholders![0],
-			this.placeholders![1]
+			this.placeholders?.[0] ?? null,
+			this.placeholders?.[1] ?? null
 		)
 
 		this.renderer
@@ -278,11 +292,11 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	}
 
 	override getStartVisibleIndex(minimumRatio: number = 0): number {
-		return this.renderer?.locateVisibleIndex('start', minimumRatio) ?? super.getStartVisibleIndex(minimumRatio)
+		return this.renderer.locateVisibleIndex('start', minimumRatio) ?? super.getStartVisibleIndex(minimumRatio)
 	}
 
 	override getEndVisibleIndex(minimumRatio: number = 0): number {
-		return this.renderer?.locateVisibleIndex('end', minimumRatio) ?? super.getEndVisibleIndex(minimumRatio)
+		return this.renderer.locateVisibleIndex('end', minimumRatio) ?? super.getEndVisibleIndex(minimumRatio)
 	}
 
 	/** 
@@ -291,7 +305,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 	 * You can safely call this before update complete, no additional rendering will cost.
 	 */
 	setStartVisibleIndex(startIndex: number) {
-		this.renderer?.setRenderIndices('start', startIndex)
+		this.renderer.setRenderIndices('start', startIndex)
 		this.willUpdate()
 	}
 
@@ -320,7 +334,7 @@ export class PartialRepeat<T = any, E = {}> extends Repeat<T, E & PartialRepeatE
 			endIndex = index + 1
 		}
 
-		this.renderer?.setRenderIndices(alignDirection, startIndex, endIndex, true)
+		this.renderer.setRenderIndices(alignDirection, startIndex, endIndex, true)
 		this.willUpdate()
 
 		// Wait update complete.

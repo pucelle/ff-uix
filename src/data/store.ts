@@ -16,8 +16,11 @@ export interface StoreOptions<T> {
 	 */
 	orderDirection: ListUtils.OrderDirection | null
 
-	/** Full data before filtering or ordering. */
-	data: T[]
+	/** 
+	 * Full data before filtering or ordering.
+	 * When null, means data is not loaded.
+	 */
+	data: T[] | null
 }
 
 
@@ -28,7 +31,7 @@ export class Store<T = any> implements StoreOptions<T>, Observed, Connectable {
 	orderRule: ListUtils.OrderKey<T> | ListUtils.OrderFunction<T> | ListUtils.OrderRule<T> | ListUtils.Order<T> | null = null
 	orderDirection: ListUtils.OrderDirection | null = null
 	sorter: ((a: T, b: T) => number) | null = null
-	data: T[] = []
+	data: T[] | null = null
 
 	constructor(options: Partial<StoreOptions<T>> = {}) {
 		Object.assign(this, options)
@@ -83,8 +86,11 @@ export class Store<T = any> implements StoreOptions<T>, Observed, Connectable {
 
 	/** Get current data, after filtered and ordered. */
 	@computed
-	get currentData(): T[] {
+	get currentData(): T[] | null {
 		let data = this.data
+		if (!data) {
+			return data
+		}
 
 		if (this.filter) {
 			data = data.filter(this.filter)

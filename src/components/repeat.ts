@@ -16,8 +16,11 @@ export type RepeatRenderFn<T> = (item: T, index: number) => RenderResult
  */
 export class Repeat<T = any, E = {}> extends Component<E> {
 
-	/** Current data list to repeat with. */
-	data: T[] = []
+	/** 
+	 * Current data list to repeat with.
+	 * When null, means data is not loaded.
+	 */
+	data: T[] | null = null
 
 	/** Render function to generate render result by each item. */
 	renderFn!: RepeatRenderFn<T>
@@ -55,6 +58,10 @@ export class Repeat<T = any, E = {}> extends Component<E> {
 	}
 
 	protected override render() {
+		if (!this.data) {
+			return null
+		}
+
 		return html`
 			<lu:for ${this.data}>
 				${this.renderFn}
