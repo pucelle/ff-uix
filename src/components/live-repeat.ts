@@ -50,6 +50,7 @@ export class LiveRepeat<T = any, E = {}> extends PartialRepeat<T, E> {
 	/** 
 	 * When paging becomes true, url part `?page=3` will cause
 	 * scroll to start index as `reservedCount * 2`.
+	 * Note only one paging Component is allowed in each page.
 	 * Note you'd better set `reservedCount` to at least 1.5x item count for each page.
 	 */
 	paging: boolean = false
