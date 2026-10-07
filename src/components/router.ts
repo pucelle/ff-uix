@@ -166,6 +166,13 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	 */
 	hash: string = ''
 
+	/**
+	 * The hash that used to control page tab.
+	 * If a popup hash replaced current hash, this will persist still.
+	 * Note `#` get excluded.
+	 */
+	pageHash: string = ''
+
 	/** 
 	 * If in hash mode, will apply hash instead of applying pathname.
 	 * Use this if there is only a single page.
@@ -477,11 +484,20 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	protected acceptState(this: Router, state: RouterHistoryState, isRedirecting: boolean) {
 		let oldState = this.state
 		let uri = this.buildHistoryURI(state)
-		
+
 		this.prefix = state.prefix
 		this.path = state.path
 		this.search = state.search
 		this.hash = state.hash
+
+		let bePopupHash = !!state.hash
+			&& this.normalizedPopupRoutes.find(r => r.matcher.test(state.hash))
+
+		// Update page hash only when not match popup hash.
+		if (!bePopupHash) {
+			this.pageHash = state.hash
+		}
+
 		this.state = state
 
 		if (isRedirecting) {

@@ -310,7 +310,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 		}
 
 		if (this.hashed) {
-			Router.current?.redirectTo('#')
+			Router.current?.redirectTo('#' + Router.current.pageHash)
 		}
 	}
 
