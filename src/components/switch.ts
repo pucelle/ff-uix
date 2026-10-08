@@ -34,7 +34,7 @@ export class Switch<E = {}> extends Component<E & SwitchEvents> {
 	
 		.switch-ball{
 			width: calc(var(--switch-height) - 2px - var(--switch-border-width) * 2);
-			height: calc(var(--switch-height) - 2px - var(--switch-border-width) * 2);
+			aspect-ratio: 1;
 			background: var(--border-color);
 			border-radius: 50%;
 			transition: margin 0.2s ${/*#__PURE__*/getCSSEasingValue('ease-out-cubic')};
