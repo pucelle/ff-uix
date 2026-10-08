@@ -48,11 +48,20 @@ class DragDropRelationship {
 			index: dragging.index,
 		}
 
+		let session = this.dragging
+
 		let activeDrop = this.findActiveDrop(dragging)
 		activeDrop?.fireEnter(this.dragging)
 		this.activeDrop = activeDrop
 
-		let {indicator, mode} = await this.createDraggingIndicator()
+		let {indicator, mode, rendered} = await this.createDraggingIndicator(session)
+
+		// Preview rendering can finish after this drag ended or another drag started.
+		if (this.dragging !== session) {
+			rendered?.remove()
+			indicator.remove()
+			return
+		}
 
 		// When cloned, we prefer align with raw element.
 		let position: Coord = mode === 'cloned'
@@ -103,14 +112,15 @@ class DragDropRelationship {
 		return activeDrop
 	}
 
-	protected async createDraggingIndicator() {
-		let el = this.dragging!.el!
-		let elRenderer = this.dragging!.options.followElementRenderer
+	protected async createDraggingIndicator(dragging: DraggingProperties) {
+		let el = dragging.el!
+		let elRenderer = dragging.options.followElementRenderer
 		let indicator: HTMLElement | null = null
+		let rendered: RenderedComponentLike<any> | null = null
 		let mode: 'cloned' | 'created'
 
 		if (elRenderer) {
-			let rendered = this.followElementRendered = render(elRenderer)
+			rendered = this.followElementRendered = render(elRenderer)
 			await rendered.connectManually()
 
 			indicator = rendered.el.firstElementChild as HTMLElement | null
@@ -148,6 +158,7 @@ class DragDropRelationship {
 		return {
 			indicator,
 			mode,
+			rendered,
 		}
 	}
 
@@ -273,7 +284,7 @@ class DragDropRelationship {
 	}
 
 	/** When release dragging. */
-	async endDragging() {
+	async endDragging(cancelled: boolean = false) {
 		if (!this.dragging) {
 			return
 		}
@@ -281,38 +292,48 @@ class DragDropRelationship {
 		let dragging = this.dragging
 		let movement = this.placer
 		let activeDrop = this.activeDrop
+		let rendered = this.followElementRendered
+		let indicator = this.draggingIndicator
+		let dropped = false
 
 		this.dragging = null
 		this.placer = null
 		this.activeDrop = null
+		this.followElementRendered = null
+		this.draggingIndicator = null
 
 		// No need to call `leaveDrop` here.
 		// Play leave transition firstly.
-		if (movement) {
-			let canDrop = movement.canDrop() && activeDrop
-			let insertIndex = movement.getInsertIndex()
+		try {
+			if (movement) {
+				let canDrop = !cancelled && movement.canDrop() && activeDrop
+				let insertIndex = movement.getInsertIndex()
 
-			await movement.endDragging()
+				await movement.endDragging()
 			
-			if (canDrop) {
-				activeDrop!.fireDrop(dragging, insertIndex)
+				if (canDrop) {
+					dropped = true
+					activeDrop!.fireDrop(dragging, insertIndex)
+				}
 			}
 		}
+		finally {
+			if (!dropped && activeDrop && this.activeDrop !== activeDrop) {
+				activeDrop.fireLeave(dragging)
+			}
 
-		// Then recycle elements.
-		if (dragging.el) {
-			dragging.el.style.visibility = ''
+			// Then recycle this session's elements, even if the drop callback fails.
+			this.restoreDraggingElement(dragging.el)
+
+			rendered?.remove()
+			indicator?.remove()
 		}
+	}
 
-		if (this.followElementRendered) {
-			this.followElementRendered.remove()
-			this.followElementRendered = null
-		}
-
-		// Not remove it here
-		if (this.draggingIndicator) {
-			this.draggingIndicator.remove()
-			this.draggingIndicator = null
+	/** Restore the source unless a newer drag is already using it. */
+	protected restoreDraggingElement(el: HTMLElement | null) {
+		if (el && this.dragging?.el !== el) {
+			el.style.visibility = ''
 		}
 	}
 }

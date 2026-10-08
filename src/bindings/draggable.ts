@@ -48,9 +48,9 @@ export interface DraggableOptions {
 
 	/** 
 	 * On dragging start.
-	 * If prevent default of `e`, will stop dragging action.
+	 * Return `false` or prevent default of `e` to stop the UI drag, e.g. for a native drag.
 	 */
-	onStart?: (e: PointerEvent | TouchEvent) => void
+	onStart?: (e: PointerEvent | TouchEvent) => boolean | void
 
 	/** 
 	 * On dragging end.
@@ -114,8 +114,13 @@ export abstract class DraggableBase<T = any> implements Part {
 			return
 		}
 
-		DOMEvents.off(this.el, 'mousedown', this.onPointerDownOrHold, this)
-
+		if (device.touch) {
+			SimulatedEvents.off(this.el, 'hold:start', this.onPointerDownOrHold, this)
+		}
+		else {
+			DOMEvents.off(this.el, 'pointerdown', this.onPointerDownOrHold, this)
+		}
+		
 		this.el.removeAttribute('draggable')
 		this.connected = false
 
@@ -148,13 +153,19 @@ export abstract class DraggableBase<T = any> implements Part {
 	}
 
 	protected onDragStart(e: PointerEvent | TouchEvent) {
-		this.options.onStart?.call(this.context, e)
+		let result = this.options.onStart?.call(this.context, e)
+
+		if (result === false || e.defaultPrevented) {
+			return false
+		}
+
 		GlobalDragDropRelationship.startDragging(this, e)
+		return true
 	}
 
-	protected onDragEnd() {
-		let activeDroppable = GlobalDragDropRelationship.activeDrop
-		GlobalDragDropRelationship.endDragging()
+	protected onDragEnd(cancelled: boolean = false) {
+		let activeDroppable = cancelled ? null : GlobalDragDropRelationship.activeDrop
+		GlobalDragDropRelationship.endDragging(cancelled)
 
 		this.options.onEnd?.call(this.context, activeDroppable)
 	}
@@ -198,4 +209,3 @@ export class draggable<T = any> extends DraggableBase<T> implements Binding, Par
 		}
 	}
 }
-

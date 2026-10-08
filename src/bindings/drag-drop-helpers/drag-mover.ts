@@ -11,8 +11,8 @@ import {droppable} from '../droppable'
 export class DragMover {
 
 	readonly slideOnly: boolean
-	readonly onDragStart: (e: PointerEvent | TouchEvent) => void
-	readonly onDragEnd: () => void
+	readonly onDragStart: (e: PointerEvent | TouchEvent) => boolean | void
+	readonly onDragEnd: (cancelled: boolean) => void
 	protected inDragging: boolean = false
 	protected startPosition: DOMPoint | null = null
 	protected currentlyEntered: Element | null = null
@@ -22,8 +22,8 @@ export class DragMover {
 
 	constructor(
 		slideOnly: boolean,
-		onDragStart: (e: PointerEvent | TouchEvent) => void,
-		onDragEnd: () => void
+		onDragStart: (e: PointerEvent | TouchEvent) => boolean | void,
+		onDragEnd: (cancelled: boolean) => void
 	) {
 		this.slideOnly = slideOnly
 		this.onDragStart = onDragStart
@@ -32,32 +32,36 @@ export class DragMover {
 
 	/** After mousedown or touch start. */
 	setDragStart(e: MouseEvent | TouchEvent) {
-		e.preventDefault()
-
 		this.inDragging = false
 		this.startPosition = EventUtils.getClientPosition(e)
 	
 		DOMEvents.on(document, 'pointermove', this.onPointerMove, this)
 		DOMEvents.on(document, 'pointerup', this.onPointerUp, this)
+		DOMEvents.on(document, 'pointercancel', this.onCancelled, this)
+		DOMEvents.on(window, 'blur', this.onCancelled, this)
 
 		// If hold to start, start dragging immediately, no need to move a little.
 		if (device.touch) {
-			this.inDragging = true
 			this.doEnterChecking(e as TouchEvent)
 
 			// `onDragStart` requires active drop, so must after enter checking.
-			this.onDragStart(e as TouchEvent)
+			if (this.onDragStart(e as TouchEvent) === false) {
+				this.endDragging(true)
+				return
+			}
+
+			this.inDragging = true
 		}
+
+		e.preventDefault()
 	}
 
 	protected onPointerMove(e: PointerEvent) {
 		if (e.defaultPrevented) {
-			this.endDragging()
+			this.endDragging(true)
 			return
 		}
 
-		e.preventDefault()
-		
 		let currentPosition = EventUtils.getClientPosition(e)
 
 		let moves: Coord = {
@@ -70,14 +74,19 @@ export class DragMover {
 			if (movesLength > 5) {
 				this.startPosition = currentPosition
 
+				if (this.onDragStart(e) === false) {
+					this.endDragging(true)
+					return
+				}
+
 				this.inDragging = true
-				this.onDragStart(e)
 			}
 		}
 		else {
 			GlobalDragDropRelationship.translateDraggingIndicator(moves, e)
 		}
 
+		e.preventDefault()
 		this.doEnterChecking(e)
 	}
 
@@ -154,12 +163,19 @@ export class DragMover {
 		this.endDragging()
 	}
 
-	protected endDragging() {
+	/** Cancel without dropping when the pointer stream or window focus is lost. */
+	protected onCancelled() {
+		this.endDragging(true)
+	}
+
+	protected endDragging(cancelled: boolean = false) {
 		DOMEvents.off(document, 'pointermove', this.onPointerMove, this)
 		DOMEvents.off(document, 'pointerup', this.onPointerUp, this)
+		DOMEvents.off(document, 'pointercancel', this.onCancelled, this)
+		DOMEvents.off(window, 'blur', this.onCancelled, this)
 
 		if (this.inDragging) {
-			this.onDragEnd()
+			this.onDragEnd(cancelled)
 			this.currentlyEntered = null
 			this.currentDraggable = null
 			this.currentDroppable = null
