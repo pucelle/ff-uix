@@ -33,9 +33,10 @@ export class contextmenu extends popup {
 		await super.doShow()
 
 		if (contextmenu.current && contextmenu.current !== this) {
-			contextmenu.current.hidePopup()
-			contextmenu.current = this
+			contextmenu.current.hidePopup(true)
 		}
+
+		contextmenu.current = this
 	}
 
 	protected override async doHide(immediately: boolean): Promise<void> {
