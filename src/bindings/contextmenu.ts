@@ -21,8 +21,28 @@ const DefaultContextMenuOptions: Partial<PopupOptions> = {
  */
 export class contextmenu extends popup {
 
+	/** Currently showing contextmenu. */
+	static current: contextmenu | null = null
+
 	override update(renderer: RenderResultRenderer, options: Partial<PopupOptions> = {}) {
 		options = {...DefaultContextMenuOptions, ...options}
 		super.update(renderer, options)
+	}
+
+	protected override async doShow(): Promise<void> {
+		await super.doShow()
+
+		if (contextmenu.current && contextmenu.current !== this) {
+			contextmenu.current.hidePopup()
+			contextmenu.current = this
+		}
+	}
+
+	protected override async doHide(immediately: boolean): Promise<void> {
+		await super.doHide(immediately)
+
+		if (contextmenu.current === this) {
+			contextmenu.current = null
+		}
 	}
 }
