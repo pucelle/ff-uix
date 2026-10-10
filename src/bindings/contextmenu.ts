@@ -29,6 +29,10 @@ export class contextmenu extends popup {
 		super.update(renderer, options)
 	}
 
+	/** 
+	 * It's common that contextmenu get stopped,
+	 * so we can't reply on the global dom binding.
+	 */
 	protected override async doShow(): Promise<void> {
 		await super.doShow()
 
