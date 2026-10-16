@@ -155,6 +155,10 @@ export class Slider<E = {}> extends Component<E & SliderEvents> {
 
 		return html`
 			<template tabindex="0" class="slider" role="slider"
+				aria-valuemin=${this.min}
+				aria-valuemax=${this.max}
+				aria-valuenow=${NumberUtils.clamp(this.value, this.min, this.max)}
+				aria-orientation=${this.vertical ? 'vertical' : null}
 				:class=${this.vertical ? 'slider-vertical' : 'slider-horizontal'}
 				:class.dragging=${this.dragging}
 				:tooltip=${this.renderTooltipContent, tooltipOptions}

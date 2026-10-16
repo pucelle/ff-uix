@@ -64,6 +64,9 @@ export class Loader<E = {}> extends Component<E> {
 	/** How many round per second. */
 	speed: number = 0.6
 
+	/** Accessible label describing the loading operation. */
+	ariaLabel: string = 'Loading'
+
 	protected snakeEl!: SVGPathElement
 
 	protected override render() {
@@ -74,12 +77,13 @@ export class Loader<E = {}> extends Component<E> {
 		let dashArray = `${size - strokeWidth} ${(size - strokeWidth) * 3}`
 
 		return html`
-			<template class="loader"
+			<template class="loader" role="progressbar"
+				aria-label=${this.ariaLabel}
 				:class.as-cover=${this.asCover}
 				:style.width=${this.asCover ? '' : size + 'px'}
 				:style.height=${this.asCover ? '' : size + 'px'}
 			>
-				<svg viewBox="0 0 ${size} ${size}" width=${size} height=${size}>
+				<svg aria-hidden="true" focusable="false" viewBox="0 0 ${size} ${size}" width=${size} height=${size}>
 					<path class="loader-bg" d=${d} style="stroke-width: ${strokeWidth}" />
 					<path :ref=${this.snakeEl} d=${d} style="stroke-width: ${strokeWidth}; stroke-dasharray: ${dashArray};" />
 				</svg>

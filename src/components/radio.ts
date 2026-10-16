@@ -81,6 +81,7 @@ export class Radio<E = {}> extends Component<E & RadioEvents> {
 	protected override render() {
 		return html`
 			<template role="radio" tabindex="0" class="radio"
+				aria-checked=${String(this.checked)}
 				:class.checked=${this.checked}
 				@click=${this.onClick}
 				@focus=${this.onFocus}

@@ -43,7 +43,11 @@ export class Textarea extends Input {
 
 	protected override renderField() {
 		return html`
-			<textarea class="input-field" role="textbox"
+			<textarea class="input-field"
+				aria-label=${this.ariaLabel}
+				aria-labelledby=${this.ariaLabelledBy}
+				aria-invalid=${this.touched && this.valid === false ? 'true' : null}
+				aria-describedby=${this.errorId}
 				placeholder=${this.placeholder}
 				?autofocus=${this.autoFocus}
 				:ref=${this.fieldRef}

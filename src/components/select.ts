@@ -141,6 +141,9 @@ export class Select<T = any, M extends boolean = boolean, E = {}> extends Dropdo
 	/** Current selected value or values. */
 	value: M extends true ? T[] | null : T | null = null
 
+	/** Accessible label for the select control. */
+	ariaLabel: string | null = null
+
 	/** 
 	 * Whether close pop-up content after selected any item.
 	 * If omitted as `null`, equals `true` when single selection, `false` otherwise.
@@ -191,11 +194,17 @@ export class Select<T = any, M extends boolean = boolean, E = {}> extends Dropdo
 
 	protected override render() {
 		return html`
-			<template class="dropdown select" role="listbox"
+			<template class="dropdown select"
+				role=${this.editing ? 'group' : 'combobox'}
+				tabindex=${this.editing ? null : '0'}
+				aria-label=${this.editing ? null : this.ariaLabel}
+				aria-expanded=${this.editing ? null : String(this.opened)}
+				aria-controls=${!this.editing && this.opened ? 'select-list-' + this.iid : null}
 				:class.opened=${this.opened}
 				:class.cant-input=${!this.searchable}
 				:popup=${this.renderPopup, this.popupOptions}
 				:ref.binding=${this.binding}
+				@keydown=${this.onTriggerKeyDown}
 				@click=${this.onClick}
 			>
 				${this.renderDisplayOrInput()}
@@ -217,6 +226,11 @@ export class Select<T = any, M extends boolean = boolean, E = {}> extends Dropdo
 			return html`
 				<input type="text" autofocus
 					class="select-input"
+					role="combobox"
+					aria-label=${this.ariaLabel}
+					aria-autocomplete="list"
+					aria-expanded=${String(this.opened)}
+					aria-controls=${this.opened ? 'select-list-' + this.iid : null}
 					autocomplete="chrome-off"
 					:ref=${this.inputRef}
 					.value=${this.inputtedText}
@@ -250,6 +264,9 @@ export class Select<T = any, M extends boolean = boolean, E = {}> extends Dropdo
 				:transition=${fade()}
 			>
 				<List class="select-list"
+					id=${'select-list-' + this.iid}
+					.role="listbox"
+					aria-label=${this.ariaLabel}
 					:ref.el=${this.listEl}
 					.selectable
 					.data=${data}

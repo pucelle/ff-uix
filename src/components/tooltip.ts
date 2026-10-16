@@ -81,6 +81,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 	protected override render() {
 		return html`
 			<template class="popup tooltip tooltip-type-${this.type}"
+				role=${this.type === 'prompt' ? null : 'tooltip'}
 				:transition=${fade()}
 			>
 				${this.renderTriangle()}

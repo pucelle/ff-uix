@@ -222,6 +222,16 @@ export class List<T = any, E = {}> extends Component<E & ListEvents> {
 	/** Indicates currently selected values. */
 	selected: T[] = []
 
+	/** Override the list's automatically chosen accessibility role. */
+	role: 'list' | 'listbox' | 'tree' | null = null
+
+	/** Semantic role matching selection and hierarchical content. */
+	protected get listRole(): 'list' | 'listbox' | 'tree' {
+		return this.role ?? (this.data.some(item => item.children?.length)
+			? 'tree'
+			: this.selectable ? 'listbox' : 'list')
+	}
+
 	/** Currently expanded items. */
 	expanded: T[] = []
 
@@ -281,7 +291,9 @@ export class List<T = any, E = {}> extends Component<E & ListEvents> {
 
 	protected override render() {
 		return html`
-			<template class="list" role="list">
+			<template class="list" role=${this.listRole}
+				aria-multiselectable=${this.selectable && this.multipleSelect && this.listRole !== 'list' ? 'true' : null}
+			>
 				${this.renderItems(this.data, 0)}
 			</template>
 		`
@@ -314,7 +326,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents> {
 
 	protected renderItemOrSplitter(item: ListItem<T>, depth: number): TemplateResult {
 		if (item.value === undefined && !item.text && !item.content) {
-			return html`<div class="list-splitter"></div>`
+			return html`<div class="list-splitter" role="separator"></div>`
 		}
 		else {
 			return this.renderItem(item as ListItem<T>, depth)
@@ -327,9 +339,16 @@ export class List<T = any, E = {}> extends Component<E & ListEvents> {
 		let itemContextmenu = this.renderContextmenu(item)
 
 		return html`
-			<div class="list-item-container">
+			<div class="list-item-container"
+				role=${this.listRole === 'tree' ? 'treeitem' : null}
+				aria-level=${this.listRole === 'tree' ? depth + 1 : null}
+				aria-expanded=${this.listRole === 'tree' && item.children?.length ? String(expanded) : null}
+				aria-selected=${this.listRole === 'tree' && this.selectable ? String(this.hasSelected(item.value!)) : null}
+			>
 				<div
-					class="list-item" role="listitem"
+					class="list-item"
+					role=${this.listRole === 'tree' ? null : this.listRole === 'listbox' ? 'option' : 'listitem'}
+					aria-selected=${this.listRole === 'listbox' ? String(this.hasSelected(item.value!)) : null}
 					:class.selected=${this.hasSelected(item.value!)}
 					:class.arrow-selected=${item === this.keyNavigator.current}
 					?:tooltip=${itemTooltip, itemTooltip!, this.tooltipOptions}
@@ -445,6 +464,7 @@ export class List<T = any, E = {}> extends Component<E & ListEvents> {
 
 		return html`
 			<div class="list-subsection"
+				role=${this.listRole === 'tree' ? 'group' : null}
 				:transition=${
 					() => item.value === this.latestExpandedOrCollapsed
 						? fold()

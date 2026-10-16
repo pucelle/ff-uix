@@ -58,6 +58,9 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 	 */
 	popupRenderer: RenderResultRenderer | null = null
 
+	/** Semantic type of popup content, when it implements an ARIA popup role. */
+	popupRole: 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog' | null = null
+
 	/** 
 	 * Apply popup binding after been controlled by it.
 	 * You should reference to make it in derived classes.
@@ -85,7 +88,10 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 
 	protected override render() {
 		return html`
-			<template class="dropdown"
+			<template class="dropdown" role="button" tabindex="0"
+				aria-expanded=${String(this.opened)}
+				aria-haspopup=${this.popupRole}
+				@keydown=${this.onTriggerKeyDown}
 				:class.opened=${this.opened}
 				:popup=${this.renderPopup, this.popupOptions}
 				:ref.binding=${this.binding}
@@ -94,6 +100,14 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 				${this.renderIcon()}
 			</template>
 		`
+	}
+
+	/** Toggle the trigger from its own keyboard focus. */
+	protected onTriggerKeyDown(e: KeyboardEvent) {
+		if (e.target === this.el && (e.key === 'Enter' || e.key === ' ')) {
+			e.preventDefault()
+			this.opened = !this.opened
+		}
 	}
 
 	protected renderIcon() {

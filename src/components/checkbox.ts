@@ -84,6 +84,7 @@ export class Checkbox<T = any, E = {}> extends Component<E & CheckboxEvents> {
 
 		return html`
 			<template tabindex="0" class="checkbox" role="checkbox"
+				aria-checked=${this.indeterminate ? 'mixed' : String(this.checked)}
 				:class.checked=${this.checked}
 				:class.indeterminate=${this.indeterminate}
 				@click=${this.onClick}

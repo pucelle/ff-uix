@@ -36,7 +36,7 @@ export class ButtonGroup<E = {}> extends Component<E> {
 
 	protected override render(): TemplateResult {
 		return html`
-			<template class="button-group" />
+			<template class="button-group" role="group" />
 		`
 	}
 }

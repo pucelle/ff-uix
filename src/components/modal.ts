@@ -190,7 +190,9 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 
 	protected renderModal() {
 		return html`
-			<div tabindex="0" autofocus class="modal"
+			<div tabindex="0" autofocus class="modal" role="dialog"
+				aria-modal="true"
+				aria-labelledby=${this.title ? 'modal-title-' + this.iid : null}
 				:ref=${this.modalEl}
 				:transition.global=${fade()}
 			>
@@ -204,7 +206,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 	protected renderHeader() {
 		return html`
 			<div class="modal-header">
-				<div class="modal-title">${this.title}</div>
+				<div class="modal-title" id=${'modal-title-' + this.iid}>${this.title}</div>
 				<Icon class="modal-close"
 					.code=${IconClose}
 					@click=${this.hide}

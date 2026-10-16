@@ -664,8 +664,15 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	}
 
 	protected override render(): TemplateResult {
+		let rowCount: number | null = null
+
+		if (this.virtualRows) {
+			rowCount = this.store instanceof RemoteStore ? -1 : (this.store.currentData?.length ?? 0) + 1
+		}
+
 		return html`
-			<template class="table"
+			<template class="table" role="table"
+				aria-rowcount=${rowCount}
 				:class.grid-on-phone=${this.gridOnPhone}
 				:watchWidth=${this.onWidthChange}
 				@mousedown=${this.onMouseDown}
@@ -676,10 +683,15 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		`
 	}
 
+	/** Whether rows are rendered as a visible subset of the complete table. */
+	protected get virtualRows(): boolean {
+		return this.live || this.store instanceof RemoteStore
+	}
+
 	protected renderHead() {
 		return html`
-			<div class="table-head">
-				<div class="table-columns">
+			<div class="table-head" role="rowgroup">
+				<div class="table-columns" role="row" aria-rowindex=${this.virtualRows ? 1 : null}>
 					${this.renderColumns()}
 				</div>
 			</div>
@@ -694,9 +706,15 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		let orderName = this.getColumnName(column, index)
 		let currentInOrder = this.orderName === orderName
 		let flexAlign = column.align === 'right' ? 'flex-end' : column.align === 'center' ? 'center' : ''
+		let ariaSort = column.orderBy ? 'none' : null
+
+		if (column.orderBy && currentInOrder && this.orderDirection) {
+			ariaSort = this.orderDirection === 'asc' ? 'ascending' : 'descending'
+		}
 
 		return html`
-			<div class="table-column"
+			<div class="table-column" role="columnheader"
+				aria-sort=${ariaSort}
 				:class.table-column-ordered=${currentInOrder}
 				@click=${(e: MouseEvent) => this.doOrdering(e, index)}
 			>
@@ -770,7 +788,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 
 	protected renderTable() {
 		return html`
-			<table class="table-table">
+			<table class="table-table" role="presentation">
 				${this.renderColGroups()}
 				${this.renderRows()}
 			</table>
@@ -790,7 +808,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	protected renderRows() {
 		if (this.store instanceof RemoteStore) {
 			return html`
-				<AsyncLiveRepeat tagName="tbody" :ref=${this.repeatRef}
+				<AsyncLiveRepeat tagName="tbody" role="rowgroup" :ref=${this.repeatRef}
 					.reservedPixels=${this.reservedPixels}
 					.reservedCount=${this.reservedCount}
 					.paging=${this.paging}
@@ -805,7 +823,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		}
 		else if (this.live) {
 			return html`
-				<LiveRepeat tagName="tbody" :ref=${this.repeatRef}
+				<LiveRepeat tagName="tbody" role="rowgroup" :ref=${this.repeatRef}
 					.reservedPixels=${this.reservedPixels}
 					.reservedCount=${this.reservedCount}
 					.paging=${this.paging}
@@ -820,7 +838,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		}
 		else {
 			return html`
-				<Repeat tagName="tbody" style="display: table-row-group"
+				<Repeat tagName="tbody" role="rowgroup" style="display: table-row-group"
 					:ref=${this.repeatRef}
 					.renderFn=${this.renderRow.bind(this)}
 					.data=${this.store.currentData}
@@ -837,7 +855,8 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 	 */
 	protected renderRow(item: T, index: number) {
 		return html`
-			<tr class="table-row"
+			<tr class="table-row" role="row"
+				aria-rowindex=${this.virtualRows ? index + this.startIndex + 2 : null}
 				:class.selected=${this.selections?.hasSelected(item)}
 				@click=${(e: MouseEvent) => this.onClickRow(item, index, e)}
 			>
@@ -859,7 +878,7 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 		let editor = column.editor
 
 		return html`
-			<td class="table-cell"
+			<td class="table-cell" role="cell"
 				:class=${column.className ?? ''}
 				:style.text-align=${column.align || ''}
 				?:editable=${editor, () => editor!(item, index), {

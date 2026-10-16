@@ -128,6 +128,15 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	/** Current value. */
 	value: string = ''
 
+	/** Accessible label for the native input field. */
+	ariaLabel: string | null = null
+
+	/** IDs of elements labeling the native input field. */
+	ariaLabelledBy: string | null = null
+
+	/** Optional semantic role for the native input field. */
+	protected fieldRole: 'searchbox' | null = null
+
 	/** 
 	 * To validate current value, returns error message or `null` if valid.
 	 * Can also returns `null` and later set `error` asynchronously.
@@ -188,7 +197,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	
 	protected override render() {
 		return html`
-			<template class="input" role="textbox"
+			<template class="input"
 				:class.focused=${this.focusGot}
 				:class.valid=${this.touched && this.valid}
 				:class.invalid=${this.touched && this.valid === false}
@@ -205,9 +214,7 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 					<Icon class="input-valid-icon" .code=${IconChecked} />
 				</lu:if>
 
-				<lu:if ${this.touched && this.errorMessage && !this.errorOnTooltip}>
-					<div class="input-error" role="alert">${this.errorMessage}</div>
-				</lu:if>
+				${this.renderError()}
 			</template>
 		`
 	}
@@ -228,6 +235,11 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 	protected renderField() {
 		return html`
 			<input class="input-field" type=${this.type}
+				role=${this.fieldRole}
+				aria-label=${this.ariaLabel}
+				aria-labelledby=${this.ariaLabelledBy}
+				aria-invalid=${this.touched && this.valid === false ? 'true' : null}
+				aria-describedby=${this.errorId}
 				?autofocus=${this.autoFocus}
 				.placeholder=${this.placeholder || ''}
 				.value=${this.value}
@@ -238,6 +250,24 @@ export class Input<E = {}> extends Component<InputEvents & E> {
 				@compositionend=${this.onCompositionEnd}
 				@change=${this.onChange}
 			/>
+		`
+	}
+
+	/** ID of the validation message available to the native field. */
+	protected get errorId(): string | null {
+		return this.touched && this.errorMessage ? 'input-error-' + this.iid : null
+	}
+
+	/** Render validation text, including a hidden reference when a tooltip shows it. */
+	protected renderError(): RenderResult {
+		if (!this.errorId) {
+			return null
+		}
+
+		return html`
+			<div class="input-error" role="alert" id=${this.errorId}
+				?hidden=${this.errorOnTooltip}
+			>${this.errorMessage}</div>
 		`
 	}
 

@@ -54,7 +54,8 @@ export class Progress<E = {}> extends Component<E> {
 		}
 
 		return html`
-			<template class="progress"
+			<template class="progress" role="progressbar"
+				aria-valuenow=${Math.max(0, Math.min(this.value, 1)) * 100}
 				:tooltip=${this.renderTooltipContent, tooltipOptions}
 			>
 				<div class="progress-groove" :style.height.px=${this.height}>
@@ -76,6 +77,6 @@ export class Progress<E = {}> extends Component<E> {
 		
 		tipText += '%'
 
-		return html`<span class="progress-tooltip" role="status">${tipText}</span>`
+		return html`<span class="progress-tooltip">${tipText}</span>`
 	}
 }

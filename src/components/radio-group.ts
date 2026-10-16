@@ -1,4 +1,4 @@
-import {Component} from 'lupos.html'
+import {Component, html} from 'lupos.html'
 import {Radio} from './radio'
 import {ListUtils} from 'ff-kit'
 import {watch} from 'lupos'
@@ -28,6 +28,11 @@ export class RadioGroup<T = any, E = {}> extends Component<RadioGroupEvents<T> &
 
 	/** Current value, child radio which have same value will be checked. */
 	value: T | null = null
+
+	/** Render the semantic container for child radios. */
+	protected override render() {
+		return html`<template role="radiogroup" />`
+	}
 
 	/** Register a child radio. */
 	register(radio: Radio) {

@@ -241,14 +241,21 @@ export class Dialog<E = {}> extends Component<E> {
 	protected renderDialog() {
 		let options = this.options!
 
+		let descriptionId = typeof options.message === 'string' && options.message && !options.list?.length
+			? 'dialog-message-' + this.iid
+			: null
+
 		return html`
 			<div tabindex="0" autofocus class="dialog" role="dialog"
+				aria-modal="true"
+				aria-labelledby=${options.title ? 'dialog-title-' + this.iid : null}
+				aria-describedby=${descriptionId}
 				:ref=${this.dialogEl}
 				:transition.global=${fade()}
 			>
 				<lu:if ${options.title}>
 					<div class="dialog-header">
-						<div class="dialog-title">
+						<div class="dialog-title" id=${'dialog-title-' + this.iid}>
 							${options.title}
 						</div>
 					</div>
@@ -260,7 +267,7 @@ export class Dialog<E = {}> extends Component<E> {
 					</lu:if>
 
 					<div class="dialog-right">
-						<div class="dialog-message">
+						<div class="dialog-message" id=${'dialog-message-' + this.iid}>
 							${this.renderMessage()}
 						</div>
 

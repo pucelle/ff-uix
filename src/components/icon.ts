@@ -67,6 +67,8 @@ export class Icon<Events = any> extends Component<Events> {
 
 		return html`
 			<svg
+				aria-hidden="true"
+				focusable="false"
 				viewBox=${[x, y, viewWidth, viewHeight].join(' ')}
 				width=${renderWidth}
 				height=${renderHeight}

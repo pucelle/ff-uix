@@ -1,4 +1,4 @@
-import {Component} from 'lupos.html'
+import {Component, html} from 'lupos.html'
 import {ListUtils} from 'ff-kit'
 import {Checkbox} from './checkbox'
 import {watch} from 'lupos'
@@ -22,6 +22,11 @@ export class CheckboxGroup<T = any, E = {}> extends Component<E & CheckboxGroupE
 
 	/** All checked values. */
 	value: T[] = []
+
+	/** Render the semantic container for child checkboxes. */
+	protected override render() {
+		return html`<template role="group" />`
+	}
 
 	/** Register a child checkbox. */
 	register(checkbox: Checkbox) {

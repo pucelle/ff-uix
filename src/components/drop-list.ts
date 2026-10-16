@@ -46,7 +46,7 @@ export class DropList<T> extends List<T> {
 
 	protected override render() {
 		return html`
-			<template class="list drop-list">
+			<template class="list drop-list" role="menu">
 				${this.renderItems(this.data, 0)}
 			</template>
 		`
@@ -60,6 +60,10 @@ export class DropList<T> extends List<T> {
 		return html`
 			<div
 				class="list-item"
+				role=${this.selectable ? 'menuitemcheckbox' : 'menuitem'}
+				aria-checked=${this.selectable ? String(this.hasSelected(item.value!)) : null}
+				aria-haspopup=${children?.length ? 'menu' : null}
+				aria-expanded=${children?.length ? String(this.hasExpanded(item.value!)) : null}
 				:class.selected=${this.hasSelected(item.value!)}
 				:class.arrow-selected=${item === this.keyNavigator.current}
 				?:tooltip=${itemTooltip, itemTooltip!}
@@ -96,6 +100,7 @@ export class DropList<T> extends List<T> {
 
 		return html`
 			<Popup class="drop-list-subsection ${this.subsectionClassName}"
+				role="menu"
 				:transition=${fade()}
 				.triangle=${false}
 			>

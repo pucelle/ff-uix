@@ -15,6 +15,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"test": "vitest run",
+		"test:aria": "npm run build && node --test tests/components-aria.mjs",
 		"build": "luc -e -s",
 		"watch": "luc -e -s -w",
 		"build-docs": "cd docs && luc -e -s",

@@ -138,7 +138,7 @@ export class Navigation<T> extends List<T> {
 
 	protected override render() {
 		return html`
-			<template class="list navigation">
+			<template class="list navigation" role="navigation" aria-label=${this.title || null}>
 				<lu:if ${this.title}>
 					<div class="navigation-title">
 						${this.title}
@@ -161,9 +161,10 @@ export class Navigation<T> extends List<T> {
 		let stickyStyle = this.renderStickyStyle(item, depth)
 
 		return html`
-			<div class="list-item-container" role="nav">
+			<div class="list-item-container">
 				<div
 					class="list-item"
+					aria-current=${this.hasSelected(item.value!) ? 'page' : null}
 					:class.selected=${this.hasSelected(item.value!)}
 					:class.arrow-selected=${item === this.keyNavigator.current}
 					:class.list-item-sticky=${stickyStyle}

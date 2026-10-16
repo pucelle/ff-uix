@@ -66,7 +66,9 @@ export class Triangle<E = {}> extends Component<E> {
 
 		// Normally triangle will never do hydration, so let the dynamic style exist.
 		return html`
-			<template class="triangle" style="${this.direction}: ${-this.height}px">
+			<template class="triangle" aria-hidden="true"
+				style="${this.direction}: ${-this.height}px"
+			>
 				<svg viewBox=${viewBox} width=${outputWidth} height=${outputHeight}>
 					<path class="triangle-fill" d=${fillD} />
 					<path class="triangle-stroke" d=${strokeD} />

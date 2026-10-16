@@ -66,13 +66,17 @@ export class Search<E = {}> extends Input<SearchEvents & E> {
 
 	override icon: string = IconSearch
 
+	/** Apply search semantics to the native input. */
+	protected override fieldRole: 'searchbox' = 'searchbox'
+
 	protected override render() {
 		return html`
-			<template class="input search" role="searchbox"
+			<template class="input search"
 				:class.focused=${this.focusGot}
 			>
 				${this.renderIcon()}
 				${this.renderField()}
+				${this.renderError()}
 
 				<lu:if ${this.value}>
 					${this.renderClearIcon()}

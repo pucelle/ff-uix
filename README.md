@@ -82,6 +82,12 @@ Tests are located in the root `tests` directory and run with Vitest. The current
 npm test
 ```
 
+To build the components and check their rendered ARIA roles, state updates, and label references using the SSR renderer:
+
+```sh
+npm run test:aria
+```
+
 
 
 ## License
