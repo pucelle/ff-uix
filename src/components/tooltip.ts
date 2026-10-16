@@ -22,9 +22,12 @@ export class Tooltip<E = {}> extends Popup<E> {
 			max-width: 16em;
 			padding: 0.4em 0.8em;
 			line-height: 1.4;
-		}
 
-		.tooltip-triangle{}
+			header{
+				font-weight: bold;
+				margin-bottom: 0.15em;
+			}
+		}
 
 		.tooltip-text{
 			flex: 1;
