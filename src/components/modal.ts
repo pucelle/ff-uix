@@ -113,7 +113,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			display: flex;
 			flex-direction: column;
 			overflow-y: auto;
-			padding: 1.2em 1.2em 0;
+			padding: 1.2em;
 		}
 		
 		.modal-actions{
@@ -121,7 +121,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			flex-direction: row;
 			justify-content: end;
 			align-items: center;
-			padding: 1.2em 1.2em;
+			padding: 1.2em;
 			gap: 0.6em;
 		}
 
