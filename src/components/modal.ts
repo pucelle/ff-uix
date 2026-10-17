@@ -22,6 +22,9 @@ export interface ModelAction {
 	/** Third action button of will be put on the left. */
 	third?: boolean
 
+	/** Whether enable the action button. */
+	disabled?: boolean
+
 	/** 
 	 * Calls after clicked the action button.
 	 * You may return `true` to interrupt model from closing,
@@ -245,6 +248,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 						.primary=${!!action.primary}
 						:class.modal-third=${action.third}
 						:tooltip=${action.tooltip ?? null, {position: 'b'}}
+						?disabled=${action.disabled}
 						@click=${() => this.onClickActionButton(action)}
 					>
 						${action.text}
