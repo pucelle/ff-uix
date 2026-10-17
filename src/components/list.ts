@@ -216,7 +216,10 @@ export class List<T = any, E = {}> extends Component<E & ListEvents> {
 	/** Input data list. */
 	data: ListItem<T>[] = []
 
-	/** Renderer to render list item to content. */
+	/** 
+	 * Renderer to render list item to content.
+	 * By default it renders `content` or `text` of item.
+	 */
 	contentRenderer: ((item: ListItem<T>) => RenderResult) | null = null
 
 	/** Indicates currently selected values. */
