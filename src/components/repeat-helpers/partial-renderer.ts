@@ -91,9 +91,8 @@ export class PartialRenderer extends RendererBase {
 		}
 
 		let backSize = this.measurement.getNormalBackPlaceholderSize(this.endIndex, this.dataCount)
-		let fixedBackSize = this.measurement.fixBackPlaceholderSize(backSize, this.measurement.indices.endIndex, this.dataCount)
+		let fixedBackSize = this.measurement.fixBackPlaceholderSize(backSize, this.endIndex, this.dataCount)
 
-		// Update back size only when have at least 50% difference.
 		await barrierDOMWriting()
 
 		if (!this.connected) {
@@ -135,9 +134,9 @@ export class PartialRenderer extends RendererBase {
 		let newFrontSize = frontSize - offsetDiff
 
 		let fixedFrontSize = this.measurement.fixFrontPlaceholderSize(newFrontSize, this.startIndex)
-		if (fixedFrontSize !== newFrontSize) {
-			this.setPosition(newFrontSize)
-			this.measurement.resetPositions(newFrontSize)
+		if (fixedFrontSize !== frontSize) {
+			this.measurement.resetPositions(fixedFrontSize)
+			await this.setPosition(fixedFrontSize)
 		}
 
 		this.needToAlign = null
