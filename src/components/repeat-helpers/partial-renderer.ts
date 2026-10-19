@@ -135,8 +135,8 @@ export class PartialRenderer extends RendererBase {
 
 		let fixedFrontSize = this.measurement.fixFrontPlaceholderSize(newFrontSize, this.startIndex)
 		if (fixedFrontSize !== frontSize) {
-			this.measurement.resetPositions(fixedFrontSize)
 			await this.setPosition(fixedFrontSize)
+			this.measurement.resetPositions(fixedFrontSize)
 		}
 
 		this.needToAlign = null
