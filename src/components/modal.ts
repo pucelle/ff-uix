@@ -162,6 +162,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 	/** If specified as `true`, means should exit hash after disconnected. */
 	hashed: boolean = false
 
+	protected hashCache: string | null = null
 	protected modalEl!: HTMLElement
 
 	constructor(el: HTMLElement = document.createElement('slot')) {
@@ -301,6 +302,10 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 		UpdateQueue.untilComplete().then(() => {
 			this.toCenter()
 		})
+
+		if (this.hashed) {
+			this.hashCache = Router.current?.hash ?? null
+		}
 	}
 
 	protected override onWillDisconnect() {
@@ -315,7 +320,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			DOMModifiableEvents.off(document, 'keydown', this.hide, this)
 		}
 
-		if (this.hashed) {
+		if (this.hashed && this.hashCache && this.hashCache === Router.current?.hash) {
 			Router.current?.redirectTo('#' + Router.current.pageHash)
 		}
 	}
