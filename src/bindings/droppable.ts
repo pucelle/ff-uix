@@ -47,7 +47,7 @@ export interface DroppableOptions<T> {
 }
 
 
-const DefaultDroppableOptions: DroppableOptions<any> = {
+const DEFAULT_DROPPABLE_OPTIONS: DroppableOptions<any> = {
 	name: '',
 	fileDroppable: false,
 }
@@ -66,7 +66,7 @@ export class droppable<T = any> implements Binding, Part {
 	readonly el: HTMLElement
 	readonly context: any
 
-	options: DroppableOptions<T> = DefaultDroppableOptions
+	options: DroppableOptions<T> = DEFAULT_DROPPABLE_OPTIONS
 
 	protected dropCallback!: (data: T, toIndex: number, fromIndex: number) => void
 	protected connected: boolean = false
@@ -108,7 +108,7 @@ export class droppable<T = any> implements Binding, Part {
 
 	update(ondrop: (data: T, toIndex: number, fromIndex: number) => void, options: Partial<DroppableOptions<T>> = {}) {
 		this.dropCallback = ondrop
-		this.options = {...DefaultDroppableOptions, ...options}
+		this.options = {...DEFAULT_DROPPABLE_OPTIONS, ...options}
 	}
 
 	protected onDragEnter(e: DragEvent) {

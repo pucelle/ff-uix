@@ -12,7 +12,7 @@ export interface OrderableOptions extends Omit<DraggableOptions, 'persistStylePr
 	slideOnly?: boolean
 }
 
-const DefaultOrderableOptions: OrderableOptions = {
+const DEFAULT_ORDERABLE_OPTIONS: OrderableOptions = {
 	name: '',
 	slideOnly: false,
 	autoScroll: false,
@@ -41,7 +41,7 @@ const DefaultOrderableOptions: OrderableOptions = {
 export class orderable<T = any> extends DraggableBase<T> implements Binding, Part {
 
 	readonly mode = 'order'
-	override options: OrderableOptions = DefaultOrderableOptions
+	override options: OrderableOptions = DEFAULT_ORDERABLE_OPTIONS
 
 	protected override initMover(e: MouseEvent | TouchEvent) {
 		
@@ -60,7 +60,7 @@ export class orderable<T = any> extends DraggableBase<T> implements Binding, Par
 
 		this.data = data
 		this.index = index
-		this.options = {...DefaultOrderableOptions, ...options}
+		this.options = {...DEFAULT_ORDERABLE_OPTIONS, ...options}
 
 		if (dataChanged) {
 			this.onDataChanged()

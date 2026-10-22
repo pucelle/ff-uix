@@ -2,7 +2,7 @@ import {RenderResultRenderer} from 'lupos.html'
 import {popup, PopupOptions} from './popup'
 
 
-const DefaultContextMenuOptions: Partial<PopupOptions> = {
+const DEFAULT_CONTEXT_MENU_OPTIONS: Partial<PopupOptions> = {
 	key: 'contextmenu',
 	followEvents: true,
 	trigger: 'contextmenu',
@@ -25,7 +25,7 @@ export class contextmenu extends popup {
 	static current: contextmenu | null = null
 
 	override update(renderer: RenderResultRenderer, options: Partial<PopupOptions> = {}) {
-		options = {...DefaultContextMenuOptions, ...options}
+		options = {...DEFAULT_CONTEXT_MENU_OPTIONS, ...options}
 		super.update(renderer, options)
 	}
 

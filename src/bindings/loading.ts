@@ -21,7 +21,7 @@ export interface LoadingOptions {
 }
 
 
-const DefaultLoadingOptions: LoadingOptions = {
+const DEFAULT_LOADING_OPTIONS: LoadingOptions = {
 	size: 18,
 	strokeSize: 3,
 	speed: 0.6,
@@ -39,7 +39,7 @@ export class loading implements Binding, Part {
 
 	readonly el: Element
 
-	protected options: LoadingOptions = DefaultLoadingOptions
+	protected options: LoadingOptions = DEFAULT_LOADING_OPTIONS
 	protected value: boolean = false
 	protected rendering: boolean = false
 	protected loader: Loader | null = null
@@ -77,7 +77,7 @@ export class loading implements Binding, Part {
 		}
 
 		this.value = value
-		this.options = {...DefaultLoadingOptions, ...options}
+		this.options = {...DEFAULT_LOADING_OPTIONS, ...options}
 
 		if (this.value) {
 			if (!this.loader && !this.rendering) {

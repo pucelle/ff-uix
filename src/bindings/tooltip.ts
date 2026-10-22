@@ -20,7 +20,7 @@ export interface TooltipOptions extends PopupOptions{
 }
 
 
-const DefaultTooltipOptions: Partial<TooltipOptions> = {
+const DEFAULT_TOOLTIP_OPTIONS: Partial<TooltipOptions> = {
 
 	key: 'tooltip',
 
@@ -51,13 +51,13 @@ const DefaultTooltipOptions: Partial<TooltipOptions> = {
 export class tooltip extends popup {
 
 	/** For overwriting default tooltip options. */
-	static override Default: Partial<TooltipOptions> = DefaultTooltipOptions 
+	static override Default: Partial<TooltipOptions> = DEFAULT_TOOLTIP_OPTIONS
 
 
 	declare options: TooltipOptions
 
 	override update(renderer: string | RenderResultRenderer | null, options: Partial<TooltipOptions> = {}) {
-		options = {...DefaultTooltipOptions, ...options}
+		options = {...DEFAULT_TOOLTIP_OPTIONS, ...options}
 		super.update(renderer ? this.popupRenderer.bind(this, renderer) : null, options)
 	}
 

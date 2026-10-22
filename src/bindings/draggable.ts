@@ -59,7 +59,7 @@ export interface DraggableOptions {
 	onEnd?: (drop: droppable | null) => void
 }
 
-const DefaultDraggableOptions: DraggableOptions = {
+const DEFAULT_DRAGGABLE_OPTIONS: DraggableOptions = {
 	name: '',
 	autoScroll: false,
 }
@@ -76,7 +76,7 @@ export abstract class DraggableBase<T = any> implements Part {
 	readonly context: any
 
 	/** Draggable options. */
-	options: DraggableOptions = DefaultDraggableOptions
+	options: DraggableOptions = DEFAULT_DRAGGABLE_OPTIONS
 
 	/** Data can be passed to droppable. */
 	data: T | null = null
@@ -202,7 +202,7 @@ export class draggable<T = any> extends DraggableBase<T> implements Binding, Par
 		let dataChanged = data !== this.data
 
 		this.data = data
-		this.options = {...DefaultDraggableOptions, ...options}
+		this.options = {...DEFAULT_DRAGGABLE_OPTIONS, ...options}
 
 		if (dataChanged) {
 			this.onDataChanged()

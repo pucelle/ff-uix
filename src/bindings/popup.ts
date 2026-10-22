@@ -125,7 +125,7 @@ export interface PopupOptions extends AnchorAlignerOptions {
 
 
 /** Default popup options. */
-export const DefaultPopupOptions: Partial<PopupOptions> = {
+export const DEFAULT_POPUP_OPTIONS: Partial<PopupOptions> = {
 
 	position: 'b',
 	edgeGaps: 10,	// To match the default gaps of `.popup`.
@@ -153,7 +153,7 @@ export const DefaultPopupOptions: Partial<PopupOptions> = {
 export class popup implements Binding, Part {
 
 	/** For overwriting default popup options. */
-	static Default: Partial<PopupOptions> = DefaultPopupOptions 
+	static Default: Partial<PopupOptions> = DEFAULT_POPUP_OPTIONS
 
 
 	readonly el: HTMLElement
@@ -162,7 +162,7 @@ export class popup implements Binding, Part {
 	protected readonly state: PopupState
 	protected readonly binder: PopupTriggerBinder
 
-	protected options: PopupOptions = DefaultPopupOptions as PopupOptions
+	protected options: PopupOptions = DEFAULT_POPUP_OPTIONS as PopupOptions
 	protected renderer: RenderResultRenderer | null = null
 	protected updatePopupQueue: AsyncTaskQueue = new AsyncTaskQueue()
 	protected persistVisible: boolean = false
@@ -247,7 +247,7 @@ export class popup implements Binding, Part {
 
 	update(renderer: RenderResultRenderer | null, options: Partial<PopupOptions> = {}) {
 		this.renderer = renderer
-		this.options = {...DefaultPopupOptions, ...options} as PopupOptions
+		this.options = {...DEFAULT_POPUP_OPTIONS, ...options} as PopupOptions
 
 		// If should show immediately and haven't shown.
 		if (!this.opened && this.shouldKeepVisible()) {

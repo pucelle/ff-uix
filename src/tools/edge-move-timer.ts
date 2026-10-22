@@ -12,7 +12,7 @@ export interface EdgeHoldTimerOptions {
 }
 
 
-const DefaultEdgeHoldTimerOptions: EdgeHoldTimerOptions = {
+const DEFAULT_EDGE_HOLD_TIMER_OPTIONS: EdgeHoldTimerOptions = {
 	padding: 1,
 }
 
@@ -46,7 +46,7 @@ export class EdgeMoveTimer {
 	private frameLoop: FrameLoop
 
 	constructor(el: Element, options: Partial<EdgeHoldTimerOptions> = {}) {
-		this.options = {...DefaultEdgeHoldTimerOptions, ...options}
+		this.options = {...DEFAULT_EDGE_HOLD_TIMER_OPTIONS, ...options}
 		this.rect = Box.fromLike(el.getBoundingClientRect()).expandSelf(-this.options.padding)
 		this.frameLoop = new FrameLoop(this.onAnimationFrame.bind(this))
 	}

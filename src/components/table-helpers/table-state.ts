@@ -40,7 +40,7 @@ interface TableState {
 }
 
 
-const DefaultTableStateOptions: TableStateOptions = /*#__PURE__*/ {
+const DEFAULT_TABLE_STATE_OPTIONS: TableStateOptions = /*#__PURE__*/ {
 	filter: false,
 	order: false,
 	visibleIndex: false,
@@ -97,7 +97,7 @@ export class TableStateCacher {
 		let store = this.table.store as Store | RemoteStore
 		let state: TableState = {}
 
-		options = {...DefaultTableStateOptions, ...options}
+		options = {...DEFAULT_TABLE_STATE_OPTIONS, ...options}
 
 		if (options.filter) {
 			state.filter = store.filter
