@@ -458,6 +458,9 @@ export class popup implements Binding, Part {
 		rendered.renderer = this.renderer
 		rendered.context = this.context
 
+		// Get existing popup.
+		let oldPopup = rendered.getAs(Popup)
+
 		// Connect rendered manually if not have been appended it to document.
 		if (!rendered.connected) {
 			let connected = await rendered.connectManually(!showImmediately)
@@ -477,6 +480,12 @@ export class popup implements Binding, Part {
 		if (!popup) {
 			this.hidePopup()
 			return
+		}
+
+		// Remove old, not-reused popup immediately,
+		// without playing it's leave transition.
+		if (oldPopup && oldPopup !== popup) {
+			oldPopup.remove(false)
 		}
 
 		// Update popup properties.
