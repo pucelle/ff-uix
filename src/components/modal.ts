@@ -302,6 +302,10 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 		UpdateQueue.untilComplete().then(() => {
 			this.toCenter()
 		})
+	}
+
+	protected override onUpdated() {
+		super.onUpdated()
 
 		if (this.hashed) {
 			this.hashCache = Router.current?.hash ?? null
