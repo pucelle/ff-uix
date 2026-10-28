@@ -463,6 +463,13 @@ export class popup implements Binding, Part {
 
 		// Connect rendered manually if not have been appended it to document.
 		if (!rendered.connected) {
+
+			// If need play transition and currently not in document,
+			// Must append to avoid different document animation line.
+			if (!showImmediately && !document.body.contains(rendered.el)) {
+				document.body.append(rendered.el)
+			}
+
 			let connected = await rendered.connectManually(!showImmediately)
 			if (!connected) {
 				return
