@@ -85,6 +85,7 @@ Components use the shared `translations` instance from `ff-kit`. Applications sh
 | `carousel_previous` | Previous | Carousel previous action |
 | `carousel_next` | Next | Carousel next action |
 | `clear_search` | Clear search | Search and select clear actions |
+| `loading` | Loading... | Loader accessible label |
 | `ok` | OK | Dialog actions |
 | `cancel` | Cancel | Dialog actions |
 | `yes` | Yes | Dialog translations |
@@ -101,10 +102,11 @@ translations.addData('en', {
 	carousel_previous: 'Previous',
 	carousel_next: 'Next',
 	clear_search: 'Clear search',
+	loading: 'Loading...',
 })
 ```
 
-`Loader` has a separate `ariaLabel` property, which defaults to `Loading` and can be set to a translated label by the application.
+`Loader` uses the `loading` translation by default. Its `ariaLabel` property can override that label.
 
 
 ## Testing

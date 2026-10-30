@@ -1,4 +1,5 @@
 import {Component, css, html} from 'lupos.html'
+import {t} from 'ff-kit'
 
 
 /** `<Loader>` displays a loading animation to indicate resource is loading. */
@@ -64,8 +65,8 @@ export class Loader<E = {}> extends Component<E> {
 	/** How many round per second. */
 	speed: number = 0.6
 
-	/** Accessible label describing the loading operation. */
-	ariaLabel: string = 'Loading'
+	/** Accessible label override; defaults to the translated `loading` label. */
+	ariaLabel: string | null = null
 
 	protected snakeEl!: SVGPathElement
 
@@ -78,7 +79,7 @@ export class Loader<E = {}> extends Component<E> {
 
 		return html`
 			<template class="loader" role="progressbar"
-				aria-label=${this.ariaLabel}
+				aria-label=${this.ariaLabel ?? t('loading')}
 				:class.as-cover=${this.asCover}
 				:style.width=${this.asCover ? '' : size + 'px'}
 				:style.height=${this.asCover ? '' : size + 'px'}

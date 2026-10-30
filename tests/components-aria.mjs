@@ -2,6 +2,7 @@ import {afterEach, test} from 'node:test'
 import assert from 'node:assert/strict'
 import {SSR} from 'lupos.html/ssr'
 import {UpdateQueue, trackSet} from 'lupos'
+import {translations} from 'ff-kit'
 import {Checkbox} from '../out/components/checkbox.js'
 import {Radio} from '../out/components/radio.js'
 import {Switch} from '../out/components/switch.js'
@@ -230,6 +231,28 @@ test('indeterminate loading has a label and hides decorative SVGs', async () => 
 	assert.equal(loader.el.getAttribute('aria-label'), 'Loading records')
 	assert.equal(loader.el.hasAttribute('aria-valuenow'), false)
 	assert.equal(loader.el.querySelector('svg').getAttribute('aria-hidden'), 'true')
+})
+
+test('loader uses the current locale by default and accepts an override', async () => {
+	let previousLocale = translations.locale
+	translations.addData('en-test-loader', {loading: 'Loading test'})
+	translations.addData('zh-test-loader', {loading: '加载测试'})
+
+	try {
+		translations.locale = 'en-test-loader'
+		let loader = await mount(Loader)
+		assert.equal(loader.el.getAttribute('aria-label'), 'Loading test')
+		translations.locale = 'zh-test-loader'
+		trackSet(translations, 'locale')
+		await UpdateQueue.untilComplete()
+		assert.equal(loader.el.getAttribute('aria-label'), '加载测试')
+		await change(loader, {ariaLabel: 'Custom label'})
+		assert.equal(loader.el.getAttribute('aria-label'), 'Custom label')
+	}
+	finally {
+		translations.locale = previousLocale
+		trackSet(translations, 'locale')
+	}
 })
 
 test('dropdown exposes false and true expansion states', async () => {
