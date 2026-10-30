@@ -1,7 +1,8 @@
+import {role} from '../bindings/role'
 import {Component, css, html, on} from 'lupos.html'
 import {Icon} from './icon'
 import {IconLeft, IconRight} from '../icons'
-import {BoxOffsetKey, Coord, NumberUtils} from 'ff-kit'
+import {BoxOffsetKey, Coord, NumberUtils, t} from 'ff-kit'
 import {watchWidth} from '../bindings/watch-size'
 
 
@@ -119,6 +120,7 @@ export class Carousel extends Component {
 
 				<lu:if ${slidable}>
 					<div class="carousel-left"
+						:role="button" aria-label=${t('carousel_previous')}
 						:style.width.px=${arrowWidth}
 						@click=${() => this.navigateBy(-1)}
 					>
@@ -126,6 +128,7 @@ export class Carousel extends Component {
 					</div>
 	
 					<div class="carousel-right"
+						:role="button" aria-label=${t('carousel_next')}
 						:style.width.px=${arrowWidth}
 						@click=${() => this.navigateBy(1)}
 					>

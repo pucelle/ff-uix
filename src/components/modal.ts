@@ -1,10 +1,11 @@
 import {css, html, Component, RenderResult, fade, RenderResultRenderer} from 'lupos.html'
-import {AnchorAligner} from 'ff-kit'
+import {AnchorAligner, t} from 'ff-kit'
 import {DOMModifiableEvents, UpdateQueue} from 'lupos'
 import {Icon} from './icon'
 import {IconClose} from '../icons'
 import {Button} from './button'
 import {tooltip} from '../bindings/tooltip'
+import {role} from '../bindings/role'
 import {Router} from './router'
 
 
@@ -212,6 +213,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			<div class="modal-header">
 				<div class="modal-title" id=${'modal-title-' + this.iid}>${this.title}</div>
 				<Icon class="modal-close"
+					:role="button" aria-label=${t('close')}
 					.code=${IconClose}
 					@click=${this.hide}
 					@mousedown.stop=${() => {}}

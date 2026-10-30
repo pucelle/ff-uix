@@ -1,3 +1,5 @@
+import {role} from '../bindings/role'
+import {t} from 'ff-kit'
 import {css, html, fade} from 'lupos.html'
 import {Popup} from './popup'
 import {Icon} from './icon'
@@ -92,6 +94,7 @@ export class Tooltip<E = {}> extends Popup<E> {
 
 				<lu:if ${this.type === 'prompt'}>
 					<div class="tooltip-close"
+						:role="button" aria-label=${t('close')}
 						@click=${this.close}
 					>
 						<Icon .code=${IconClose} />

@@ -1,4 +1,5 @@
 import {Component, html, css} from 'lupos.html'
+import {role} from '../bindings/role'
 
 
 /** `<Link>` can include `<a>`. */
@@ -17,7 +18,7 @@ export class Link<Events = any> extends Component<Events> {
 
 	protected override render() {
 		return html`
-			<template class="link" role="link"
+			<template class="link" :role="link"
 				:class.primary=${this.primary}
 			/>
 		`

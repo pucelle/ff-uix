@@ -74,6 +74,39 @@ Here is the [Live Preview](https://pucelle.github.io/ff-uix/docs/).
 	`Store`: caches data items while support ordering and filtering.
 
 
+## Translations
+
+Components use the shared `translations` instance from `ff-kit`. Applications should provide these labels for each supported locale:
+
+| Key | Example English label | Used by |
+| --- | --- | --- |
+| `close` | Close | Modal, notification, popover, and tooltip close actions |
+| `remove` | Remove | Tag remove action |
+| `carousel_previous` | Previous | Carousel previous action |
+| `carousel_next` | Next | Carousel next action |
+| `clear_search` | Clear search | Search and select clear actions |
+| `ok` | OK | Dialog actions |
+| `cancel` | Cancel | Dialog actions |
+| `yes` | Yes | Dialog translations |
+| `no` | No | Dialog translations |
+
+The library registers English defaults for `ok`, `cancel`, `yes`, and `no`. Provide translations for the remaining keys and for any other supported locale before rendering components. For example:
+
+```ts
+import {translations} from 'ff-kit'
+
+translations.addData('en', {
+	close: 'Close',
+	remove: 'Remove',
+	carousel_previous: 'Previous',
+	carousel_next: 'Next',
+	clear_search: 'Clear search',
+})
+```
+
+`Loader` has a separate `ariaLabel` property, which defaults to `Loading` and can be set to a translated label by the application.
+
+
 ## Testing
 
 Tests are located in the root `tests` directory and run with Vitest. The current suites cover data loading and router helpers without requiring browser APIs.

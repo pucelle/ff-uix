@@ -1,5 +1,6 @@
+import {role} from '../bindings/role'
 import {css, html, Component, RenderResultRenderer, fold, fade} from 'lupos.html'
-import {Timeout} from 'ff-kit'
+import {Timeout, t} from 'ff-kit'
 import {Icon} from './icon'
 import {Button} from './button'
 import {IconClose, IconError, IconInfo, IconSuccess, IconWarning} from '../icons'
@@ -238,7 +239,10 @@ export class Notification<E = {}> extends Component<E> {
 						${this.renderActions(item)}
 					</div>
 
-					<div class="notification-close" @click=${() => this.onClickClose(item)}>
+					<div class="notification-close"
+						:role="button" aria-label=${t('close')}
+						@click=${() => this.onClickClose(item)}
+					>
 						<Icon .code=${IconClose} />
 					</div>
 				</div>

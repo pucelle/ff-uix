@@ -2,6 +2,8 @@ import {css, html} from 'lupos.html'
 import {Icon} from './icon'
 import {IconClose, IconSearch} from '../icons'
 import {Input} from './input'
+import {role} from '../bindings/role'
+import {t} from 'ff-kit'
 
 
 interface SearchEvents {
@@ -88,6 +90,7 @@ export class Search<E = {}> extends Input<SearchEvents & E> {
 	protected renderClearIcon() {
 		return html`
 			<Icon class="search-clear-icon"
+				:role="button" aria-label=${t('clear_search')}
 				.code=${IconClose}
 				@click.stop=${this.clear}
 			/>

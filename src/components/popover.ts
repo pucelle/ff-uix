@@ -1,3 +1,5 @@
+import {role} from '../bindings/role'
+import {t} from 'ff-kit'
 import {css, html, fade, RenderResultRenderer, RenderResult} from 'lupos.html'
 import {Popup} from './popup'
 import {Icon} from './icon'
@@ -134,7 +136,10 @@ export class Popover<E = {}> extends Popup<E> {
 				${this.renderActions()}
 
 				<lu:if ${this.closable && !haveAction}>
-					<div class="popover-close" @click=${this.close}>
+					<div class="popover-close"
+						:role="button" aria-label=${t('close')}
+						@click=${this.close}
+					>
 						<Icon .code=${IconClose} />
 					</div>
 				</lu:if>

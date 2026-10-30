@@ -1,10 +1,11 @@
+import {role} from '../bindings/role'
 import {fade, css, html, RenderResult, TemplateResult, CompiledTemplateResult} from 'lupos.html'
 import {Dropdown} from './dropdown'
 import {ListItem, List} from './list'
 import {Popup} from './popup'
 import {Icon} from './icon'
 import {popup} from '../bindings/popup'
-import {AnchorPosition, ScrollUtils} from 'ff-kit'
+import {AnchorPosition, ScrollUtils, t} from 'ff-kit'
 import {IconClose, IconDown} from '../icons'
 import {DOMScroll} from '../tools'
 
@@ -211,6 +212,7 @@ export class Select<T = any, M extends boolean = boolean, E = {}> extends Dropdo
 
 				<lu:if ${this.inputtedText}>
 					<Icon class="select-clear-icon" .code=${IconClose}
+						:role="button" aria-label=${t('clear_search')}
 						@click.stop=${this.clearInputtedText}
 					/>
 				</lu:if>

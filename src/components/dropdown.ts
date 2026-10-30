@@ -1,5 +1,6 @@
 import {css, html, Component, RenderResultRenderer} from 'lupos.html'
 import {popup, PopupOptions, TriggerType} from '../bindings/popup'
+import {role} from '../bindings/role'
 import {Icon} from './icon'
 import {Popup} from './popup'
 import {AnchorPosition, HVDirection, ObjectUtils, ReAnchorTarget} from 'ff-kit'
@@ -88,10 +89,9 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 
 	protected override render() {
 		return html`
-			<template class="dropdown" role="button" tabindex="0"
+			<template class="dropdown" :role="button"
 				aria-expanded=${String(this.opened)}
 				aria-haspopup=${this.popupRole}
-				@keydown=${this.onTriggerKeyDown}
 				:class.opened=${this.opened}
 				:popup=${this.renderPopup, this.popupOptions}
 				:ref.binding=${this.binding}

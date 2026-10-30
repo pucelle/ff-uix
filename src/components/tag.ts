@@ -1,3 +1,5 @@
+import {role} from '../bindings/role'
+import {t} from 'ff-kit'
 import {Component, html, css} from 'lupos.html'
 import {Icon} from './icon'
 import {IconClose} from '../icons'
@@ -74,6 +76,7 @@ export class Tag<E = {}> extends Component<E & TagEvents> {
 				<span class="tag-label"><slot /></span>
 				<lu:if ${this.closable}>
 					<Icon class="tag-close-icon"
+						:role="button" aria-label=${t('remove')}
 						.code=${IconClose}
 						.height=${19}
 						@click=${this.close}
