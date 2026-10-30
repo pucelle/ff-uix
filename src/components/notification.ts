@@ -117,7 +117,7 @@ export class Notification<E = {}> extends Component<E> {
 				margin: auto;
 			}
 
-			&:hover{
+			&:hover, &:focus{
 				color: var(--text-color-muted);
 			}
 

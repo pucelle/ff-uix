@@ -56,7 +56,7 @@ export class Search<E = {}> extends Input<SearchEvents & E> {
 			cursor: pointer;
 			height: 100%;
 
-			&:hover{
+			&:hover, &:focus{
 				color: var(--primary-color);
 			}
 

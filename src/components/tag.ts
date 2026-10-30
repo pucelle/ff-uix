@@ -23,7 +23,7 @@ export class Tag<E = {}> extends Component<E & TagEvents> {
 			padding: 0 0.4em;
 			cursor: pointer;
 
-			&:hover{
+			&:hover, &:focus-within{
 				color: var(--primary-color);
 				border-color: var(--primary-color);
 			}
@@ -48,7 +48,7 @@ export class Tag<E = {}> extends Component<E & TagEvents> {
 			margin-right: -0.2em;
 			color: var(--border-color);
 
-			&:hover{
+			&:hover, &:focus{
 				color: var(--error-color);
 			}
 

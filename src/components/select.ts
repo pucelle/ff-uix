@@ -43,7 +43,7 @@ export class Select<T = any, M extends boolean = boolean, E = {}> extends Dropdo
 			cursor: pointer;
 			box-shadow: inset 0 -1px 0 0 var(--border-color);
 
-			&:hover, &.opened{
+			&:hover, &:focus, &:focus-within, &.opened{
 				.select-dropdown-icon{
 					color: var(--primary-color);
 				}
@@ -60,6 +60,10 @@ export class Select<T = any, M extends boolean = boolean, E = {}> extends Dropdo
 
 		.select-clear-icon{
 			margin: 0 0.2em;
+
+			&:hover, &:focus{
+				color: var(--primary-color);
+			}
 		}
 	
 		.select-display, .select-input{

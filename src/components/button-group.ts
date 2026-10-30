@@ -26,7 +26,7 @@ export class ButtonGroup<E = {}> extends Component<E> {
 					z-index: 2;
 				}
 
-				&:hover{
+				&:hover, &:focus{
 					position: relative;
 					z-index: 1;
 				}

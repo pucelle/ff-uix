@@ -42,7 +42,7 @@ export class Carousel extends Component {
 				}
 			}
 
-			&:hover{
+			&:hover, &:focus{
 				.icon{
 					opacity: 1;
 				}

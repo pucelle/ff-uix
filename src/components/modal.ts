@@ -102,7 +102,7 @@ export class Modal<E = {}> extends Component<E & ModelEvents> {
 			width: 3em;
 			cursor: pointer;
 
-			&:hover{
+			&:hover, &:focus{
 				color: var(--primary-color);
 			}
 

@@ -45,6 +45,10 @@ export class Tooltip<E = {}> extends Popup<E> {
 			margin-left: 0.2em;
 			cursor: pointer;
 
+			&:hover, &:focus{
+				color: var(--primary-color);
+			}
+
 			&:active{
 				transform: translateY(1px);
 			}

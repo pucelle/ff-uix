@@ -71,6 +71,10 @@ export class Popover<E = {}> extends Popup<E> {
 			margin-right: -0.6em;
 			cursor: pointer;
 
+			&:hover, &:focus{
+				color: var(--primary-color);
+			}
+
 			&:active{
 				transform: translateY(1px);
 			}

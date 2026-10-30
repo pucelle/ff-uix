@@ -6,6 +6,10 @@ import {role} from '../bindings/role'
 export class Link<Events = any> extends Component<Events> {
 
 	static override style = css`
+		.link:hover, .link:focus{
+			text-decoration: underline;
+		}
+
 		.link.primary{
 			a{
 				color: var(--primary-color);
