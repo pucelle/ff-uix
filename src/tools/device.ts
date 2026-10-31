@@ -18,6 +18,9 @@ export class Device implements Observed {
 	/** Whether use mouse mainly to operate. */
 	readonly mouse: boolean
 
+	/** Whether device pixel ratio >= 1.5 */
+	readonly highDPI: boolean
+
 	constructor() {
 		if (typeof window !== 'undefined') {
 			DOMEvents.on(window, 'resize', () => {
@@ -29,6 +32,7 @@ export class Device implements Observed {
 
 		this.mouse = matchMedia('(hover: hover)').matches
 		this.touch = !this.mouse
+		this.highDPI = devicePixelRatio >= 1.5
 	}
 }
 
