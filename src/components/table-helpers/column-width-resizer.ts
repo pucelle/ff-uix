@@ -186,7 +186,11 @@ export class ColumnWidthResizer {
 	private setColumnWidths(widths: number[]) {
 		let totalWidth = ValueListUtils.sum(widths)
 		let table = this.colgroup.parentElement as HTMLTableElement
-		table.style.width = totalWidth + 'px'
+
+		// When in ssr, not set width to avoid layout flicking.
+		if (!IN_SSR) {
+			table.style.width = totalWidth + 'px'
+		}
 
 		for (let i = 0; i < widths.length; i++) {
 			let width = widths[i]
@@ -195,7 +199,14 @@ export class ColumnWidthResizer {
 
 			headCol.style.flex = 'none'
 			headCol.style.boxSizing = 'border-box'
-			headCol.style.width = col.style.width = width + 'px'
+
+			// When in ssr, not set width to pixel size to avoid layout flicking.
+			if (IN_SSR) {
+				headCol.style.width = col.style.width = width * 100 / totalWidth + '%'
+			}
+			else {
+				headCol.style.width = col.style.width = width + 'px'
+			}
 		}
 	}
 
