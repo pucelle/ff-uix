@@ -1,10 +1,12 @@
-import {computed, Connectable, Observed} from 'lupos'
+import {computed, Connectable, getIncrementalId, Observed} from 'lupos'
 import {ListItem} from '../list'
 
 
 /** It help to control key navigation inside a tree-like list data. */
 export class ListDataNavigator<T = any> implements Observed, Connectable {
 
+	readonly iid = getIncrementalId()
+	
 	private data: ReadonlyArray<ListItem<T>> = []
 	private expanded: ReadonlyArray<T> = []
 

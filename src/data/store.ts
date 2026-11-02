@@ -1,4 +1,4 @@
-import {computed, Connectable, Observed} from 'lupos'
+import {computed, Connectable, getIncrementalId, Observed} from 'lupos'
 import {ListUtils} from 'ff-kit'
 
 
@@ -26,6 +26,8 @@ export interface StoreOptions<T> {
 
 /** `Store` can be used to cache data items while support ordering and filtering. */
 export class Store<T = any> implements StoreOptions<T>, Observed, Connectable {
+	
+	readonly iid = getIncrementalId()
 	
 	filter: ((item: T) => boolean) | null = null
 	orderRule: ListUtils.OrderKey<T> | ListUtils.OrderFunction<T> | ListUtils.OrderRule<T> | ListUtils.Order<T> | null = null

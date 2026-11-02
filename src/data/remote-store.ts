@@ -1,4 +1,4 @@
-import {computed, Connectable, effect, Observed} from 'lupos'
+import {computed, Connectable, effect, getIncrementalId, Observed} from 'lupos'
 import {ListUtils} from 'ff-kit'
 import {PageDataLoader} from './page-data-loader'
 
@@ -31,6 +31,8 @@ export interface RemoteStoreOptions<T> {
  */
 export abstract class RemoteStore<T = any> implements RemoteStoreOptions<T>, Observed, Connectable {
 
+	readonly iid = getIncrementalId()
+	
 	pageSize: number = 1
 	preloadPageCount: number = 0
 	orderName: keyof T | null = null
