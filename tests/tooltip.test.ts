@@ -3,6 +3,8 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 let environment = vi.hoisted(() => ({ssr: false}))
 
+vi.mock('../src/tools/device', () => ({device: {mouse: true}}))
+
 vi.mock('lupos.html', () => ({
 	get IN_SSR() { return environment.ssr },
 	html: (strings: TemplateStringsArray, ...values: unknown[]) => ({strings, values}),
@@ -58,6 +60,7 @@ describe('tooltip binding', () => {
 			stickToEdges: true,
 			showDelay: 0,
 			hideDelay: 50,
+			autoHideDelay: null,
 			type: 'default',
 			triangleWidth: 12,
 			triangleHeight: 6,

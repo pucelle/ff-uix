@@ -1,6 +1,8 @@
 import {html, IN_SSR, RenderResultRenderer} from 'lupos.html'
+import {Timeout} from 'ff-kit'
 import {popup, PopupOptions} from './popup'
 import {TooltipType, Tooltip} from '../components/tooltip'
+import {device} from '../tools/device'
 
 
 
@@ -17,6 +19,13 @@ export interface TooltipOptions extends PopupOptions{
 
 	/** Tooltip triangle width, default equals to <Tooltip> default triangle height. */
 	triangleHeight: number
+
+	/**
+	 * Auto hide after this many milliseconds of being displayed, even when kept visible.
+	 * `null` disables auto hiding; `0` hides on the next timer tick.
+	 * Defaults to 3000ms for mouse-less devices, otherwise `null`.
+	 */
+	autoHideDelay: number | null
 }
 
 
@@ -32,6 +41,7 @@ const DEFAULT_TOOLTIP_OPTIONS: Partial<TooltipOptions> = {
 
 	showDelay: 0,
 	hideDelay: 200,
+	autoHideDelay: device.mouse ? null : 3000,
 
 	type: 'default',
 
@@ -56,9 +66,46 @@ export class tooltip extends popup {
 
 	declare options: TooltipOptions
 
+	/** Timeout for dismissing the displayed tooltip. */
+	protected autoHideTimeout: Timeout | null = null
+
 	override update(renderer: string | RenderResultRenderer | null, options: Partial<TooltipOptions> = {}) {
+		let oldAutoHideDelay = this.options.autoHideDelay
+
 		options = {...DEFAULT_TOOLTIP_OPTIONS, ...options}
 		super.update(renderer ? this.popupRenderer.bind(this, renderer) : null, options)
+
+		if (oldAutoHideDelay !== this.options.autoHideDelay) {
+			this.updateAutoHideTimeout()
+		}
+	}
+
+	/** Start the countdown only after the tooltip is displayed. */
+	protected override async doShow() {
+		await super.doShow()
+		this.updateAutoHideTimeout()
+	}
+
+	/** Cancel the countdown before hiding or releasing a shared tooltip. */
+	protected override async doHide(immediately: boolean) {
+		this.updateAutoHideTimeout()
+		await super.doHide(immediately)
+	}
+
+	/** Replace the countdown when the delay changes, or cancel it when disabled. */
+	protected updateAutoHideTimeout() {
+		this.autoHideTimeout?.cancel()
+		this.autoHideTimeout = null
+
+		if (IN_SSR || !this.opened || !this.renderer) {
+			return
+		}
+
+		let delay = this.options.autoHideDelay
+		if (delay !== null && delay !== undefined) {
+			this.autoHideTimeout = new Timeout(() => this.hidePopup(), delay)
+			this.autoHideTimeout.start()
+		}
 	}
 
 	protected popupRenderer(renderer: string | RenderResultRenderer) {

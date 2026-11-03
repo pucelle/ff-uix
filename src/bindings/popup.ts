@@ -215,7 +215,8 @@ export class popup implements Binding, Part {
 		if (this.opened) {
 			this.hidePopup()
 		}
-
+		
+		this.state.willNotShow()
 		this.binder.unbindEnter()
 	}
 
