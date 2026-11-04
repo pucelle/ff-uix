@@ -126,7 +126,8 @@ export class LiveRepeat<T = any, E = {}> extends PartialRepeat<T, E> {
 			let startIndex = this.startIndex
 			let totalPage = Math.ceil(this.data.length / this.reservedCount)
 
-			if (totalPage > 1) {
+			// The final slice may shift backward, so check its end instead of its page number.
+			if (totalPage > 1 && this.endIndex < this.data.length) {
 				setSSRPaging({
 					current: Math.floor(startIndex / this.reservedCount) + 1,
 					total: totalPage,
