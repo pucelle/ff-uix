@@ -80,7 +80,16 @@ export class ColumnWidthResizer {
 			- DOMUtils.getNumericStyleValue(this.head, 'paddingLeft')
 			- DOMUtils.getNumericStyleValue(this.head, 'paddingRight')
 
-		await this.updateColumnWidthsByAvailable(headAvailableWidth)
+		// Mobile grid layouts hide the header
+		// keep CSS width instead of summing minimum column widths.
+		if (headAvailableWidth <= 0) {
+			await barrierDOMWriting()
+			let table = this.colgroup.parentElement as HTMLTableElement
+			table.style.removeProperty('width')
+		}
+		else {
+			await this.updateColumnWidthsByAvailable(headAvailableWidth)
+		}
 	}
 
 	/** Update column widths after knows available head width. */
