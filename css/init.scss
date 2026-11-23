@@ -4,6 +4,7 @@
 // Theme variables. see https://css-tricks.com/come-to-the-light-dark-side/
 html{
 	color-scheme: light dark;
+	background: var(--background);
 
 	--text-size: 14px;
 	--border-radius: 4px;
