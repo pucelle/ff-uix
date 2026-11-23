@@ -90,7 +90,6 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 	protected override render() {
 		return html`
 			<template class="dropdown" :role="button"
-				aria-expanded=${String(this.opened)}
 				aria-haspopup=${this.popupRole}
 				:class.opened=${this.opened}
 				:popup=${this.renderPopup, this.popupOptions}
@@ -112,6 +111,11 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 
 	protected renderIcon() {
 		return html`<Icon class="dropdown-icon" .code=${IconDown} />`
+	}
+
+	/** Whether the trigger exposes the popup’s expansion state. */
+	get ariaExpanded(): boolean {
+		return true
 	}
 
 	/** Avoid this option object get changed, and cause `:popup` re-update. */
@@ -137,6 +141,7 @@ export class Dropdown<E = {}> extends Component<E> implements Partial<PopupOptio
 			pointable: this.pointable,
 			cacheable: this.cacheable,
 			keepVisible: this.keepVisible,
+			ariaExpanded: this.ariaExpanded,
 			onOpenedChange: this.onPopupOpenedChange.bind(this),
 			onWillAlign: this.onPopupWillAlign.bind(this),
 		} as PopupOptions)

@@ -17,6 +17,8 @@ import {DropList} from '../out/components/drop-list.js'
 import {Modal} from '../out/components/modal.js'
 import {Dialog} from '../out/components/dialog.js'
 import {Loader} from '../out/components/loader.js'
+import {popup} from '../out/bindings/popup.js'
+import {tooltip} from '../out/bindings/tooltip.js'
 import {Dropdown} from '../out/components/dropdown.js'
 import {Table} from '../out/components/table.js'
 
@@ -144,6 +146,9 @@ test('select exposes the expansion state on its active combobox', async () => {
 	assert.equal(field.hasAttribute('aria-haspopup'), false)
 	assert.equal(field.getAttribute('aria-autocomplete'), 'list')
 	assert.equal(select.el.hasAttribute('aria-expanded'), false)
+	assert.equal(field.getAttribute('aria-expanded'), 'false')
+	await change(select, {editing: false})
+	assert.equal(select.el.getAttribute('aria-expanded'), 'false')
 })
 
 test('selectable lists expose options and selection updates', async () => {
@@ -260,8 +265,38 @@ test('dropdown exposes false and true expansion states', async () => {
 	assert.equal(dropdown.el.getAttribute('role'), 'button')
 	assert.equal(dropdown.el.getAttribute('aria-haspopup'), 'menu')
 	assert.equal(dropdown.el.getAttribute('aria-expanded'), 'false')
-	await change(dropdown, {_opened: true})
+	dropdown.opened = true
 	assert.equal(dropdown.el.getAttribute('aria-expanded'), 'true')
+	dropdown.opened = false
+	assert.equal(dropdown.el.getAttribute('aria-expanded'), 'false')
+})
+
+test('popup owns expansion only while enabled, including across disconnect and reconnect', async () => {
+	new SSR('/')
+	let trigger = document.createElement('button')
+	let binding = new popup(trigger, {})
+	let hint = new tooltip(trigger, {})
+	let renderer = () => null
+
+	binding.update(renderer, {ariaExpanded: true})
+	await binding.afterConnectCallback()
+	binding.showPopup()
+	hint.update('Help')
+	await hint.afterConnectCallback()
+	hint.beforeDisconnectCallback()
+	assert.equal(trigger.getAttribute('aria-expanded'), 'true')
+
+	binding.beforeDisconnectCallback()
+	assert.equal(trigger.hasAttribute('aria-expanded'), false)
+	await binding.afterConnectCallback()
+	assert.equal(trigger.getAttribute('aria-expanded'), 'false')
+	binding.update(renderer, {ariaExpanded: false})
+	assert.equal(trigger.hasAttribute('aria-expanded'), false)
+
+	binding.update(renderer, {ariaExpanded: true})
+	binding.update(null, {ariaExpanded: true})
+	assert.equal(trigger.hasAttribute('aria-expanded'), false)
+	binding.beforeDisconnectCallback()
 })
 
 test('table headers expose sortable and active ordering states', async () => {

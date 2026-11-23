@@ -170,6 +170,11 @@ export class Select<T = any, M extends boolean = boolean, E = {}> extends Dropdo
 	/** Whether in editing mode, in which mode you can input text to filter list items. */
 	protected editing: boolean = false
 
+	/** While editing, the input owns the combobox state. */
+	override get ariaExpanded(): boolean {
+		return !this.editing
+	}
+
 	protected override async onPopupOpenedChange(opened: boolean) {
 		super.onPopupOpenedChange(opened)
 
@@ -203,7 +208,6 @@ export class Select<T = any, M extends boolean = boolean, E = {}> extends Dropdo
 				role=${this.editing ? 'group' : 'combobox'}
 				tabindex=${this.editing ? null : '0'}
 				aria-label=${this.editing ? null : this.ariaLabel}
-				aria-expanded=${this.editing ? null : String(this.opened)}
 				aria-controls=${!this.editing && this.opened ? 'select-list-' + this.iid : null}
 				:class.opened=${this.opened}
 				:class.cant-input=${!this.searchable}

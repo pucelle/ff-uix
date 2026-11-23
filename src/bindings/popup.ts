@@ -110,6 +110,9 @@ export interface PopupOptions extends AnchorAlignerOptions {
 	/** The selector to select self or parental element to put `activeClassName`. */
 	activeSelector?: string | string[]
 
+	/** Expose the open state as aria-expanded on the trigger element. */
+	ariaExpanded?: boolean
+
 	/** Fire after `opened` state of popup binding changed. */
 	onOpenedChange?: (opened: boolean) => void
 
@@ -167,6 +170,9 @@ export class popup implements Binding, Part {
 	protected updatePopupQueue: AsyncTaskQueue = new AsyncTaskQueue()
 	protected persistVisible: boolean = false
 
+	/** Whether this binding is responsible for the trigger’s aria-expanded attribute. */
+	private ownsAriaExpanded = false
+
 	/** Help to update popup content by newly rendered result. */
 	protected rendered: RenderedComponentLike | null = null
 
@@ -201,6 +207,7 @@ export class popup implements Binding, Part {
 	}
 
 	async afterConnectCallback() {
+		this.updateAriaExpanded()
 		this.binder.clickToHide = this.options.autoHide
 		this.binder.setTriggerType(this.options.trigger)
 		this.binder.setMatchSelector(this.options.matchSelector)
@@ -211,13 +218,14 @@ export class popup implements Binding, Part {
 		}
 	}
 
-    beforeDisconnectCallback() {
+	beforeDisconnectCallback() {
 		if (this.opened) {
 			this.hidePopup()
 		}
 		
 		this.state.willNotShow()
 		this.binder.unbindEnter()
+		this.updateAriaExpanded(false)
 	}
 
 	/** Whether should show popup content immediately after connected. */
@@ -249,6 +257,7 @@ export class popup implements Binding, Part {
 	update(renderer: RenderResultRenderer | null, options: Partial<PopupOptions> = {}) {
 		this.renderer = renderer
 		this.options = {...DEFAULT_POPUP_OPTIONS, ...options} as PopupOptions
+		this.updateAriaExpanded()
 
 		// If should show immediately and haven't shown.
 		if (!this.opened && this.shouldKeepVisible()) {
@@ -268,6 +277,18 @@ export class popup implements Binding, Part {
 		else if (this.opened && renderer) {
 			this.updatePopupQueue.enqueue(this.updatePopup.bind(this, false))
 		}
+	}
+
+	/** Leave attributes managed by other bindings alone when this popup has not opted in. */
+	private updateAriaExpanded(enabled = !!this.options.ariaExpanded && !!this.renderer) {
+		if (enabled) {
+			this.el.setAttribute('aria-expanded', String(this.opened))
+		}
+		else if (this.ownsAriaExpanded) {
+			this.el.removeAttribute('aria-expanded')
+		}
+
+		this.ownsAriaExpanded = enabled
 	}
 
 	/** Like mouse enter, and need to show soon. */
@@ -384,6 +405,7 @@ export class popup implements Binding, Part {
 			this.getActiveTarget().classList.add(...this.options.activeClassName.split(' '))
 		}
 
+		this.updateAriaExpanded()
 		this.options.onOpened?.()
 		this.options.onOpenedChange?.(true)
 		let cacheInDOM = this.createRendered()
@@ -610,6 +632,7 @@ export class popup implements Binding, Part {
 			this.getActiveTarget().classList.remove(this.options.activeClassName)
 		}
 
+		this.updateAriaExpanded()
 		this.options.onClosed?.()
 		this.options.onOpenedChange?.(false)
 		this.binder.unbindLeaveBeforeShow()

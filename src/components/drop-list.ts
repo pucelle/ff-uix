@@ -63,7 +63,6 @@ export class DropList<T> extends List<T> {
 				role=${this.selectable ? 'menuitemcheckbox' : 'menuitem'}
 				aria-checked=${this.selectable ? String(this.hasSelected(item.value!)) : null}
 				aria-haspopup=${children?.length ? 'menu' : null}
-				aria-expanded=${children?.length ? String(this.hasExpanded(item.value!)) : null}
 				:class.selected=${this.hasSelected(item.value!)}
 				:class.arrow-selected=${item === this.keyNavigator.current}
 				?:tooltip=${itemTooltip, itemTooltip!}
@@ -80,6 +79,7 @@ export class DropList<T> extends List<T> {
 							this.onPopupOpenedChange(item, opened)
 						},
 						...this.popupOptions,
+						ariaExpanded: true,
 					} as Partial<PopupOptions>
 				}
 				@click.prevent=${() => this.onClickItem(item)}
