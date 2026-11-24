@@ -60,6 +60,9 @@ export class TableStateCacher {
 	private readonly storagePrefix: string = 'table_state_'
 	private readonly table: Table
 
+	/** Last restored positions in case the table disconnects before it can measure rows. */
+	private readonly restoredIndices = new Map<string, number>()
+
 	constructor(table: Table) {
 		this.table = table
 	}
@@ -75,8 +78,9 @@ export class TableStateCacher {
 	 * Can specify multiple `name` for 
 	 */
 	save(name: string, options: TableStateOptions) {
-		let state = this.getState(options)
+		let state = this.getState(name, options)
 		GlobalStateCache.set(name, state)
+		this.restoredIndices.delete(name)
 
 		if (options.toStorage) {
 			this.saveToStorage(name, state)
@@ -92,7 +96,7 @@ export class TableStateCacher {
 		}
 	}
 
-	private getState(options: TableStateOptions): TableState {
+	private getState(name: string, options: TableStateOptions): TableState {
 		let table = this.table
 		let store = this.table.store as Store | RemoteStore
 		let state: TableState = {}
@@ -109,7 +113,15 @@ export class TableStateCacher {
 		}
 
 		if (options.visibleIndex) {
-			state.visibleIndex = table.getStartVisibleIndex(0.33)
+			let index = table.getStartVisibleIndex(0.33)
+			
+			let visibleIndex = index >= 0
+				? index
+				: this.getCachedState(name)?.visibleIndex ?? this.restoredIndices.get(name)
+
+			if (visibleIndex !== undefined) {
+				state.visibleIndex = visibleIndex
+			}
 		}
 
 		state.customized = options.customized
@@ -127,13 +139,9 @@ export class TableStateCacher {
 		let table = this.table
 		let store = this.table.store as Store | RemoteStore
 
-		let state = GlobalStateCache.get(name)
+		let state = this.getCachedState(name)
 		if (!state) {
-			state = webStorage.get(this.storagePrefix + name)
-
-			if (!state) {
-				return undefined
-			}
+			return undefined
 		}
 
 		if (state.filter !== undefined) {
@@ -151,12 +159,22 @@ export class TableStateCacher {
 
 		this.clear(name)
 
+		if (state.visibleIndex !== undefined) {
+			this.restoredIndices.set(name, state.visibleIndex)
+		}
+
 		return state.customized
 	}
 
 	/** Clear specified named of caches, include caches in storage. */
 	clear(name: string) {
+		this.restoredIndices.delete(name)
 		GlobalStateCache.delete(name)
 		webStorage.delete(this.storagePrefix + name)
+	}
+
+	/** Read a snapshot without consuming it. */
+	private getCachedState(name: string): TableState | undefined {
+		return GlobalStateCache.get(name) ?? webStorage.get(this.storagePrefix + name)
 	}
 }

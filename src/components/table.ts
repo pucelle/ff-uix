@@ -1032,14 +1032,14 @@ export class Table<T = any, E = {}> extends Component<TableEvents & E> {
 			&& index <= this.getEndVisibleIndex(minimumRatio)
 	}
 	
-	/** Get the index of the first visible item. */
+	/** Get the first visible index, or -1 before the row renderer exists. */
 	getStartVisibleIndex(minimumRatio: number = 0): number {
-		return this.repeatRef.getStartVisibleIndex(minimumRatio)
+		return this.repeatRef?.getStartVisibleIndex(minimumRatio) ?? -1
 	}
 
-	/** Get the index after the last visible item. */
+	/** Get the end visible index, or -1 before the row renderer exists. */
 	getEndVisibleIndex(minimumRatio: number = 0): number {
-		return this.repeatRef.getEndVisibleIndex(minimumRatio)
+		return this.repeatRef?.getEndVisibleIndex(minimumRatio) ?? -1
 	}
 
 	/** 
