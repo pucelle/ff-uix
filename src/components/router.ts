@@ -315,8 +315,12 @@ export class Router<E = {}> extends Component<RouterEvents & E> {
 	}
 
 	protected handleLinkClick(e: MouseEvent) {
+		if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) {
+			return
+		}
+
 		let anchor = (e.target as Element).closest('a')
-		if (!anchor) {
+		if (!anchor || anchor.hasAttribute('download')) {
 			return
 		}
 

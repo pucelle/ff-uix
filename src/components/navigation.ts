@@ -171,7 +171,7 @@ export class Navigation<T> extends List<T> {
 					:style=${stickyStyle ?? {}}
 					?:tooltip=${itemTooltip, itemTooltip!, this.tooltipOptions}
 					?:contextmenu=${itemContextmenu, itemContextmenu!, {matchSelector: '.list-item', activeClassName: 'popped'} as PopupOptions}
-					@click.prevent=${() => this.onClickItem(item)}
+					@click=${(event: MouseEvent) => this.onRowClick(event, item)}
 				>
 					${this.renderIndents(depth)}
 					${this.renderItemPlaceholder(item, expanded)}
@@ -183,6 +183,29 @@ export class Navigation<T> extends List<T> {
 				${this.renderSubsection(item, expanded, depth)}
 			</div>
 		`
+	}
+
+	/** Let the browser open linked rows in another tab without changing the current selection. */
+	private onRowClick(event: MouseEvent, item: ListItem<T>) {
+		let link = (event.target as Element).closest('a[href]')
+		if (link) {
+			let target = link.getAttribute('target')
+			if (event.button !== 0
+				|| event.ctrlKey
+				|| event.metaKey
+				|| event.shiftKey
+				|| event.altKey
+				|| link.hasAttribute('download')
+				|| target && target !== '_self'
+			) {
+				return
+			}
+		}
+		else {
+			event.preventDefault()
+		}
+
+		this.onClickItem(item)
 	}
 
 	protected renderStickyStyle(item: ListItem<T>, depth: number): Record<string, string> | null {
