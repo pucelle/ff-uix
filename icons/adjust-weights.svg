@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-3 -3 21 21">
+	<style type="text/css">
+		.st0{fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;}
+	</style>
+	<path class="st0" d="M2.5 4.5h2m3 0h5M2.5 10.5h5m3 0h2"/>
+	<circle class="st0" cx="6" cy="4.5" r="1.5"/>
+	<circle class="st0" cx="9" cy="10.5" r="1.5"/>
+</svg>

@@ -149,6 +149,9 @@ export class Select<T = any, M extends boolean = boolean, E = {}> extends Dropdo
 	/** Accessible label for the select control. */
 	ariaLabel: string | null = null
 
+	/** Additional CSS classes for the popup element, separate from the select trigger. */
+	popupClass: string = ''
+
 	/** 
 	 * Whether close pop-up content after selected any item.
 	 * If omitted as `null`, equals `true` when single selection, `false` otherwise.
@@ -269,6 +272,7 @@ export class Select<T = any, M extends boolean = boolean, E = {}> extends Dropdo
 
 		return html`
 			<Popup class="select-popup"
+				:class=${this.popupClass}
 				.triangle=${false}
 				:ref.el=${this.popupEl}
 				:transition=${fade()}

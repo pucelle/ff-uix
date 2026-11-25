@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-3 -3 21 21">
+	<style type="text/css">
+		.st0{fill:none;stroke:#000000;stroke-width:1;stroke-linecap:round;}
+	</style>
+	<rect class="st0" x="5.5" y="5.5" width="7" height="7" rx="1"/>
+	<path class="st0" d="M4 9.5h-.5a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1V4"/>
+</svg>
